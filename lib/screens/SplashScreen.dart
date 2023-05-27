@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:promoterapp/screens/Dashboard.dart';
 import 'package:promoterapp/screens/HomeScreen.dart';
 import 'package:promoterapp/screens/LoginScreen.dart';
+import 'package:promoterapp/screens/NewRetailer.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -45,13 +47,13 @@ class SplashScreenState extends State<SplashScreen>{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var user_id = prefs.getInt(Common.USER_ID);
-    Fluttertoast.showToast(msg: "$user_id",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-        fontSize: 16.0);
+    // Fluttertoast.showToast(msg: "$user_id",
+    //     toastLength: Toast.LENGTH_SHORT,
+    //     gravity: ToastGravity.BOTTOM,
+    //     timeInSecForIosWeb: 1,
+    //     backgroundColor: Colors.black,
+    //     textColor: Colors.white,
+    //     fontSize: 16.0);
 
     if(prefs.getInt(Common.USER_ID)!=0 && prefs.getInt(Common.USER_ID)!=null){
 
