@@ -64,7 +64,7 @@ class DistributorStockState extends State<DistributorStock>{
                             borderRadius: BorderRadius.all(Radius.circular(10.0)),
                             border: Border.all(color: Color(0xFFD2C7C7))
                         ),
-                        child: DropdownButton(
+                        child: DropdownButton<String>(
 
                             underline:Container(),
                             hint: const Text("Select Distributor",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
