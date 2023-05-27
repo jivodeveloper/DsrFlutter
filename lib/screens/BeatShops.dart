@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:promoterapp/screens/NewRetailer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../config/Common.dart';
@@ -17,6 +18,7 @@ class BeatShops extends StatefulWidget{
 }
 
 class BeatShopsState extends State<BeatShops>{
+
 
   late Future<List<Shops>> furturedist;
   int count =0;
@@ -53,58 +55,64 @@ class BeatShopsState extends State<BeatShops>{
                               itemBuilder: (context, index) {
                                 return Container(
                                   width: double.infinity,
-                                  height: 120,
+                                  height: 135,
                                   child:  Column(
                                     children: [
-                                      Row(
-                                        children: [
-                                          Row(
 
-                                            children: [
-                                              Container(
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 30.0,top: 5),
+                                        child:  Row(
+                                          children: [
 
-                                                decoration :BoxDecoration(
-                                                  color: Colors.orange,
-                                                  shape: BoxShape.circle,
-                                                ),
+                                            Container(
+                                              height: 10.0,
+                                              width: 10.0,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.green,
+                                                  shape: BoxShape.circle
                                               ),
+                                            ),
 
-                                              Align(
-                                                child: Text('Visited'),
-                                                alignment: Alignment.centerLeft,
-                                              ),
+                                            Align(
+                                              child: Text(' Visited',style: TextStyle(color: Colors.green),),
+                                              alignment: Alignment.centerLeft,
+                                            ),
 
+                                          ],
+                                        ),
+                                      ),
 
-                                            ],
-                                          )
-
-                                        ],
+                                      Padding(
+                                          padding: EdgeInsets.only(top: 5),
+                                          child: Align(
+                                        child: Text('${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                        alignment: Alignment.centerLeft,
+                                       ),
                                       ),
 
                                       Align(
-                                        child: Text('${snapshot.data![index].retailerID}',style :TextStyle()),
+                                        child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18)),
                                         alignment: Alignment.centerLeft,
                                       ),
 
                                       Align(
-                                        child: Text('${snapshot.data![index].retailerName}'),
+                                        child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
                                         alignment: Alignment.centerLeft,
                                       ),
 
                                       Align(
-                                        child: Text('${snapshot.data![index].address}'),
+                                        child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
                                         alignment: Alignment.centerLeft,
                                       ),
 
-                                      Align(
-                                        child: Text('${snapshot.data![index].mobileNo}'),
-                                        alignment: Alignment.centerLeft,
-                                      ),
-
-                                      Divider(
-                                        thickness: 1.0,
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 10,right: 10),
+                                        child:  Divider(
+                                          thickness: 2.0,
                                           color: Color(0xFFDED7D7)
-                                      )
+                                      ),)
+
+
                                     ],
                                   ),
                                 );
@@ -124,6 +132,17 @@ class BeatShopsState extends State<BeatShops>{
             ),
 
         ),
+       floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (contextt) =>
+                      NewRetailer()));
+        },
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.add),
+       ),
       );
 
    }
@@ -141,7 +160,7 @@ class BeatShopsState extends State<BeatShops>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(Common.IP_URL+'/GetShopsData?id=$userid'), headers: headers);
+    var response = await http.get(Uri.parse(Common.IP_URL+'GetShopsData?id=$userid'), headers: headers);
 
     List<Shops> beatshopdata = [];
     final list = jsonDecode(response.body);
@@ -155,6 +174,7 @@ class BeatShopsState extends State<BeatShops>{
           beatshoplist.add(beatshopdata[i]);
         }
       }
+
     }catch(e){
       Fluttertoast.showToast(msg: "$e",
           toastLength: Toast.LENGTH_SHORT,
