@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import '../models/Shops.dart';
+import '../models/TodayBeat.dart';
 
 class Attendance extends StatefulWidget{
 
@@ -20,9 +21,9 @@ class Attendance extends StatefulWidget{
 class AttendanceState extends State<Attendance>{
 
   double lat =0.0 ,lng=0.0;
-  int userid=0,beatId=0;
   List beatnamelist = [];
   List<int> beatIdlist = [];
+  int userid=0,beatId=0;
 
   @override
   void initState() {
@@ -128,42 +129,17 @@ class AttendanceState extends State<Attendance>{
     );
   }
 
-  // void gettodaybeat(){
-  //
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //
-  //   Map<String, String> headers = {
-  //     'Content-Type': 'application/json',
-  //   };
-  //   userid = prefs.getInt(Common.USER_ID)!;
-  //   var response = await http.post(Uri.parse(Common.IP_URL+'/androidserver/checkTodayBeat?personId=$userid'), headers: headers);
-  //
-  //   if(response.body.isNotEmpty){
-  //
-  //     try{
-  //
-  //       todaysBeat = TodaysBeat.fromJson(json.decode(response.body));
-  //       beatid = todaysBeat.beatId == 0 ?-1:todaysBeat.beatId;
-  //       prefs.setInt(Common.BEAT_ID,beatid!);
-  //
-  //     }catch(e){
-  //
-  //     }
-  //
-  //   }
-  //   return response;
-  // }
-
   Future<bool> _handleLocationPermission() async {
 
     bool serviceEnabled;
     LocationPermission permission;
-
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
     if (!serviceEnabled) {
 
       return false;
     }
+
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -177,6 +153,7 @@ class AttendanceState extends State<Attendance>{
 
       return false;
     }
+
     return true;
 
   }
@@ -327,7 +304,6 @@ class AttendanceState extends State<Attendance>{
       }
     }
 
-
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -348,7 +324,6 @@ class AttendanceState extends State<Attendance>{
     }else{
 
       Navigator.pop(context);
-
       Fluttertoast.showToast(msg: "Please contact admin!!",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,

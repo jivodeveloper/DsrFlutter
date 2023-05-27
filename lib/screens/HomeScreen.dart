@@ -6,6 +6,12 @@ import 'package:promoterapp/screens/LoginScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:promoterapp/screens/Attendance.dart';
 import 'package:promoterapp/screens/DistributorStock.dart';
+import '../models/TodayBeat.dart';
+import 'ShopsDist.dart';
+import '../config/Common.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HomeScreen extends StatefulWidget{
 
@@ -21,16 +27,19 @@ class HomeScreenState extends State<HomeScreen>{
   static const appTitle = 'Drawer Demo';
   int _selectedIndex = 0;
   final ScrollController _homeController = ScrollController();
+  int userid=0,beatId=0;
+
+  @override
+  void initState() {
+    super.initState();
+    gettodaybeat();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: appTitle,
-        // theme: ThemeData(
-        //   primarySwatch: Colors.white[100],
-        //   visualDensity: VisualDensity.adaptivePlatformDensity,
-        // ),
       home:SlideDrawer (
         drawer: Container(
           color:Color(0xFF063A06),
@@ -50,6 +59,7 @@ class HomeScreenState extends State<HomeScreen>{
                   Expanded(
                     flex: 3,
                     child: Text("Welcome",style: TextStyle(fontSize: 20,color: Colors.white,fontFamily: 'OpenSans',fontWeight: FontWeight.w900)),)
+
                 ],
 
               ),
@@ -63,7 +73,8 @@ class HomeScreenState extends State<HomeScreen>{
                       'Home',
                       style: TextStyle(color: Colors.white, fontSize: 14,fontFamily: 'OpenSans',fontWeight: FontWeight.w300),
                     ),
-                  )),
+                )
+              ),
 
               ListTile(
                 leading: Image.asset(
@@ -86,6 +97,12 @@ class HomeScreenState extends State<HomeScreen>{
                 leading:  Image.asset(
                     'assets/Images/shop.png', height: 25),
                 onTap: (){
+
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (contextt) =>
+                              ShopsDist()));
 
                 },
                 title: Text(
@@ -183,7 +200,6 @@ class HomeScreenState extends State<HomeScreen>{
     );
   }
 
-
   void logout(BuildContext ctx) {
     showDialog(
       context: ctx,
@@ -213,6 +229,37 @@ class HomeScreenState extends State<HomeScreen>{
             ],
           ),
     );
+  }
+
+  Future<void> gettodaybeat() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userid = prefs.getInt(Common.USER_ID)!;
+
+    TodayBeat details;
+    int beatid =0;
+
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(Uri.parse(Common.IP_URL+'checkTodayBeat?personId=$userid'), headers: headers);
+
+    if(response.body.isNotEmpty){
+
+      try{
+
+        details = TodayBeat.fromJson(json.decode(response.body));
+        beatid =  details.beatId == 0 ?-1:details.beatId;
+        prefs.setInt(Common.BEAT_ID,beatid);
+        prefs.setString(Common.BEAT_NAME,details.beatName);
+
+      }catch(e){
+
+      }
+
+    }
+
   }
 
 }

@@ -2,7 +2,7 @@ class Category {
     int id;
     String typeName;
 
-    Category({this.id, this.typeName});
+    Category({required this.id, required this.typeName});
 
     factory Category.fromJson(Map<String, dynamic> json) {
         return Category(

@@ -7,7 +7,6 @@ import 'package:promoterapp/screens/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../config/Common.dart';
-import 'package:promoterapp/screens/LoginScreen.dart';
 
 class LoginScreen extends StatefulWidget{
 
@@ -188,8 +187,6 @@ class LoginScreenState extends State<LoginScreen>{
           );
         }
     );
-
-
   }
 
   Future<logindetails> login() async{

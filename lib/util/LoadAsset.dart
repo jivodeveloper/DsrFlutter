@@ -24,4 +24,15 @@ class LoadAsset{
     );
   }
 
+  // Future<Item> loadbeatshops(String userid) async {
+  //
+  //   var response = await http.get(Uri.parse(Common.IP_URL+'/syncAllData?id=$userid'),
+  //       headers: {"Accept": "application/json"});
+  //
+  //   return Shop.fromJson(
+  //     json.decode(response.body),
+  //   );
+  //
+  // }
+
 }
