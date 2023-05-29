@@ -6,9 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../config/Common.dart';
 import 'dart:convert';
-import 'package:camera/camera.dart';
+// import 'package:camera/camera.dart';
 
 class NewRetailer extends StatefulWidget{
+
   @override
   State<StatefulWidget> createState() {
    return NewRetailerState();
@@ -18,20 +19,30 @@ class NewRetailer extends StatefulWidget{
 
 class NewRetailerState extends State<NewRetailer>{
 
-  List<String> shoptype=["Select shoptype","Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
-  List<String> category=["Select Category","A","B","C","D"];
-  List<String> group=["Select group","GT","MT"];
-  String categorydropdownValue= "Select Category",groupdropdown = "Select group",shoptypedown= "Select shoptype";
+  List<String> shoptype = ["Select shoptype","Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
+  List<String> category = ["Select Category","A","B","C","D"];
+  List<String> group = ["Select group","GT","MT"];
+  List<String> statelist = [];
+  List<int> stateid = [];
+  List<String> zonelist = [];
+  List<int> zoneid = [];
+  List<String> arealist = [];
+  List<int> areaid = [];
+
+  String categorydropdownValue= "Select Category",groupdropdown = "Select group",shoptypedown= "Select shoptype",statetypedown="Select State";
   late Future<List> futurestate;
   List distIdlist = [];
-  List<CameraDescription>? cameras; //list out the camera available
-  CameraController? controller; //controller for camera
-  XFile? image;
+
+  // List<CameraDescription>? cameras; //list out the camera available
+  // CameraController? controller; //controller for camera
+  // XFile? image;
 
   @override
   void initState() {
     super.initState();
     futurestate = loadstate();
+    statelist.add("Select State");
+    futurestate =  loadstate();
   }
 
   @override
@@ -60,7 +71,8 @@ class NewRetailerState extends State<NewRetailer>{
               ),
               child:DropdownButton<String>(
                 value: shoptypedown,
-                elevation: 16,
+                isExpanded: true,
+                elevation: 80,
                 style: const TextStyle(color: Color(0xFF063A06)),
                 underline: Container(),
                 onChanged: (String? value) {
@@ -81,6 +93,7 @@ class NewRetailerState extends State<NewRetailer>{
             Container(
               width:double.infinity,
               height: 50,
+
               margin: EdgeInsets.all(10),
               padding:EdgeInsets.all(7),
               decoration: BoxDecoration(
@@ -88,6 +101,7 @@ class NewRetailerState extends State<NewRetailer>{
                   border: Border.all(color: Color(0xFFD2C7C7))
               ),
               child:DropdownButton<String>(
+                isExpanded: true,
                 value: categorydropdownValue,
                 elevation: 16,
                 style: const TextStyle(color: Color(0xFF063A06)),
@@ -116,6 +130,7 @@ class NewRetailerState extends State<NewRetailer>{
                   border: Border.all(color: Color(0xFFD2C7C7))
               ),
               child:DropdownButton<String>(
+                isExpanded: true,
                 value: groupdropdown,
                 elevation: 16,
                 style: const TextStyle(color: Color(0xFF063A06)),
@@ -162,34 +177,45 @@ class NewRetailerState extends State<NewRetailer>{
                 ),
               ),),
 
-            Container(
-              width:double.infinity,
-              height: 50,
-              margin: EdgeInsets.all(10),
-              padding:EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  border: Border.all(color: Color(0xFFD2C7C7))
-              ),
-              child:DropdownButton<String>(
-
-                value: group.first,
-                elevation: 16,
-                style: const TextStyle(color: Color(0xFF063A06)),
-                underline: Container(),
-                onChanged: (String? value) {
-                  // This is called when the user selects an item.
-                  setState(() {
-                    groupdropdown = value!;
-                  });
-                },
-                items: group.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),),
+            FutureBuilder<List>(
+                future:futurestate,
+                builder: (context,snapshot){
+                  if(snapshot.hasData){
+                    return  Container(
+                      width:double.infinity,
+                      height: 50,
+                      margin: EdgeInsets.all(10),
+                      padding:EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          border: Border.all(color: Color(0xFFD2C7C7))
+                      ),
+                      child:DropdownButton<String>(
+                        isExpanded: true,
+                        value: statelist.first,
+                        elevation: 16,
+                        style: const TextStyle(color: Color(0xFF063A06)),
+                        underline: Container(),
+                        onChanged: (String? value) {
+                          // This is called when the user selects an item.
+                          setState(() {
+                            statetypedown = value!;
+                          });
+                        },
+                        items: statelist.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }else if(snapshot.hasError){
+                      return Container();
+                  }
+                  return const CircularProgressIndicator();
+                }
+            ),
 
             Padding(padding: EdgeInsets.all(10),
               child: TextFormField(
@@ -248,11 +274,21 @@ class NewRetailerState extends State<NewRetailer>{
             //       return const CircularProgressIndicator();
             //     }),
 
-            GestureDetector(
+            Container(
+              width:double.infinity,
+              height: 100,
+              margin: EdgeInsets.all(10),
+              padding:EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  border: Border.all(color: Color(0xFFD2C7C7))
+              ),
+              child:GestureDetector(
+                child: Image.asset('assets/Images/picture.png'),
+              ),
+            ),
 
-              onTap: () async{
-                  loadCamera();
-              },
+            GestureDetector(
 
               child: Container(
                 margin: EdgeInsets.only(left:10,top:40,right:10,bottom: 10),
@@ -263,12 +299,6 @@ class NewRetailerState extends State<NewRetailer>{
                     borderRadius: BorderRadius.all(Radius.circular(10.0))
                 ),
 
-                child: Center(
-                  child: Text(
-                    "LOGIN",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
               ),
 
             )
@@ -279,8 +309,8 @@ class NewRetailerState extends State<NewRetailer>{
     );
   }
 
-  Future<List<StateByPerson>> loadstate() async {
-    List<StateByPerson> statelist = [];
+  Future<List<String>> loadstate() async {
+
     int userid=0;
 
     SharedPreferences prefs= await SharedPreferences.getInstance();
@@ -298,9 +328,21 @@ class NewRetailerState extends State<NewRetailer>{
     try{
 
       statedata = list.map<StateByPerson>((m) => StateByPerson.fromJson(Map<String, dynamic>.from(m))).toList();
+      statelist.clear();
+      statelist.clear();
+      statelist.clear();
+      statelist.clear();
 
+      statelist.clear();
       for(int i=0 ;i<statedata.length;i++){
-        statelist.add(statedata[i]);
+        statelist.add(statedata[i].state as String);
+        stateid.add(statedata[i].stateId as int);
+
+        zonelist.add(statedata[i].zone as String);
+        zoneid.add(statedata[i].zoneId as int);
+
+        arealist.add(statedata[i].area as String);
+        areaid.add(statedata[i].areaId as int);
       }
 
     }catch(e){
@@ -316,21 +358,21 @@ class NewRetailerState extends State<NewRetailer>{
     return statelist;
   }
 
-  loadCamera() async {
-    cameras = await availableCameras();
-    if(cameras != null){
-      controller = CameraController(cameras![0], ResolutionPreset.max);
-      //cameras[0] = first camera, change to 1 to another camera
-
-      controller!.initialize().then((_) {
-        if (!mounted) {
-          return;
-        }
-        setState(() {});
-      });
-    }else{
-      print("NO any camera found");
-    }
-  }
+  // loadCamera() async {
+  //   cameras = await availableCameras();
+  //   if(cameras != null){
+  //     controller = CameraController(cameras![0], ResolutionPreset.max);
+  //     //cameras[0] = first camera, change to 1 to another camera
+  //
+  //     controller!.initialize().then((_) {
+  //       if (!mounted) {
+  //         return;
+  //       }
+  //       setState(() {});
+  //     });
+  //   }else{
+  //     print("NO any camera found");
+  //   }
+  // }
 
 }

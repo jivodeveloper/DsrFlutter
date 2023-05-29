@@ -54,7 +54,7 @@ dev_dependencies:
   dropdown_button2: ^1.0.0
   slide_drawer: ^1.0.3
   rxdart: ^0.27.7
-  camera: ^0.9.4+11
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -82,6 +82,7 @@ flutter:
     - assets/Images/target.png
     - assets/Images/shutdown.png
     - assets/Images/home.png
+    - assets/Images/picture.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

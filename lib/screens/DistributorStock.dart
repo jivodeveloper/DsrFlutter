@@ -65,7 +65,6 @@ class DistributorStockState extends State<DistributorStock>{
                             border: Border.all(color: Color(0xFFD2C7C7))
                         ),
                         child: DropdownButton<String>(
-
                             underline:Container(),
                             hint: const Text("Select Distributor",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
                             isExpanded: true,
@@ -85,7 +84,6 @@ class DistributorStockState extends State<DistributorStock>{
                       );
                     } else if (snapshot.hasError) {
                       return Container();
-
                     }
                     return const CircularProgressIndicator();
                   }),
