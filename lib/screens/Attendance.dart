@@ -187,6 +187,7 @@ class AttendanceState extends State<Attendance>{
   Future<void> showbeat(String status,BuildContext contextt) async {
 
     if(beatnamelist.length == 0){
+
       Navigator.pop(contextt);
       Fluttertoast.showToast(msg: "You don't have any beat! \n Please contact admin",
           toastLength: Toast.LENGTH_SHORT,
@@ -235,7 +236,7 @@ class AttendanceState extends State<Attendance>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.post(Uri.parse(Common.IP_URL+'/syncAllData?id=$userid'), headers: headers);
+    var response = await http.post(Uri.parse(Common.IP_URL+'syncAllData?id=$userid'), headers: headers);
 
     if(response.statusCode == 200){
 
@@ -254,21 +255,24 @@ class AttendanceState extends State<Attendance>{
 
         for(int i=0 ;i<retailerdata.length;i++){
            if(retailerdata[i].beatName != ""){
-               beatnamelist.add(retailerdata[i].beatName.toString());
-               beatIdlist.add(retailerdata[i].beatId!.toInt());
+
+               setState(() {
+                 beatnamelist.add(retailerdata[i].beatName.toString());
+                 beatIdlist.add(retailerdata[i].beatId!.toInt());
+               });
+
            }
         }
 
-        beatnamelist.toSet().toList();
     //  beatlist = list.where((m) => Shops.fromJson(Map<String, dynamic>.from((list)))).toList();
 
-    // Fluttertoast.showToast(msg: "Successfully login ${beatnamelist.length}",
-    //     toastLength: Toast.LENGTH_SHORT,
-    //     gravity: ToastGravity.BOTTOM,
-    //     timeInSecForIosWeb: 1,
-    //     backgroundColor: Colors.black,
-    //     textColor: Colors.white,
-    //     fontSize: 16.0);
+    Fluttertoast.showToast(msg: "Successfully login ${beatnamelist.length}",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
 
       }catch(e){
 

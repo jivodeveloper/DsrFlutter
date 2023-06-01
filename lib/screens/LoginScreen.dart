@@ -23,6 +23,11 @@ class LoginScreenState extends State<LoginScreen>{
   TextEditingController passcontroller = new TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
       return WillPopScope(
           child:Scaffold(
@@ -121,7 +126,8 @@ class LoginScreenState extends State<LoginScreen>{
                   GestureDetector(
 
                     onTap: (){
-                      login();
+
+                    login();
                     },
 
                     child: Container(
@@ -191,54 +197,65 @@ class LoginScreenState extends State<LoginScreen>{
 
   Future<logindetails> login() async{
 
-    logindetails details;
-    SharedPreferences prefs= await SharedPreferences.getInstance();
+      logindetails details;
+      SharedPreferences prefs= await SharedPreferences.getInstance();
+      Map<String,String> headers={
+        'Content-Type': 'application/json',
+      };
 
-    Map<String,String> headers={
-      'Content-Type': 'application/json',
-    };
+      var response = await http.post(Uri.parse(Common.IP_URL+'LoginSalesPerson?user=${usercontroller.text}&password=${passcontroller.text}'), headers: headers);
+      details = logindetails.fromJson(json.decode(response.body));
 
-    var response = await http.post(Uri.parse(Common.IP_URL+'LoginSalesPerson?user=${usercontroller.text}&password=${passcontroller.text}'), headers: headers);
-    details = logindetails.fromJson(json.decode(response.body));
+      try {
 
-    try {
+        if (response.statusCode == 200) {
 
-      if (response.statusCode == 200) {
+          details = logindetails.fromJson(json.decode(response.body));
 
-        details = logindetails.fromJson(json.decode(response.body));
+          if(details.personId!=0){
 
-        if(details.personId!=0){
+            try{
 
-          try{
+              prefs.setInt(Common.USER_ID, details.personId);
+              prefs.setString(Common.PERSON_TYPE, details.personType);
+              prefs.setString(Common.PERSON_NAME, details.personName);
+              prefs.setString(Common.GROUP, details.group);
+              prefs.setInt(Common.BEAT_ID, details.beatId as int);
+              prefs.setString(Common.BEAT_NAME,details.beatName);
 
-            prefs.setInt(Common.USER_ID, details.personId);
-            prefs.setString(Common.PERSON_TYPE, details.personType);
-            prefs.setString(Common.PERSON_NAME, details.personName);
-            prefs.setString(Common.GROUP, details.group);
-            prefs.setInt(Common.BEAT_ID, details.beatId as int);
-            prefs.setString(Common.BEAT_NAME,details.beatName);
+            }catch (e){
 
-          }catch (e){
+            }
+
+            Fluttertoast.showToast(msg: "Successfully login ${details.personName}",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.black,
+                textColor: Colors.white,
+                fontSize: 16.0);
+
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        HomeScreen()));
+
+          }else{
+
+            Fluttertoast.showToast(msg: "Please check your userid and password",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.black,
+                textColor: Colors.white,
+                fontSize: 16.0);
 
           }
 
-          Fluttertoast.showToast(msg: "Successfully login ${details.personName}",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.black,
-              textColor: Colors.white,
-              fontSize: 16.0);
-
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      HomeScreen()));
-
         }else{
 
-          Fluttertoast.showToast(msg: "Please check your userid and password",
+          Fluttertoast.showToast(msg: "Please check your credentials",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
@@ -248,23 +265,13 @@ class LoginScreenState extends State<LoginScreen>{
 
         }
 
-      }else{
-
-        Fluttertoast.showToast(msg: "Please check your credentials",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.black,
-            textColor: Colors.white,
-            fontSize: 16.0);
+      } catch (e) {
 
       }
 
-    } catch (e) {
-
-    }
-
     return details;
   }
+
+
 
 }

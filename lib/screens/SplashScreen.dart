@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:promoterapp/screens/Dashboard.dart';
 import 'package:promoterapp/screens/HomeScreen.dart';
 import 'package:promoterapp/screens/LoginScreen.dart';
@@ -9,6 +10,7 @@ import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../config/Common.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SplashScreen extends StatefulWidget{
 
@@ -23,6 +25,7 @@ class SplashScreenState extends State<SplashScreen>{
   void initState() {
     super.initState();
     checkisalreadyloggedin();
+ //   askpersmion();
   }
 
   @override
@@ -43,17 +46,52 @@ class SplashScreenState extends State<SplashScreen>{
     );
   }
 
+
+  Future<void> askpersmion() async {
+    //
+    // if(PermissionStatus.camera.isGranted == true || PermissionStatus.camera.isGranted ==true){
+    //
+    //   Fluttertoast.showToast(msg: "Please check your credentials",
+    //       toastLength: Toast.LENGTH_SHORT,
+    //       gravity: ToastGravity.BOTTOM,
+    //       timeInSecForIosWeb: 1,
+    //       backgroundColor: Colors.black,
+    //       textColor: Colors.white,
+    //       fontSize: 16.0);
+    //
+    //   checkisalreadyloggedin();
+    //
+    // }else{
+    //
+    //   Fluttertoast.showToast(msg: "Please check your credentials2",
+    //       toastLength: Toast.LENGTH_SHORT,
+    //       gravity: ToastGravity.BOTTOM,
+    //       timeInSecForIosWeb: 1,
+    //       backgroundColor: Colors.black,
+    //       textColor: Colors.white,
+    //       fontSize: 16.0);
+    //
+    //   Map<Permission, PermissionStatus> statuses = await [Permission.location,Permission.camera].request();
+    //
+    //   if(statuses[Permission.location]!.isDenied || statuses[Permission.camera]!.isDenied){
+    //
+    //     SystemNavigator.pop();
+    //
+    //   }else{
+    //
+    //     checkisalreadyloggedin();
+    //
+    //   }
+    // }
+
+
+  }
+
+
   void checkisalreadyloggedin() async{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var user_id = prefs.getInt(Common.USER_ID);
-    // Fluttertoast.showToast(msg: "$user_id",
-    //     toastLength: Toast.LENGTH_SHORT,
-    //     gravity: ToastGravity.BOTTOM,
-    //     timeInSecForIosWeb: 1,
-    //     backgroundColor: Colors.black,
-    //     textColor: Colors.white,
-    //     fontSize: 16.0);
 
     if(prefs.getInt(Common.USER_ID)!=0 && prefs.getInt(Common.USER_ID)!=null){
 
@@ -69,5 +107,4 @@ class SplashScreenState extends State<SplashScreen>{
     }
 
   }
-
 }

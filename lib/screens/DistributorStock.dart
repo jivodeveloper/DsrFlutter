@@ -32,9 +32,11 @@ class DistributorStockState extends State<DistributorStock>{
   @override
   void initState() {
     super.initState();
+
     getdistributor();
     furturedist = getdistributor();
     futureitem = getdistributoritem();
+
   }
 
   @override
@@ -53,7 +55,8 @@ class DistributorStockState extends State<DistributorStock>{
           child: Column(
             children: [
 
-              FutureBuilder<List>(future: furturedist,
+              FutureBuilder<List>(
+                  future: furturedist,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return Container(
@@ -84,9 +87,10 @@ class DistributorStockState extends State<DistributorStock>{
                       );
                     } else if (snapshot.hasError) {
                       return Container();
-                    }
-                    return const CircularProgressIndicator();
-                  }),
+                  }
+                 return const CircularProgressIndicator();
+               }
+              ),
 
               FutureBuilder<List>(
                   future: futureitem,

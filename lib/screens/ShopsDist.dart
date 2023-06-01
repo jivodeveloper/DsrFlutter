@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:promoterapp/screens/AllShops.dart';
 import 'package:promoterapp/screens/BeatShops.dart';
 import 'package:promoterapp/screens/Distributor.dart';
-import 'LoginScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../config/Common.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+
 
 class ShopsDist extends StatefulWidget{
 

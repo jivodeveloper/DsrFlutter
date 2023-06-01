@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import '../config/Common.dart';
 import 'dart:convert';
 
+import 'SalesScreen.dart';
+
 class Distributor extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
@@ -40,31 +42,90 @@ class DistributorState extends State<Distributor>{
                         borderRadius: BorderRadius.all(Radius.circular(10.0)),
                         border: Border.all(color: Color(0xFFD2C7C7))
                     ),
-                    child:Column(
+                    child: Column(
                       children: [
-                        Text("Count: $count"),
-                        Expanded(
-                          child:ListView.builder(
-                              itemCount: snapshot.data?.length,
-                              itemBuilder: (context, index) {
-                                return Column(
-                                  children: [
-                                    Container(
-                                      height: 40,
-                                      padding: EdgeInsets.all(10),
-                                      child: Row(
-                                        children: [
+                        Text("Count : $count"),
+                        Expanded(child:ListView.builder(
+                            itemCount: snapshot.data?.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
 
-                                          Text('${snapshot.data![index].retailerName}'),
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              SalesScreen(snapshot.data?[index].retailerName)));
 
-                                        ],
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 135,
+                                  child:  Column(
+                                    children: [
+
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 30.0,top: 5),
+                                        child:  Row(
+                                          children: [
+
+                                            Container(
+                                              height: 10.0,
+                                              width: 10.0,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.green,
+                                                  shape: BoxShape.circle
+                                              ),
+                                            ),
+
+                                            Align(
+                                              child: Text(' Visited',style: TextStyle(color: Colors.green),),
+                                              alignment: Alignment.centerLeft,
+                                            ),
+
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                );
-                              }
-                          ),
+
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5),
+                                        child: Align(
+                                          child: Text('${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                          alignment: Alignment.centerLeft,
+                                        ),
+                                      ),
+
+                                      Align(
+                                        child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18)),
+                                        alignment: Alignment.centerLeft,
+                                      ),
+
+                                      Align(
+                                        child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                        alignment: Alignment.centerLeft,
+                                      ),
+
+                                      Align(
+                                        child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                        alignment: Alignment.centerLeft,
+                                      ),
+
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 10,right: 10),
+                                        child:  Divider(
+                                            thickness: 2.0,
+                                            color: Color(0xFFDED7D7)
+                                        ),)
+
+
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                        ),
                         )
+
                       ],
                     )
                 );
