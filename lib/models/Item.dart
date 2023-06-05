@@ -1,4 +1,4 @@
-  class Item {
+class Item {
   int? itemID;
   String? itemName;
   String? itemCode;

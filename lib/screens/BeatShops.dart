@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:promoterapp/screens/NewRetailer.dart';
-import 'package:promoterapp/screens/SalesScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../config/Common.dart';
 import '../models/Shops.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'SalesScreen.dart';
 
 class BeatShops extends StatefulWidget{
-
+  
   @override
   State<StatefulWidget> createState() {
     return BeatShopsState();
@@ -27,13 +27,11 @@ class BeatShopsState extends State<BeatShops>{
   void initState() {
     super.initState();
     furturedist = loadbeatshop();
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
         body: Container(
           height: double.infinity,
             child: FutureBuilder<List<Shops>>(future: furturedist,
@@ -55,17 +53,16 @@ class BeatShopsState extends State<BeatShops>{
                               itemCount: snapshot.data?.length,
                               itemBuilder: (context, index) {
                                 return GestureDetector(
-
                                   onTap: (){
 
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                SalesScreen(snapshot.data?[index].retailerName)));
+                                                SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString())));
 
                                   },
-                                  child: Container(
+                                  child: SizedBox(
                                     width: double.infinity,
                                     height: 135,
                                     child:  Column(
@@ -125,20 +122,17 @@ class BeatShopsState extends State<BeatShops>{
                                           ),
                                         )
 
-
                                       ],
                                     ),
                                   ),
-
                                 );
                               }
                             ),
                           )
-
                         ],
                       )
-                    );
-                  } else if (snapshot.hasError) {
+                     );
+                   } else if (snapshot.hasError) {
                     return Container();
                   }
                   return Container();
@@ -147,19 +141,14 @@ class BeatShopsState extends State<BeatShops>{
             ),
 
         ),
-       floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (contextt) =>
-                      NewRetailer()));
+          Navigator.push(context, MaterialPageRoute(builder: (contextt) => NewRetailer()));
         },
         backgroundColor: Colors.green,
         child: const Icon(Icons.add),
-       ),
-      );
-
+       )
+     );
    }
 
   Future<List<Shops>> loadbeatshop() async {
@@ -211,6 +200,8 @@ class BeatShopsState extends State<BeatShops>{
   }
 
 }
+
+
 
 
 

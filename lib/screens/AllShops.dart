@@ -42,11 +42,12 @@ class AllShopsState extends State<AllShops>{
                       ),
                       child: Column(
                         children: [
+
                           Text("Count : $count"),
                           Expanded(child:ListView.builder(
                               itemCount: snapshot.data?.length,
                               itemBuilder: (context, index) {
-                                return Container(
+                                return SizedBox(
                                   width: double.infinity,
                                   height: 135,
                                   child:  Column(
@@ -105,12 +106,11 @@ class AllShopsState extends State<AllShops>{
                                             color: Color(0xFFDED7D7)
                                         ),)
 
-
                                     ],
                                   ),
                                 );
                               }
-                          ),
+                            ),
                           )
 
                         ],
@@ -140,7 +140,7 @@ class AllShopsState extends State<AllShops>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(Common.IP_URL+'/GetShopsData?id=$userid'), headers: headers);
+    var response = await http.get(Uri.parse(Common.IP_URL+'GetShopsData?id=$userid'), headers: headers);
 
     List<Shops> allshopdata = [];
     final list = jsonDecode(response.body);

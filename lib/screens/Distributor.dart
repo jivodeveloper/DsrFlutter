@@ -55,7 +55,8 @@ class DistributorState extends State<Distributor>{
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              SalesScreen(snapshot.data?[index].retailerName)));
+                                              SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString())));
+
 
                                 },
                                 child: Container(
@@ -152,7 +153,7 @@ class DistributorState extends State<Distributor>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(Common.IP_URL+'/GetShopsData?id=$userid'), headers: headers);
+    var response = await http.get(Uri.parse(Common.IP_URL+'GetShopsData?id=$userid'), headers: headers);
 
     List<Shops> distlist = [];
     final list = jsonDecode(response.body);
@@ -163,7 +164,7 @@ class DistributorState extends State<Distributor>{
 
       for(int i=0 ;i<distlist.length;i++){
 
-        if(distlist[i].type == "Distributor"){
+        if(distlist[i].type == "Distributor" && distlist[i].beatId ==beatId ){
           beatshoplist.add(distlist[i]);
         }
 

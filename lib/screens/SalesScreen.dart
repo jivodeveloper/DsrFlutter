@@ -4,16 +4,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:promoterapp/screens/SaleItemScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/Shops.dart';
 import '../config/Common.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:page_transition/page_transition.dart';
 
 class SalesScreen extends StatefulWidget{
 
-  String retailerName="";
-  SalesScreen(String? retailerName);
+  String retailerName="",retailerId="",address="";
+  SalesScreen({required this.retailerName,required this.retailerId, required this.address});
   int count =0;
 
   @override
@@ -24,40 +27,53 @@ class SalesScreen extends StatefulWidget{
 }
 
 class SalesScreenState extends State<SalesScreen>{
-  var perstatus;
 
-  List<String> status = ["Done",
+  var perstatus;
+  int userid=0;
+  List<String> status = ["Select Status",
+    "Done",
     "Shop Closed",
     "Owner not available",
     "Already stocked",
     "Not interested",
   ];
-  List<String> shoptype = ["Select shoptype","Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
+
+  List<String> distnamelist = [];
   XFile? cameraFile;
-  String statusdropdown= "Done";
-  late Future<List<Shops>> furturedist;
+  String statusdropdown= "Select Status",distributordropdown= "Select Distributor";
+  late Future<List> furturedist;
+  final dateController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     furturedist = loadalldist();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text("Sales Screen",
-              style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
-          )
+        title: const Text("Sales Screen",
+            style: TextStyle(color:Color(0xFF063A06),
+                fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
+        ),
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color:Color(0xFF063A06)),
       ),
-
       body: SingleChildScrollView(
           child: Column(
             children: [
 
-              Padding(
+              Container(
                 padding: EdgeInsets.all(10),
-                child:Text("Widget: ${widget.retailerName} "),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  color: Colors.green[100],
+                  child: Center(
+                      child: Text("${widget.retailerName}"),
+                  ),
+                ),
               ),
 
               // Container(
@@ -65,7 +81,7 @@ class SalesScreenState extends State<SalesScreen>{
               //   decoration: BoxDecoration(
               //       border: Border.all(color: Color(0xFFEFE4E4))
               //   ),
-              //   child:   FutureBuilder<List>(
+              //   child:FutureBuilder<List>(
               //       future: furturedist,
               //       builder: (context, snapshot) {
               //         if (snapshot.hasData) {
@@ -84,23 +100,20 @@ class SalesScreenState extends State<SalesScreen>{
               //                 items: snapshot.data?.map((e) =>
               //                     DropdownMenuItem<String>(
               //                       value: e,
-              //                       child: Text(e),
+              //                       child: Text(e.toString()),
               //                     )
               //                 ).toList(),
               //
               //                 onChanged:(newVal) {
-              //                   this.setState(() {
-              //                     statusdropdown = newVal.toString();
-              //                   });
+              //                   // this.setState(() {
+              //                   //   distributordropdown = newVal.toString();
+              //                   // });
               //                 }
-              //
               //             ),
               //           );
-              //
               //         } else if (snapshot.hasError) {
               //           return Container();
               //         }
-              //
               //         return const CircularProgressIndicator();
               //       }
               //   ),
@@ -117,6 +130,20 @@ class SalesScreenState extends State<SalesScreen>{
                         color: Color(0xFF063A06),),
                       hintText:'Select Date',
                   ),
+                  readOnly: true,
+                  controller: dateController,
+
+                  onTap: () async {
+                    var date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2100));
+                    if (date != null) {
+                      dateController.text = DateFormat('MM/dd/yyyy').format(date);
+                    }
+                  },
+
                 ),
               ),
 
@@ -141,7 +168,7 @@ class SalesScreenState extends State<SalesScreen>{
                     // });
                   },
 
-                  items: shoptype.map<DropdownMenuItem<String>>((String value) {
+                  items: status.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
@@ -171,6 +198,137 @@ class SalesScreenState extends State<SalesScreen>{
 
                 ),
               ),
+
+              Container(
+                margin:EdgeInsets.fromLTRB(10,20,10,10),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Color(0xFFEFE4E4))
+                ),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.image,
+                      color: Color(0xFF063A06),),
+                    hintText:'Shelf image 1',
+                  ),
+                  readOnly: true,
+                  controller: dateController,
+
+                  onTap: () async {
+                    var date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2100));
+                    if (date != null) {
+                      dateController.text = DateFormat('MM/dd/yyyy').format(date);
+                    }
+                  },
+
+                ),
+              ),
+
+              Container(
+                margin:EdgeInsets.fromLTRB(10,20,10,10),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Color(0xFFEFE4E4))
+                ),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.image,
+                      color: Color(0xFF063A06),),
+                    hintText:'Shelf image 2',
+                  ),
+                  readOnly: true,
+                  controller: dateController,
+
+                  onTap: () async {
+                    var date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2100));
+                    if (date != null) {
+                      dateController.text = DateFormat('MM/dd/yyyy').format(date);
+                    }
+                  },
+
+                ),
+              ),
+
+              Container(
+                margin:EdgeInsets.fromLTRB(10,20,10,10),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Color(0xFFEFE4E4))
+                ),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.image,
+                      color: Color(0xFF063A06),),
+                    hintText:'Shelf image 3',
+                  ),
+
+                ),
+              ),
+
+              Container(
+                margin:EdgeInsets.fromLTRB(10,20,10,10),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Color(0xFFEFE4E4))
+                ),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.image,
+                      color: Color(0xFF063A06),),
+                    hintText:'Shelf image 4',
+                  ),
+                ),
+              ),
+
+              GestureDetector(
+                onTap: (){
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                        type: PageTransitionType.bottomToTop,
+                        child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,address:widget.address,date:dateController.text),
+                        inheritTheme: true,
+                        ctx: context),
+                  );
+
+                },
+                child: Container(
+                  margin: EdgeInsets.only(left:0,top:40,right:0,bottom: 0),
+                  height: 55,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Color(0xFF063A06),
+                  ),
+
+                  child: Row(
+                      children: [
+
+                        Expanded(flex:1,
+                          child:Align(
+                          alignment: Alignment.centerRight,
+                          child:Text(
+                            "CONTINUE  ",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),),
+
+                        Expanded(
+                          flex: 1,
+                          child:Align(
+                          alignment: Alignment.centerLeft,
+                          child:Image.asset('assets/Images/right-arrow.png',height: 30,width: 20),
+                        ))
+
+
+                      ],
+                    )
+                ),
+
+              )
 
             ],
          ),
@@ -210,54 +368,65 @@ class SalesScreenState extends State<SalesScreen>{
 
   }
 
-  Future<List<Shops>> loadalldist() async {
+  Future<List> loadalldist() async {
 
-    int userid=0,beatId =0;
-    List<Shops> beatshoplist = [];
-    SharedPreferences prefs= await SharedPreferences.getInstance();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
-    beatId = prefs.getInt(Common.BEAT_ID)!;
 
-    Map<String,String> headers={
+    Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse('${Common.IP_URL}GetShopsData?id=$userid'), headers: headers);
+    var response = await http.get(Uri.parse(Common.IP_URL+'GetShopsData?id=$userid'), headers: headers);
 
-    List<Shops> distlist = [];
-    final list = jsonDecode(response.body);
+    if(response.statusCode == 200){
 
-    try{
+      try{
 
-      distlist = list.map<Shops>((m) => Shops.fromJson(Map<String, dynamic>.from(m))).toList();
+        final list = jsonDecode(response.body);
+        List<Shops> retailerdata = [];
+        retailerdata = list.map<Shops>((m) => Shops.fromJson(Map<String, dynamic>.from(m))).toList();
 
-      for(int i=0 ;i<distlist.length;i++){
-        if(distlist[i].type == "Distributor"){
-          beatshoplist.add(distlist[i]);
+        for(int i=0 ;i<retailerdata.length;i++){
+          if(retailerdata[i].type == "Distributor"){
+            distnamelist.add(retailerdata[i].retailerName.toString());
+          //  distIdlist.add(retailerdata[i].retailerID!.toInt());
+          }
         }
+
+        Fluttertoast.showToast(msg: "${distnamelist.length}",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+
+      }catch(e){
+
+        Navigator.pop(context);
+        Fluttertoast.showToast(msg: "Please contact admin!!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+
       }
 
-    }catch(e){
+    }else{
 
-      Fluttertoast.showToast(msg: "$e",
+      Fluttertoast.showToast(msg: "Something went wrong!",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
-
     }
-
-    Fluttertoast.showToast(msg: "${beatshoplist.length}",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-        fontSize: 16.0);
-
-    return beatshoplist;
+    return distnamelist;
   }
 
 }

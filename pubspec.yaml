@@ -56,6 +56,8 @@ dev_dependencies:
   rxdart: ^0.27.7
   permission_handler: ^6.1.1
   image_picker: ^0.8.7+5
+  intl: ^0.17.0
+  page_transition: ^2.0.9
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -84,6 +86,7 @@ flutter:
     - assets/Images/shutdown.png
     - assets/Images/home.png
     - assets/Images/picture.png
+    - assets/Images/right-arrow.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

@@ -19,6 +19,7 @@ class DistributorStock extends StatefulWidget{
 
 class DistributorStockState extends State<DistributorStock>{
 
+  List<String> shoptype = ["Select shoptype","Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
   int userid=0;
   List<String> distnamelist = [];
   List distIdlist = [];
@@ -27,16 +28,12 @@ class DistributorStockState extends State<DistributorStock>{
   var layout = false ,dropdown =false;
   late Future<List> futureitem;
   late Future<List> furturedist;
-  List<String> listitems = ["Tokyo", "London", "New York", "Sanghai", "Moscow", "Hong Kong"];
 
   @override
   void initState() {
     super.initState();
-
-    getdistributor();
     furturedist = getdistributor();
     futureitem = getdistributoritem();
-
   }
 
   @override
@@ -176,7 +173,7 @@ class DistributorStockState extends State<DistributorStock>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(Common.IP_URL+'/GetShopsData?id=$userid'), headers: headers);
+    var response = await http.get(Uri.parse(Common.IP_URL+'GetShopsData?id=$userid'), headers: headers);
 
     if(response.statusCode == 200){
 
@@ -236,7 +233,7 @@ class DistributorStockState extends State<DistributorStock>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(Common.IP_URL+'/GetShopsItemData?id=$userid'), headers: headers);
+    var response = await http.get(Uri.parse(Common.IP_URL+'GetShopsItemData?id=$userid'), headers: headers);
 
     if(response.statusCode == 200){
 

@@ -153,7 +153,8 @@ class NewRetailerState extends State<NewRetailer>{
               ),
             ),
 
-            Padding(padding: EdgeInsets.all(10),
+            Padding(
+              padding: EdgeInsets.all(10),
               child:TextFormField(
                 decoration: InputDecoration(
                     prefixIcon: Icon(Icons.lock,

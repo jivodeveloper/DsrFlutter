@@ -95,7 +95,6 @@ class LoginScreenState extends State<LoginScreen>{
                             ),
                             child: TextFormField(
                               controller: usercontroller,
-
                               decoration: InputDecoration(
                                   prefixIcon: Icon(Icons.lock,
                                     color: Color(0xFF063A06),),
@@ -105,6 +104,7 @@ class LoginScreenState extends State<LoginScreen>{
                           ),
 
                           Container(
+
                             margin:EdgeInsets.fromLTRB(10,10,10,10),
                             decoration: BoxDecoration(
                                 border: Border.all(color: Color(0xFFEFE4E4))
