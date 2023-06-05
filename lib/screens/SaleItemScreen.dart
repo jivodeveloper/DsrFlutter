@@ -29,7 +29,7 @@ class SalesItemState extends State<SalesItemScreen>{
   String dropdowncategory = "",dropdownitem="",categoryname="",categoryid="";
   List catenamlist = [];
   List cateidlist = [];
-  List<String> itemlist = [];
+  List itemlist = [];
   List itemid = [];
   late Future<List> furturecategory;
   Future<List>? furturecategoryitem ;
@@ -142,7 +142,7 @@ class SalesItemState extends State<SalesItemScreen>{
                                     border: Border.all(color:Color(0xFF063A06))
                                 ),
                                 child: DropdownButton<String>(
-                                    value: dropdowncategory,
+
                                     underline:Container(),
 
                                     isExpanded: true,
@@ -154,10 +154,10 @@ class SalesItemState extends State<SalesItemScreen>{
                                     ).toList(),
 
                                     onChanged:(newVal) {
-                                      this.setState(() {
+                                      setState(() {
                                         dropdowncategory = newVal.toString();
                                       });
-                                    //  loadcategoryitem(dropdowncategory);
+                                     loadcategoryitem(dropdowncategory);
                                     }
                                 ),
                               );
@@ -168,51 +168,115 @@ class SalesItemState extends State<SalesItemScreen>{
                           }
                     ),),
 
-                    Expanded(
-                      flex:1,
-                      child: FutureBuilder<List>(
-                          future: furturecategoryitem,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return Container(
-                                width:double.infinity,
-                                margin:EdgeInsets.only(left: 5,right: 5),
-                                height: 50,
-                                padding:const EdgeInsets.all(7),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                    border: Border.all(color:Color(0xFF063A06))
-                                ),
-                                child: DropdownButton<String>(
+                    // Expanded(
+                    //   flex:1,
+                    //   child: dropdowncategory!=""?FutureBuilder<List>(
+                    //       future: furturecategoryitem,
+                    //       builder: (context, snapshot) {
+                    //         if (snapshot.hasData) {
+                    //           return Container(
+                    //             width:double.infinity,
+                    //             margin:EdgeInsets.only(left: 5,right: 5),
+                    //             height: 50,
+                    //             padding:const EdgeInsets.all(7),
+                    //             decoration: BoxDecoration(
+                    //                 borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    //                 border: Border.all(color:Color(0xFF063A06))
+                    //             ),
+                    //             child: DropdownButton<String>(
+                    //
+                    //                 underline:Container(),
+                    //                 hint: const Text("Select Category",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                    //                 isExpanded: true,
+                    //                 items: snapshot.data?.map((e) =>
+                    //                     DropdownMenuItem<String>(
+                    //                       value: e,
+                    //                       child: Text(e),
+                    //                     )
+                    //                 ).toList(),
+                    //
+                    //                 onChanged:(newVal) {
+                    //                   // this.setState(() {
+                    //                   //   dropdowncategory = newVal.toString();
+                    //                   // });
+                    //                   //  loadcategoryitem(dropdowncategory);
+                    //                 }
+                    //             ),
+                    //           );
+                    //         } else if (snapshot.hasError) {
+                    //           return Container();
+                    //         }
+                    //         return const CircularProgressIndicator();
+                    //       }
+                    //   ):CircularProgressIndicator(),),
 
-                                    underline:Container(),
-                                    hint: const Text("Select Category",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
-                                    isExpanded: true,
-                                    items: snapshot.data?.map((e) =>
-                                        DropdownMenuItem<String>(
-                                          value: e,
-                                          child: Text(e),
-                                        )
-                                    ).toList(),
+                    // Expanded(
+                    //   flex:1,
+                    //   child: FutureBuilder<List>(
+                    //       future: furturecategoryitem,
+                    //       builder: (context, snapshot) {
+                    //         if (snapshot.hasData) {
+                    //           return Container(
+                    //             width:double.infinity,
+                    //             margin:EdgeInsets.only(left: 5,right: 5),
+                    //             height: 50,
+                    //             padding:const EdgeInsets.all(7),
+                    //             decoration: BoxDecoration(
+                    //                 borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    //                 border: Border.all(color:Color(0xFF063A06))
+                    //             ),
+                    //             child: DropdownButton<String>(
+                    //
+                    //                 underline:Container(),
+                    //                 hint: const Text("Select Category",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                    //                 isExpanded: true,
+                    //                 items: snapshot.data?.map((e) =>
+                    //                     DropdownMenuItem<String>(
+                    //                       value: e,
+                    //                       child: Text(e),
+                    //                     )
+                    //                 ).toList(),
+                    //
+                    //                 onChanged:(newVal) {
+                    //                   // this.setState(() {
+                    //                   //   dropdowncategory = newVal.toString();
+                    //                   // });
+                    //                   //  loadcategoryitem(dropdowncategory);
+                    //                 }
+                    //             ),
+                    //           );
+                    //         } else if (snapshot.hasError) {
+                    //           return Container();
+                    //         }
+                    //         return const CircularProgressIndicator();
+                    //       }
+                    //   ),),
 
-                                    onChanged:(newVal) {
-                                      // this.setState(() {
-                                      //   dropdowncategory = newVal.toString();
-                                      // });
-                                      //  loadcategoryitem(dropdowncategory);
-                                    }
-                                ),
-                              );
-                            } else if (snapshot.hasError) {
-                              return Container();
-                            }
-                            return const CircularProgressIndicator();
-                          }
-                      ),),
+                      Expanded(
+                        flex:1,
+                         child: DropdownButtonHideUnderline(
+                         child: ButtonTheme(
+                         alignedDropdown: true,
+                         child:DropdownButton<String>(
+                           value: dropdowncategory,
+                           icon: const Icon(Icons.keyboard_arrow_down),
+                           items: itemlist.map((items) {
+                             return new DropdownMenuItem(
+                               value: items,
+                               child: Text(items),
+                             );
+                           }).toList(),
 
-                  ],
-                ),
-              ),
+                           onChanged: (String? newValue) {
+                             setState(() {
+                               dropdowncategory = newValue!;
+                             });
+                           },
+
+                         ),
+                        ),
+                       ),
+                     ),
 
               // Container(
               //   margin: EdgeInsets.only(top: 10),
@@ -461,23 +525,16 @@ class SalesItemState extends State<SalesItemScreen>{
     return catenamlist;
   }
 
-  Future<List> loadcategoryitem(String item) async {
+  Future<String> loadcategoryitem(String item) async {
 
     var itemid;
 
     for(int i=0;i<catenamlist.length;i++){
-      if(catenamlist[i]==categoryname){
+      if(catenamlist[i]==item){
           itemid = cateidlist[i];
       }
     }
 
-    Fluttertoast.showToast(msg: "${itemid}",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-        fontSize: 16.0);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
@@ -486,7 +543,8 @@ class SalesItemState extends State<SalesItemScreen>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(Common.IP_URL+'Getitem?itemType=2'), headers: headers);
+    itemlist.clear();
+    var response = await http.get(Uri.parse(Common.IP_URL+'Getitem?itemType=${itemid}'), headers: headers);
 
     if(response.statusCode == 200){
 
@@ -529,15 +587,6 @@ class SalesItemState extends State<SalesItemScreen>{
 
     }
 
-    Fluttertoast.showToast(msg: "${itemlist.length}",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-        fontSize: 16.0);
-
-    return itemlist;
   }
 
 }
