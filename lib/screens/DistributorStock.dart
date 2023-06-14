@@ -184,19 +184,24 @@ class DistributorStockState extends State<DistributorStock>{
         retailerdata = list.map<Shops>((m) => Shops.fromJson(Map<String, dynamic>.from(m))).toList();
 
         for(int i=0 ;i<retailerdata.length;i++){
+
           if(retailerdata[i].type == "Distributor"){
             distnamelist.add(retailerdata[i].retailerName.toString());
             distIdlist.add(retailerdata[i].retailerID!.toInt());
           }
+
         }
 
-        Fluttertoast.showToast(msg: "${distnamelist.length}",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.black,
-            textColor: Colors.white,
-            fontSize: 16.0);
+       // distnamelist.sort((a, b) => a["price"].compareTo(b["price"]));
+        //
+        // Fluttertoast.showToast(msg: "${distnamelist.length}",
+        //
+        //     toastLength: Toast.LENGTH_SHORT,
+        //     gravity: ToastGravity.BOTTOM,
+        //     timeInSecForIosWeb: 1,
+        //     backgroundColor: Colors.black,
+        //     textColor: Colors.white,
+        //     fontSize: 16.0);
 
       }catch(e){
 
@@ -294,7 +299,7 @@ class DistributorStockState extends State<DistributorStock>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(Common.IP_URL+'/GetShopsItemData?id=$userid'), headers: headers);
+    var response = await http.get(Uri.parse(Common.IP_URL+'GetShopsItemData?id=$userid'), headers: headers);
 
     if(response.statusCode == 200){
 

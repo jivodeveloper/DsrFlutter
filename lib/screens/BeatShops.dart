@@ -22,6 +22,7 @@ class BeatShopsState extends State<BeatShops>{
 
   late Future<List<Shops>> furturedist;
   int count =0;
+  String latitude="", longitude="";
 
   @override
   void initState() {
@@ -59,7 +60,7 @@ class BeatShopsState extends State<BeatShops>{
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString())));
+                                                SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString(),mobile:snapshot.data![index].mobileNo.toString())));
 
                                   },
                                   child: SizedBox(
@@ -125,14 +126,16 @@ class BeatShopsState extends State<BeatShops>{
                                       ],
                                     ),
                                   ),
+
                                 );
+
                               }
                             ),
                           )
                         ],
-                      )
-                     );
-                   } else if (snapshot.hasError) {
+                       )
+                      );
+                    } else if (snapshot.hasError) {
                     return Container();
                   }
                   return Container();
@@ -142,9 +145,9 @@ class BeatShopsState extends State<BeatShops>{
 
         ),
         floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (contextt) => NewRetailer()));
-        },
+         onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (contextt) => NewRetailer()));
+         },
         backgroundColor: Colors.green,
         child: const Icon(Icons.add),
        )
@@ -193,7 +196,6 @@ class BeatShopsState extends State<BeatShops>{
 
     setState(() {
       count = beatshoplist.length;
-
     });
 
     return beatshoplist;

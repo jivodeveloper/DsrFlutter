@@ -7,7 +7,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import '../models/Shops.dart';
-import '../models/TodayBeat.dart';
 
 class Attendance extends StatefulWidget{
 
@@ -30,7 +29,6 @@ class AttendanceState extends State<Attendance>{
     super.initState();
     _handleLocationPermission();
     getallshops();
-
   }
 
   @override
@@ -41,7 +39,7 @@ class AttendanceState extends State<Attendance>{
                 style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
             )
         ),
-        body:Container(
+        body:SizedBox(
           width: double.infinity,
           height: double.infinity,
           child:  Column(
@@ -55,7 +53,7 @@ class AttendanceState extends State<Attendance>{
                 },
                 child:Container(
                   height: 40,
-                  width: 150,
+                  width: 190,
                   margin: EdgeInsets.all(10),
                   color: Colors.black,
                   child: const Center(
@@ -198,7 +196,9 @@ class AttendanceState extends State<Attendance>{
           fontSize: 16.0);
 
     }else{
+
       Navigator.pop(contextt);
+
       return showDialog<void>(
         context: context,
         barrierDismissible: false,
@@ -224,6 +224,7 @@ class AttendanceState extends State<Attendance>{
           );
         },
       );
+
     }
   }
 
@@ -263,6 +264,7 @@ class AttendanceState extends State<Attendance>{
 
            }
         }
+        beatnamelist.toSet().toList();
 
     //  beatlist = list.where((m) => Shops.fromJson(Map<String, dynamic>.from((list)))).toList();
 

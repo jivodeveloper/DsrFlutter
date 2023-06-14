@@ -39,6 +39,12 @@ class ShopsDistState extends State<ShopsDist> with TickerProviderStateMixin {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.white,
+            leading: GestureDetector(
+              onTap: (){
+                Navigator.pop(context);
+              },
+              child: Icon(Icons.arrow_back,color:Color(0xFF063A06)),
+            ),
             iconTheme: const IconThemeData(color:Color(0xFF063A06)),
             bottom: TabBar(
               unselectedLabelColor:Color(0xFF063A06) ,
@@ -48,7 +54,8 @@ class ShopsDistState extends State<ShopsDist> with TickerProviderStateMixin {
                       colors: [ Color(0xFF063A06),Color(0xFF032603), Color(
                           0xFF001800)]),
                   borderRadius: BorderRadius.circular(50),
-                  color: Color(0xFF063A06)),
+                  color: Color(0xFF063A06)
+              ),
               // indicatorColor: Color(0xFF095909),
               labelColor: Colors.white,
               tabs: [

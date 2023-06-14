@@ -6,12 +6,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import '../config/Common.dart';
 import 'dart:convert';
+import 'SalesScreen.dart';
 
 class AllShops extends StatefulWidget{
+
   @override
   State<StatefulWidget> createState() {
     return AllShopsState();
   }
+
 }
 
 class AllShopsState extends State<AllShops>{
@@ -44,69 +47,81 @@ class AllShopsState extends State<AllShops>{
                         children: [
 
                           Text("Count : $count"),
-                          Expanded(child:ListView.builder(
+                          Expanded(
+                              child:ListView.builder(
                               itemCount: snapshot.data?.length,
                               itemBuilder: (context, index) {
-                                return SizedBox(
-                                  width: double.infinity,
-                                  height: 135,
-                                  child:  Column(
-                                    children: [
+                                return GestureDetector(
+                                  onTap: (){
 
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 30.0,top: 5),
-                                        child:  Row(
-                                          children: [
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString(),mobile:snapshot.data![index].mobileNo.toString())));
 
-                                            Container(
-                                              height: 10.0,
-                                              width: 10.0,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.green,
-                                                  shape: BoxShape.circle
+                                  },
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    height: 135,
+                                    child:  Column(
+                                      children: [
+
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 30.0,top: 5),
+                                          child:  Row(
+                                            children: [
+
+                                              Container(
+                                                height: 10.0,
+                                                width: 10.0,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.green,
+                                                    shape: BoxShape.circle
+                                                ),
                                               ),
-                                            ),
 
-                                            Align(
-                                              child: Text(' Visited',style: TextStyle(color: Colors.green),),
-                                              alignment: Alignment.centerLeft,
-                                            ),
+                                              Align(
+                                                child: Text(' Visited',style: TextStyle(color: Colors.green),),
+                                                alignment: Alignment.centerLeft,
+                                              ),
 
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
 
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 5),
-                                        child: Align(
-                                          child: Text('${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                        Padding(
+                                          padding: EdgeInsets.only(top: 5),
+                                          child: Align(
+                                            child: Text('${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                            alignment: Alignment.centerLeft,
+                                          ),
+                                        ),
+
+                                        Align(
+                                          child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18)),
                                           alignment: Alignment.centerLeft,
                                         ),
-                                      ),
 
-                                      Align(
-                                        child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18)),
-                                        alignment: Alignment.centerLeft,
-                                      ),
+                                        Align(
+                                          child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                          alignment: Alignment.centerLeft,
+                                        ),
 
-                                      Align(
-                                        child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
-                                        alignment: Alignment.centerLeft,
-                                      ),
+                                        Align(
+                                          child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                          alignment: Alignment.centerLeft,
+                                        ),
 
-                                      Align(
-                                        child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
-                                        alignment: Alignment.centerLeft,
-                                      ),
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 10,right: 10),
+                                          child:  Divider(
+                                              thickness: 2.0,
+                                              color: Color(0xFFDED7D7)
+                                          ),)
 
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 10,right: 10),
-                                        child:  Divider(
-                                            thickness: 2.0,
-                                            color: Color(0xFFDED7D7)
-                                        ),)
-
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 );
                               }
@@ -121,11 +136,10 @@ class AllShopsState extends State<AllShops>{
 
                 }
                 return const CircularProgressIndicator();
-              }),
+           }),
         ),
     );
   }
-
 
   Future<List<Shops>> loadallshops() async {
 
@@ -150,6 +164,7 @@ class AllShopsState extends State<AllShops>{
       allshopdata = list.map<Shops>((m) => Shops.fromJson(Map<String, dynamic>.from(m))).toList();
 
       for(int i=0 ;i<allshopdata.length;i++) {
+
         if (allshopdata[i].type == "Shop") {
           beatshoplist.add(allshopdata[i]);
         }
@@ -157,6 +172,7 @@ class AllShopsState extends State<AllShops>{
       }
 
     }catch(e){
+
       Fluttertoast.showToast(msg: "$e",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
@@ -164,16 +180,8 @@ class AllShopsState extends State<AllShops>{
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
+
     }
-
-
-    // Fluttertoast.showToast(msg: "${beatshoplist.length}",
-    //     toastLength: Toast.LENGTH_SHORT,
-    //     gravity: ToastGravity.BOTTOM,
-    //     timeInSecForIosWeb: 1,
-    //     backgroundColor: Colors.black,
-    //     textColor: Colors.white,
-    //     fontSize: 16.0);
 
     setState(() {
       count = beatshoplist.length;

@@ -21,26 +21,21 @@ class NewRetailer extends StatefulWidget{
 
 class NewRetailerState extends State<NewRetailer>{
 
+  final formGlobalKey = GlobalKey < FormState > ();
   List<String> shoptype = ["Select shoptype","Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
   List<String> category = ["Select Category","A","B","C","D"];
   List<String> group = ["Select group","GT","MT"];
-  List<StateByPerson> statelist = [];
-  List<StateByPerson> stateid = [];
-  List<StateByPerson> zonelist = [];
-  List<StateByPerson> zoneid = [];
-  List<StateByPerson> arealist = [];
-  List<StateByPerson> areaid = [];
-
-  String dropdownvalue = 'Item 1';
-  var status;
+  List<String> statelist = [],stateid = [],zonelist = [],zoneid = [],arealist = [],areaid = [];
 
   String categorydropdownValue= "Select Category",groupdropdown = "Select group",
-      shoptypedown= "Select shoptype",statetypedown="",
-      zonetypedown="Select Zone",areatypedown="Select Area";
+      shoptypedown= "Select shoptype",
+      dropdownvalue = 'Item 1';
 
+  String? statetypedown,zonetypedown,areatypedown;
   late Future<List> futurestate;
   List distIdlist = [];
   XFile? cameraFile;
+  var status;
 
   @override
   void initState() {
@@ -65,6 +60,27 @@ class NewRetailerState extends State<NewRetailer>{
 
             Container(
               width:double.infinity,
+              height: 100,
+              margin: EdgeInsets.all(10),
+              padding:EdgeInsets.all(7),
+              // decoration: BoxDecoration(
+              //     shape: BoxShape.circle,
+              //     borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              //     border: Border.all(color: Color(0xFFD2C7C7))
+              // ),
+              child:GestureDetector(
+                onTap: (){
+                  selectFromCamera();
+                },
+                child: cameraFile == null
+                    ? Center(child: Image.asset('assets/Images/picture.png'))
+                    : Center(child: Image.file(File(cameraFile!.path))),
+                //   child: Image.asset('assets/Images/picture.png'),
+              ),
+            ),
+
+            Container(
+              width:double.infinity,
               height: 50,
               margin: EdgeInsets.all(10),
               padding:EdgeInsets.all(7),
@@ -79,7 +95,6 @@ class NewRetailerState extends State<NewRetailer>{
                 style: const TextStyle(color: Color(0xFF063A06)),
                 underline: Container(),
                 onChanged: (String? value) {
-                  // This is called when the user selects an item.
                   setState(() {
                     shoptypedown = value!;
                   });
@@ -96,7 +111,6 @@ class NewRetailerState extends State<NewRetailer>{
             Container(
               width:double.infinity,
               height: 50,
-
               margin: EdgeInsets.all(10),
               padding:EdgeInsets.all(7),
               decoration: BoxDecoration(
@@ -110,7 +124,6 @@ class NewRetailerState extends State<NewRetailer>{
                 style: const TextStyle(color: Color(0xFF063A06)),
                 underline: Container(),
                 onChanged: (String? value) {
-                  // This is called when the user selects an item.
                   setState(() {
                     categorydropdownValue = value!;
                   });
@@ -121,7 +134,8 @@ class NewRetailerState extends State<NewRetailer>{
                     child: Text(value),
                   );
                 }).toList(),
-              ),),
+              ),
+            ),
 
             Container(
               width:double.infinity,
@@ -153,114 +167,218 @@ class NewRetailerState extends State<NewRetailer>{
               ),
             ),
 
-            Padding(
-              padding: EdgeInsets.all(10),
-              child:TextFormField(
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock,
-                      color: Color(0xFF063A06),),
-                    hintText:'Name'
-                ),
-              ),),
+            Form(
+            key: formGlobalKey,
+              child: Column(
+                children: [
 
-            Padding(padding: EdgeInsets.all(10),
-              child: TextFormField(
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.home,
-                      color: Color(0xFF063A06),),
-                    hintText:'Address'
-                ),
-              ),),
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child:TextFormField(
+                      validator: (name) {
+                        if (name==""){
+                          return 'Please enter retailer name';
+                        }
+                      },
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.lock,
+                            color: Color(0xFF063A06),),
+                          hintText:'Name'
+                      ),
+                    ),),
 
-            Padding(padding: EdgeInsets.all(10),
-              child: TextFormField(
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.pin,
-                      color: Color(0xFF063A06),),
-                    hintText:'Pin Code'
-                ),
-              ),),
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: TextFormField(
+                      validator: (address) {
+                        if (address==""){
+                          return 'Please enter address';
+                        }
+                      },
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.home,
+                            color: Color(0xFF063A06),),
+                          hintText:'Address'
+                      ),
+                    ),),
 
-            // FutureBuilder<List>(
-            //     future:futurestate,
-            //     builder: (context,snapshot){
-            //       if(snapshot.hasData){
-            //         return  Container(
-            //           width:double.infinity,
-            //           height: 50,
-            //           margin: EdgeInsets.all(10),
-            //           padding:EdgeInsets.all(7),
-            //           decoration: BoxDecoration(
-            //               borderRadius: BorderRadius.all(Radius.circular(10.0)),
-            //               border: Border.all(color: Color(0xFFD2C7C7))
-            //           ),
-            //           child:DropdownButton(
-            //             isExpanded: true,
-            //             hint: const Text("Select State",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
-            //             elevation: 16,
-            //             style: const TextStyle(color: Color(0xFF063A06)),
-            //             underline: Container(),
-            //             onChanged: (String? value) {
-            //               setState(() {
-            //                 statetypedown = value!;
-            //               });
-            //             },
-            //             items: items.map((String items) {
-            //               return DropdownMenuItem(
-            //                 value: value,
-            //                 child: Text(value.state),
-            //               );
-            //             }).toList(),
-            //           ),
-            //         );
-            //       }else if(snapshot.hasError){
-            //           return Container();
-            //       }
-            //       return const CircularProgressIndicator();
-            //     }
-            // ),
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: TextFormField(
+                      validator: (address) {
+                        if (address==""){
+                          return 'Please enter pin code';
+                        }
+                      },
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.pin,
+                            color: Color(0xFF063A06),),
+                          hintText:'Pin Code'
+                      ),
+                    ),),
 
-            //
-            // FutureBuilder<List>(
-            //     future:futurestate,
-            //     builder: (context,snapshot){
-            //       if(snapshot.hasData){
-            //         return  Container(
-            //           width:double.infinity,
-            //           height: 50,
-            //           margin: EdgeInsets.all(10),
-            //           padding:EdgeInsets.all(7),
-            //           decoration: BoxDecoration(
-            //               borderRadius: BorderRadius.all(Radius.circular(10.0)),
-            //               border: Border.all(color: Color(0xFFD2C7C7))
-            //           ),
-            //           child:DropdownButton<String>(
-            //             isExpanded: true,
-            //             hint: const Text("Select Zone",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
-            //             elevation: 16,
-            //             style: const TextStyle(color: Color(0xFF063A06)),
-            //             underline: Container(),
-            //             onChanged: (String? value) {
-            //               // This is called when the user selects an item.
-            //               setState(() {
-            //                 zonetypedown = value!;
-            //               });
-            //             },
-            //             items: zonelist.map((value) {
-            //               return DropdownMenuItem<String>(
-            //                 value: value,
-            //                 child: Text(value),
-            //               );
-            //             }).toList(),
-            //           ),
-            //         );
-            //       }else if(snapshot.hasError){
-            //         return Container();
-            //       }
-            //       return const CircularProgressIndicator();
-            //     }
-            // ),
-            //
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: TextFormField(
+                      validator: (address) {
+                        if (address==""){
+                          return 'Please enter owner name';
+                        }
+                      },
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.person,
+                            color: Color(0xFF063A06),),
+                          hintText:'Owner'
+                      ),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child:TextFormField(
+                      validator: (address) {
+                        if (address==""){
+                          return 'Please enter mobile number';
+                        }
+                      },
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.mobile_screen_share,
+                            color: Color(0xFF063A06),),
+                          hintText:'mobile'
+                      ),
+                    ),),
+
+                ],
+              ),
+            ),
+
+            FutureBuilder<List>(
+                future:futurestate,
+                builder: (context,snapshot){
+                  if(snapshot.hasData){
+
+                    return Container(
+                      width:double.infinity,
+                      height: 50,
+                      margin: EdgeInsets.all(10),
+                      padding:EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          border: Border.all(color: Color(0xFFD2C7C7))
+                      ),
+                      child:DropdownButton(
+                        isExpanded: true,
+                        value: statetypedown,
+                        hint: const Text("Select State",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                        elevation: 16,
+                        style: const TextStyle(color: Color(0xFF063A06)),
+                        underline: Container(),
+                        onChanged: (value) {
+                          setState(() {
+                            statetypedown = value.toString();
+                          });
+                        },
+                        items:  snapshot.data?.map((e) =>
+                            DropdownMenuItem<String>(
+                              value: e,
+                              child: Text(e.toString()),
+                            )
+                        ).toList(),
+
+                      ),
+                    );
+
+                  }else if(snapshot.hasError){
+                      return Container();
+                  }
+
+                  return const CircularProgressIndicator();
+                }
+
+            ),
+
+            FutureBuilder<List>(
+                future:futurestate,
+                builder: (context,snapshot){
+                  if(snapshot.hasData){
+                    return  Container(
+                      width:double.infinity,
+                      height: 50,
+                      margin: EdgeInsets.all(10),
+                      padding:EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          border: Border.all(color: Color(0xFFD2C7C7))
+                      ),
+                      child:DropdownButton<String>(
+                        isExpanded: true,
+                        value: zonetypedown,
+                        hint: const Text("Select Zone",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                        elevation: 16,
+                        style: const TextStyle(color: Color(0xFF063A06)),
+                        underline: Container(),
+                        onChanged:(newVal) {
+                          setState(() {
+                            zonetypedown = newVal.toString();
+                          });
+                        },
+                        items: zonelist.map((value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }else if(snapshot.hasError){
+                    return Container();
+                  }
+                  return const CircularProgressIndicator();
+                }
+            ),
+
+            FutureBuilder<List>(
+                future:futurestate,
+                builder: (context,snapshot){
+                  if(snapshot.hasData){
+                    return  Container(
+                      width:double.infinity,
+                      height: 50,
+                      margin: EdgeInsets.all(10),
+                      padding:EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          border: Border.all(color: Color(0xFFD2C7C7))
+                      ),
+                      child:DropdownButton<String>(
+                        value: areatypedown,
+                        isExpanded: true,
+                        hint: const Text("Select Area",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                        elevation: 16,
+                        style: const TextStyle(color: Color(0xFF063A06)),
+                        underline: Container(),
+                        onChanged:(newVal) {
+                          setState(() {
+                            areatypedown = newVal.toString();
+                          });
+                        },
+                        items: snapshot.data?.map((value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }else if(snapshot.hasError){
+                    return Container();
+                  }
+
+                  return const CircularProgressIndicator();
+
+                }
+            ),
+
             // FutureBuilder<List>(
             //     future:futurestate,
             //     builder: (context,snapshot){
@@ -301,47 +419,16 @@ class NewRetailerState extends State<NewRetailer>{
             //     }
             // ),
 
-            Padding(padding: EdgeInsets.all(10),
-              child: TextFormField(
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person,
-                      color: Color(0xFF063A06),),
-                    hintText:'Owner'
-                ),
-              ),),
-
-            Padding(
-              padding: EdgeInsets.all(10),
-              child:TextFormField(
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.mobile_screen_share,
-                      color: Color(0xFF063A06),),
-                    hintText:'mobile'
-                ),
-              ),),
-
-            Container(
-              width:double.infinity,
-              height: 100,
-              margin: EdgeInsets.all(10),
-              padding:EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  border: Border.all(color: Color(0xFFD2C7C7))
-              ),
-              child:GestureDetector(
-                onTap: (){
-                  selectFromCamera();
-                },
-                child: cameraFile == null
-                    ? Center(child: Image.asset('assets/Images/picture.png'))
-                    : Center(child: Image.file(File(cameraFile!.path))),
-             //   child: Image.asset('assets/Images/picture.png'),
-              ),
-            ),
-
             GestureDetector(
-
+              onTap:(){
+                if (formGlobalKey.currentState!.validate()) {
+                  // If the form is valid, display a snackbar. In the real world,
+                  // you'd often call a server or save the information in a database.
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Processing Data')),
+                  );
+                }
+              },
               child: Container(
                 margin: EdgeInsets.only(left:10,top:40,right:10,bottom: 10),
                 width: double.infinity,
@@ -362,7 +449,6 @@ class NewRetailerState extends State<NewRetailer>{
           ],
         ),
       )
-
     );
   }
 
@@ -379,13 +465,16 @@ class NewRetailerState extends State<NewRetailer>{
           fontSize: 16.0);
 
     }else{
+
       try{
+
         final cameraFile= await ImagePicker().pickImage(
             source: ImageSource.camera
         );
         setState(() {
           this.cameraFile = cameraFile;
         });
+
       }catch(e){
         print('Failed to pick image: $e');
       }
@@ -394,7 +483,7 @@ class NewRetailerState extends State<NewRetailer>{
 
   }
 
-  Future<List<StateByPerson>> loadstate() async {
+  Future<List<String>> loadstate() async {
 
     int userid=0;
 
@@ -420,22 +509,31 @@ class NewRetailerState extends State<NewRetailer>{
 
       statedata = list.map<StateByPerson>((m) => StateByPerson.fromJson(Map<String, dynamic>.from(m))).toList();
 
-      statelist = statedata.where((str) => seen.add(str.state)).toList();
-      stateid = statedata.where((str) => seen.add(str.stateId as String?)).toList();
+      for(int i=0;i<statedata.length;i++){
+        statelist.add(statedata[i].state.toString());
+        stateid.add(statedata[i].stateId.toString());
 
-      zonelist = statedata.where((str) => seen.add(str.zone)).toList();
-      zoneid = statedata.where((str) => seen.add(str.zoneId as String?)).toList();
+        zonelist.add(statedata[i].zone.toString());
+        zoneid.add(statedata[i].zoneId.toString());
 
-      arealist = statedata.where((str) => seen.add(str.area)).toList();
-      areaid = statedata.where((str) => seen.add(str.areaId as String?)).toList();
+        arealist.add(statedata[i].area.toString());
+        areaid.add(statedata[i].areaId.toString());
 
-      Fluttertoast.showToast(msg: "${statelist.length}",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      }
+      statelist.toSet().toList();
+      // statelist = statedata.where((str) => seen.add(str.state)).cast<String>().toList();
+      // stateid = statedata.where((str) => seen.add(str.stateId as String?)).cast<String>().toList();
+
+      // zonelist = statedata.where((str) => seen.add(str.zone)).toList();
+      // zoneid = statedata.where((str) => seen.add(str.zoneId as String?)).toList();
+      //
+      // arealist = statedata.where((str) => seen.add(str.area)).toList();
+      // areaid = statedata.where((str) => seen.add(str.areaId as String?)).toList();
+      
+      // for(int i=0;i<statedata.length;i++){
+      //   statelist.add(statedata)
+      //
+      // }
 
     }catch(e){
 
@@ -474,6 +572,18 @@ class NewRetailerState extends State<NewRetailer>{
     //       textColor: Colors.white,
     //       fontSize: 16.0);
     // }
+  }
+
+  void checkvalidation(){
+
+    if(shoptypedown!="Select shoptype"){
+
+    }else if(categorydropdownValue!="Select Category"){
+
+    }else if(groupdropdown!="Select group"){
+
+    }
+
   }
 
 }

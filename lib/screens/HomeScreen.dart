@@ -11,7 +11,7 @@ import 'ShopsDist.dart';
 import '../config/Common.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:fluttertoast/fluttertoast.dart';
+
 
 class HomeScreen extends StatefulWidget{
 
@@ -44,7 +44,6 @@ class HomeScreenState extends State<HomeScreen>{
         drawer: Container(
           color:Color(0xFF063A06),
           padding: EdgeInsets.only(left: 0,top: 100,right: 10),
-          // padding: EdgeInsets.symmetric(vertical: 36, horizontal: 15),
           child:  Column(
             children: [
 
@@ -67,6 +66,16 @@ class HomeScreenState extends State<HomeScreen>{
               Padding(
                   padding: EdgeInsets.only(top:60),
                   child:ListTile(
+                    onTap: (){
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (contextt) =>
+                                  HomeScreen()
+
+                          ));
+                    },
                     leading: Image.asset(
                         'assets/Images/home.png', height: 25),
                     title: Text(
@@ -186,6 +195,7 @@ class HomeScreenState extends State<HomeScreen>{
     showDialog(
       context: context,
       builder: (BuildContext context) =>
+
           AlertDialog(
             content: const Text('Example Dialog'),
             actions: <TextButton>[
@@ -197,6 +207,7 @@ class HomeScreenState extends State<HomeScreen>{
               )
             ],
           ),
+
     );
   }
 
@@ -243,7 +254,7 @@ class HomeScreenState extends State<HomeScreen>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.post(Uri.parse(Common.IP_URL+'checkTodayBeat?personId=$userid'), headers: headers);
+    var response = await http.post(Uri.parse('${Common.IP_URL}checkTodayBeat?personId=$userid'), headers: headers);
 
     if(response.body.isNotEmpty){
 
@@ -263,3 +274,4 @@ class HomeScreenState extends State<HomeScreen>{
   }
 
 }
+

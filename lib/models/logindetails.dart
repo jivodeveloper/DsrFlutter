@@ -8,6 +8,8 @@ class logindetails {
     required this.group,
     required this.beatId,
     required this.beatName,
+    required this.target,
+    required this.targetBoxes,
   });
 
   int personId=0;
@@ -17,6 +19,11 @@ class logindetails {
   String group="";
   String beatId="";
   String beatName="";
+  int target=0;
+  int targetBoxes=0;
+  int assignedshops=0;
+  int coveredshops=0;
+  int productiveshops=0;
 
   logindetails.fromJson(Map<String, dynamic> json) {
     personId = json['personID'];
@@ -26,6 +33,11 @@ class logindetails {
     group = json['group'];
     beatId = json['beatId'];
     beatName = json['beatName'];
+    target = json['target'];
+    targetBoxes = json['targetBoxes'];
+    assignedshops = json['AssignedShops'];
+    coveredshops = json['shopsCovered'];
+    productiveshops = json['shopsProductive'];
   }
 
   Map<String, dynamic> toJson() {
@@ -37,6 +49,11 @@ class logindetails {
     data['group'] = this.group;
     data['beatId'] = this.beatId;
     data['beatName'] = this.beatName;
+    data['target'] = this.target;
+    data['targetBoxes'] = this.targetBoxes;
+    data['AssignedShops'] = this.assignedshops;
+    data['shopsCovered'] = this.coveredshops;
+    data['shopsProductive'] = this.productiveshops;
     return data;
   }
 
