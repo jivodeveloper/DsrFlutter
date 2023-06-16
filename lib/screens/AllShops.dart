@@ -21,6 +21,7 @@ class AllShopsState extends State<AllShops>{
 
   late Future<List<Shops>> furturedist;
   int count =0;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -32,7 +33,9 @@ class AllShopsState extends State<AllShops>{
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-          child:  FutureBuilder<List<Shops>>(future: furturedist,
+          child:_isLoading?Center(
+              child:CircularProgressIndicator()
+          ):FutureBuilder<List<Shops>>(future: furturedist,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return Container(
@@ -48,83 +51,83 @@ class AllShopsState extends State<AllShops>{
 
                           Text("Count : $count"),
                           Expanded(
-                              child:ListView.builder(
-                              itemCount: snapshot.data?.length,
-                              itemBuilder: (context, index) {
-                                return GestureDetector(
-                                  onTap: (){
+                            child:ListView.builder(
+                                itemCount: snapshot.data?.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: (){
 
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString(),mobile:snapshot.data![index].mobileNo.toString())));
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString(),mobile:snapshot.data![index].mobileNo.toString())));
 
-                                  },
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    height: 135,
-                                    child:  Column(
-                                      children: [
+                                    },
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      height: 135,
+                                      child:  Column(
+                                        children: [
 
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 30.0,top: 5),
-                                          child:  Row(
-                                            children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 30.0,top: 5),
+                                            child:  Row(
+                                              children: [
 
-                                              Container(
-                                                height: 10.0,
-                                                width: 10.0,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.green,
-                                                    shape: BoxShape.circle
+                                                Container(
+                                                  height: 10.0,
+                                                  width: 10.0,
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.green,
+                                                      shape: BoxShape.circle
+                                                  ),
                                                 ),
-                                              ),
 
-                                              Align(
-                                                child: Text(' Visited',style: TextStyle(color: Colors.green),),
-                                                alignment: Alignment.centerLeft,
-                                              ),
+                                                Align(
+                                                  child: Text(' Visited',style: TextStyle(color: Colors.green),),
+                                                  alignment: Alignment.centerLeft,
+                                                ),
 
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
 
-                                        Padding(
-                                          padding: EdgeInsets.only(top: 5),
-                                          child: Align(
-                                            child: Text('${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 5),
+                                            child: Align(
+                                              child: Text('${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                              alignment: Alignment.centerLeft,
+                                            ),
+                                          ),
+
+                                          Align(
+                                            child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18)),
                                             alignment: Alignment.centerLeft,
                                           ),
-                                        ),
 
-                                        Align(
-                                          child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18)),
-                                          alignment: Alignment.centerLeft,
-                                        ),
+                                          Align(
+                                            child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                            alignment: Alignment.centerLeft,
+                                          ),
 
-                                        Align(
-                                          child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
-                                          alignment: Alignment.centerLeft,
-                                        ),
+                                          Align(
+                                            child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                            alignment: Alignment.centerLeft,
+                                          ),
 
-                                        Align(
-                                          child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
-                                          alignment: Alignment.centerLeft,
-                                        ),
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 10,right: 10),
+                                            child:  Divider(
+                                                thickness: 2.0,
+                                                color: Color(0xFFDED7D7)
+                                            ),)
 
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 10,right: 10),
-                                          child:  Divider(
-                                              thickness: 2.0,
-                                              color: Color(0xFFDED7D7)
-                                          ),)
-
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }
+                                  );
+                                }
                             ),
                           )
 
@@ -135,14 +138,15 @@ class AllShopsState extends State<AllShops>{
                   return Container();
 
                 }
-                return const CircularProgressIndicator();
-           }),
-        ),
+                return Container();
+              }),
+      ),
     );
   }
 
   Future<List<Shops>> loadallshops() async {
 
+    _isLoading = true;
     List<Shops> beatshoplist = [];
     int userid=0,beatId =0;
 
@@ -187,7 +191,7 @@ class AllShopsState extends State<AllShops>{
       count = beatshoplist.length;
 
     });
-
+    _isLoading = false;
     return beatshoplist;
   }
 

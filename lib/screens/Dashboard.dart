@@ -168,13 +168,9 @@ class Dashboardstate extends State<Dashboard>{
 
             }
 
-            assignedshops = details.assignedshops;
+            assignedshops = details.assignedshops!;
             shopscoverd = details.coveredshops;
             shopsproductive = details.productiveshops;
-
-            // print("data $assignedshops");
-            // print("data $shopscoverd");
-            // print("data $shopsproductive");
 
             Map<String, dynamic> dataMap =
             {

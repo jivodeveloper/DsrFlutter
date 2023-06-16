@@ -23,6 +23,7 @@ class BeatShopsState extends State<BeatShops>{
   late Future<List<Shops>> furturedist;
   int count =0;
   String latitude="", longitude="";
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -33,7 +34,9 @@ class BeatShopsState extends State<BeatShops>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(
+        body:_isLoading?Center(
+            child:CircularProgressIndicator()
+        ): Container(
           height: double.infinity,
             child: FutureBuilder<List<Shops>>(future: furturedist,
                 builder: (context, snapshot) {
@@ -155,7 +158,7 @@ class BeatShopsState extends State<BeatShops>{
    }
 
   Future<List<Shops>> loadbeatshop() async {
-
+    _isLoading = true;
     List<Shops> beatshoplist = [];
     int userid=0,beatId =0;
 
@@ -197,7 +200,7 @@ class BeatShopsState extends State<BeatShops>{
     setState(() {
       count = beatshoplist.length;
     });
-
+    _isLoading = false;
     return beatshoplist;
   }
 

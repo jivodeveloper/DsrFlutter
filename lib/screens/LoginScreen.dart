@@ -267,6 +267,13 @@ class LoginScreenState extends State<LoginScreen>{
 
       } catch (e) {
 
+        Fluttertoast.showToast(msg: "$e",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
       }
 
     return details;

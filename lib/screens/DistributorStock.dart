@@ -86,7 +86,7 @@ class DistributorStockState extends State<DistributorStock>{
                       return Container();
                   }
                  return const CircularProgressIndicator();
-               }
+                }
               ),
 
               FutureBuilder<List>(

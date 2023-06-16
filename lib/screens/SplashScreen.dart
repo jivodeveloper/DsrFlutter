@@ -10,7 +10,6 @@ import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../config/Common.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class SplashScreen extends StatefulWidget{
 

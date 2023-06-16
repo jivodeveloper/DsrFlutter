@@ -21,7 +21,7 @@ class logindetails {
   String beatName="";
   int target=0;
   int targetBoxes=0;
-  int assignedshops=0;
+  int? assignedshops=0;
   int coveredshops=0;
   int productiveshops=0;
 
