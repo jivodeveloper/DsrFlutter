@@ -11,6 +11,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../models/Categorylist.dart';
 import 'package:provider/provider.dart';
 
+import '../models/Item.dart';
+
 class SalesItemScreen extends StatefulWidget{
 
   String retailerName="",retailerId="",address="",date="";
@@ -35,7 +37,8 @@ class SalesItemState extends State<SalesItemScreen>{
   String? dropdowncategory,dropdownitem;
 
   List<String> dropdownOptions= [];
-  List<String> selectedvalues= ["CANOLA","Extra Light"];
+  List<String> selectedvalues= ["CANOLA","CANOLA","CANOLA","CANOLA","CANOLA","CANOLA","CANOLA"];
+  List<String> selectedvaluesitem= ["COLD PRESS 1 LTR +1 LTR COMBO 10 SETS","COLD PRESS 1 LTR +1 LTR COMBO 10 SETS","CANOLA","CANOLA","CANOLA","CANOLA","CANOLA"];
 
   List catenamlist = [], cateidlist = [],itemlist = [], itemid = [];
   int numElements = 1;
@@ -98,7 +101,7 @@ class SalesItemState extends State<SalesItemScreen>{
             child:  Column(
                 children: [
 
-                  Container(
+                Container(
                       height: 90,
                       margin: EdgeInsets.all(10),
                       padding: EdgeInsets.all(10),
@@ -157,7 +160,7 @@ class SalesItemState extends State<SalesItemScreen>{
                     )
                   ),
 
-                  // SizedBox(
+                // SizedBox(
                   //   height: 1000,
                   //   child: ListView.builder(
                   //     itemCount: dynamicList.length,
@@ -400,51 +403,71 @@ class SalesItemState extends State<SalesItemScreen>{
                   //   ),
                   // )
 
-            SizedBox(
-              height: 200,
-              child: ListView.builder(
+                SizedBox(
+                height: 900,
+                child: ListView.builder(
                   itemCount: dynamicList.length,
                   itemBuilder: (_, index) =>
                       Container(
                         width: double.infinity,
                         margin: const EdgeInsets.only(right: 5),
-                        height: 50,
+                        height: 100,
                         padding: const EdgeInsets.only(left: 5, right: 5),
                         decoration: BoxDecoration(
                             borderRadius: const BorderRadius.all(
                                 Radius.circular(10.0)),
                             border: Border.all(color: const Color(0xFF063A06))
                         ),
-                        child: FutureBuilder(
-                          future: furturecategory,
-                          builder: (context,snapshot){
-                            if(snapshot.hasData){
-                              return DropdownButton<String>(
-                                value: selectedvalues[index],
-                                hint: const Text("Select Distributor",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
-                                  onChanged: (String? newValue) {
-                                  setSelectedValue(
-                                      index, newValue.toString());
-                                 },
-                                 items: catenamlist.map((e) =>
-                                    DropdownMenuItem<String>(
-                                      value: e,
-                                      child: Text(e),
-                                    )
-                                ).toList(),
-                              );
-                            }
-                            return const CircularProgressIndicator();
-                          },
-                        ),
+                        child: Column(
+                          children: [
+                            FutureBuilder(
+                              future: furturecategory,
+                              builder: (context,snapshot){
+                                if(snapshot.hasData){
+                                  return DropdownButton<String>(
+                                    isExpanded: true,
+                                    value: selectedvalues[index],
+                                    hint: const Text("Select Distributor",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                                    onChanged: (String? newValue) {
+                                      setSelectedValue(
+                                          index, newValue.toString());
+                                      loadcategoryitem(cateidlist[index]);
+                                    },
+                                    items: catenamlist.map((e) =>
+                                        DropdownMenuItem<String>(
+                                          value: e,
+                                          child: Text(e),
+                                        )
+                                    ).toList(),
+                                  );
+                                }
+                                return const CircularProgressIndicator();
+                              },
+                            ),
+                            DropdownButton<String>(
+                            isExpanded: true,
+                           value: selectedvaluesitem[index],
+                            hint: const Text("Select item",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                            onChanged: (String? newValue) {
+                              setSelectedValueitem(
+                                index, newValue.toString());
+                            loadcategoryitem(cateidlist[index]);
+                            },
+                            items: itemlist.map((e) =>
+                              DropdownMenuItem<String>(
+                                value: e,
+                                child: Text(e),
+                              )
+                            ).toList(),
+                           )
+                          ],
+                        )
 
                       )
               ),
             )
 
-
-
-                  // SizedBox(
+                // SizedBox(
                   //  height: 600 ,
                   //  child: ListView.builder(
                   //    itemCount: 20,
@@ -488,7 +511,7 @@ class SalesItemState extends State<SalesItemScreen>{
                   //   ),
                   // )
 
-                ]
+              ]
 
             ),
 
@@ -765,119 +788,68 @@ class SalesItemState extends State<SalesItemScreen>{
 
   }
 
-  // Future<List> loadcategory() async {
-  //
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   userid = prefs.getInt(Common.USER_ID)!;
-  //
-  //   Map<String, String> headers = {
-  //     'Content-Type': 'application/json',
-  //   };
-  //
-  //   var response = await http.get(Uri.parse(Common.IP_URL+'GetCatgories?userid=768'), headers: headers);
-  //
-  //   if(response.statusCode == 200){
-  //
-  //     try{
-  //
-  //       final list = jsonDecode(response.body);
-  //
-  //       List<Categorylist> categorydata = [];
-  //       categorydata = list.map<Categorylist>((m) => Categorylist.fromJson(Map<String, dynamic>.from(m))).toList();
-  //
-  //       for(int i=0 ;i<categorydata.length;i++){
-  //         catenamlist.add(categorydata[i].typeName.toString());
-  //         cateidlist.add(categorydata[i].id);
-  //       }
-  //
-  //     }catch(e){
-  //
-  //       Fluttertoast.showToast(msg: "Please contact admin!!",
-  //           toastLength: Toast.LENGTH_SHORT,
-  //           gravity: ToastGravity.BOTTOM,
-  //           timeInSecForIosWeb: 1,
-  //           backgroundColor: Colors.black,
-  //           textColor: Colors.white,
-  //           fontSize: 16.0);
-  //
-  //     }
-  //
-  //   }else{
-  //
-  //     Fluttertoast.showToast(msg: "Something went wrong!",
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.BOTTOM,
-  //         timeInSecForIosWeb: 1,
-  //         backgroundColor: Colors.black,
-  //         textColor: Colors.white,
-  //         fontSize: 16.0);
-  //
-  //   }
-  //
-  //   return catenamlist;
-  // }
-  //
-  // Future<void> loadcategoryitem(String item) async {
-  //
-  //   var itemid;
-  //
-  //   for(int i=0;i<catenamlist.length;i++){
-  //     if(catenamlist[i]==item){
-  //       itemid = cateidlist[i];
-  //     }
-  //   }
-  //
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   userid = prefs.getInt(Common.USER_ID)!;
-  //
-  //   Map<String, String> headers = {
-  //     'Content-Type': 'application/json',
-  //   };
-  //
-  //   itemlist.clear();
-  //   var response = await http.get(Uri.parse('${Common.IP_URL}Getitem?itemType=${itemid}'), headers: headers);
-  //
-  //   if(response.statusCode == 200){
-  //
-  //     try{
-  //
-  //       final list = jsonDecode(response.body);
-  //
-  //       List<Item> categryitem = [];
-  //       categryitem = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
-  //
-  //       for(int i=0 ;i<categryitem.length;i++){
-  //         setState(() {
-  //           itemlist.add(categryitem[i].itemName.toString());
-  //         });
-  //
-  //       }
-  //
-  //     }catch(e){
-  //
-  //       Fluttertoast.showToast(msg: "Please contact admin!!",
-  //           toastLength: Toast.LENGTH_SHORT,
-  //           gravity: ToastGravity.BOTTOM,
-  //           timeInSecForIosWeb: 1,
-  //           backgroundColor: Colors.black,
-  //           textColor: Colors.white,
-  //           fontSize: 16.0);
-  //
-  //     }
-  //
-  //   }else{
-  //
-  //     Fluttertoast.showToast(msg: "Something went wrong!",
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.BOTTOM,
-  //         timeInSecForIosWeb: 1,
-  //         backgroundColor: Colors.black,
-  //         textColor: Colors.white,
-  //         fontSize: 16.0);
-  //
-  //   }
-  //
-  // }
+
+  Future<void> loadcategoryitem(int item) async {
+
+    // var itemid;
+    //
+    // for(int i=0;i<catenamlist.length;i++){
+    //   if(catenamlist[i]==item){
+    //     itemid = cateidlist[i];
+    //   }
+    // }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userid = prefs.getInt(Common.USER_ID)!;
+
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    itemlist.clear();
+    var response = await http.get(Uri.parse('${Common.IP_URL}Getitem?itemType=$item'), headers: headers);
+
+    if(response.statusCode == 200){
+
+      try{
+
+        final list = jsonDecode(response.body);
+
+        List<Item> categryitem = [];
+        categryitem = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
+
+        for(int i=0 ;i<categryitem.length;i++){
+          setState(() {
+            itemlist.add(categryitem[i].itemName.toString());
+          });
+
+        }
+
+      }catch(e){
+
+        Fluttertoast.showToast(msg: "Please contact admin!!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+
+      }
+
+    }else{
+
+      Fluttertoast.showToast(msg: "Something went wrong!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }
+
+  }
 
 
   Future<List> loadcategory() async {
@@ -943,7 +915,6 @@ class SalesItemState extends State<SalesItemScreen>{
 
   void addDropdownOptions(String option){
     dropdownOptions.add(option);
-
   }
 
   void removeDropdownOptions(int index){
@@ -954,6 +925,10 @@ class SalesItemState extends State<SalesItemScreen>{
 
   void setSelectedValue(int index,String value){
     selectedvalues[index]= value;
+  }
+
+  void setSelectedValueitem(int index,String value){
+    selectedvaluesitem[index]= value;
   }
 
 }
