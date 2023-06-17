@@ -418,7 +418,7 @@ class SalesItemState extends State<SalesItemScreen>{
     return ListBody(
       children: [
 
-    Container                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              (
+    Container (
        margin: EdgeInsets.only(top: 10),
        color:Colors.white,
        width: double.infinity,
@@ -435,10 +435,10 @@ class SalesItemState extends State<SalesItemScreen>{
          children: [
 
        Expanded(
-       flex: 1,
-       child: FutureBuilder<List>(
-       future: furturecategory,
-       builder: (context,snapshot){
+          flex: 1,
+          child: FutureBuilder<List>(
+          future: furturecategory,
+          builder: (context,snapshot){
        if(snapshot.hasData){
         return Container(
           width: double.infinity,
@@ -449,12 +449,12 @@ class SalesItemState extends State<SalesItemScreen>{
           borderRadius: const BorderRadius.all(Radius.circular(10.0)),
           border: Border.all(color:const Color(0xFF063A06))
          ),
-         child: DropdownButton<String>(
-         value: dropdowncategory,
-         underline:Container(),
-         hint: const Text("Select category"),
-         isExpanded: true,
-         items: snapshot.data?.map((e) =>
+          child: DropdownButton<String>(
+          value: dropdowncategory,
+          underline:Container(),
+          hint: const Text("Select category"),
+          isExpanded: true,
+          items: snapshot.data?.map((e) =>
         DropdownMenuItem<String>(
          value: e,
          child: Text(e),
@@ -523,7 +523,7 @@ class SalesItemState extends State<SalesItemScreen>{
     //   alignment: Alignment.centerLeft,
     // ),
 
-    SizedBox(
+       SizedBox(
       width: double.infinity,
     child: Column(
      children: [
@@ -654,10 +654,10 @@ class SalesItemState extends State<SalesItemScreen>{
      ),
      ),
 
+       ],
+      ),
+    )
    ],
-  ),
- )
-],
     );
 
   }
@@ -784,14 +784,312 @@ class SalesItemState extends State<SalesItemScreen>{
 
   }
 
-// void removedynamicWidget(index) {
-//
-//   setState(() {
-//     dynamicList.remove(index);
-//     numElements--;
-//   });
-//
-// }
+}
+
+class MyWidget extends StatelessWidget {
+
+  List catenamlist = [], cateidlist = [],itemlist = [], itemid = [];
+  int userid=0;
+  late Future<List> furturecategory;
+
+  @override
+  Widget build(BuildContext context) {
+
+    furturecategory = loadcategory();
+
+    return  Container (
+      margin: EdgeInsets.only(top: 10),
+      color:Colors.white,
+      width: double.infinity,
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+
+          Container(
+              margin: EdgeInsets.only(top: 10),
+              color: Color(0xFFE8E8E0),
+              width: double.infinity,
+              padding: EdgeInsets.all(10),
+              child: Row(
+                  children: [
+
+                    Expanded(
+                        flex: 1,
+                        child: FutureBuilder<List>(
+                          future: furturecategory,
+                          builder: (context,snapshot){
+                            if(snapshot.hasData){
+                              return Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.only(right: 5),
+                                height: 50,
+                                padding: const EdgeInsets.only(left: 5,right: 5),
+                                decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+                                    border: Border.all(color:const Color(0xFF063A06))
+                                ),
+                                child: DropdownButton<String>(
+                                  value: dropdowncategory,
+                                  underline:Container(),
+                                  hint: const Text("Select category"),
+                                  isExpanded: true,
+                                  items: snapshot.data?.map((e) =>
+                                      DropdownMenuItem<String>(
+                                        value: e,
+                                        child: Text(e),
+                                      )
+                                  ).toList(),
+
+                                  onChanged: (newVal){
+                                    setState(() {
+                                      dropdowncategory = newVal.toString();
+                                    });
+
+                                    loadcategoryitem(dropdowncategory!);
+                                  },
+                                ),
+                              );
+                            }
+                            else if(snapshot.hasError) {
+                              return Container();
+                            }
+
+                            return const CircularProgressIndicator();
+                          },
+                        )
+                    ),
+
+                    Expanded(
+                      flex: 1,
+                      child:Container(
+                        width: double.infinity,
+                        height: 50,
+                        padding: const EdgeInsets.only(left: 5,right: 5),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            border: Border.all(color:Color(0xFF063A06))
+                        ),
+                        child: DropdownButton<String>(
+                          value: dropdownitem,
+                          hint: const Text("Select item"),
+                          // hint: const Text("Select item",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                          underline:Container(),
+                          isExpanded: true,
+                          items: itemlist.map((e) =>
+                              DropdownMenuItem<String>(
+                                value: e,
+                                child: Text(e),
+                              )
+                          ).toList(),
+
+                          onChanged: (newVal){
+                            setState(() {
+                              dropdownitem = newVal.toString();
+                            });
+                          },
+
+                        ),
+                      ),
+                    )
+
+                  ]
+              )
+          ),
+
+          // Container(
+          //   padding: EdgeInsets.only(top: 10,bottom: 10),
+          //   child: Text("$dropdownitem",style: TextStyle(fontSize: 20,fontWeight:FontWeight.bold ),),
+          //   alignment: Alignment.centerLeft,
+          // ),
+
+          SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+
+                Row(
+                  children: [
+                    Expanded(
+                        flex: 2,
+                        child: Row(
+                          children: [
+
+                            Expanded(
+                                flex: 1,
+                                child: Container(
+                                  width: 50,
+                                  height: 25,
+                                  margin: EdgeInsets.only(right: 15),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(width: 1.0,color:Colors.grey),
+                                      borderRadius: BorderRadius.all(Radius.circular(10.0))
+                                  ),
+                                  child: Center(
+                                    child: Text("RS 2500"),
+                                  ),
+                                )
+                            ),
+
+                            Expanded(
+                                flex: 1,
+                                child: Container(
+                                  width: 50,
+                                  height: 25,
+                                  margin: EdgeInsets.only(right: 15),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(width: 1.0,color:Colors.grey),
+                                      borderRadius: BorderRadius.all(Radius.circular(10.0))
+                                  ),
+                                  child: Center(
+                                    child: Text("25Ltrs"),
+                                  ),
+                                )
+                            ),
+
+                          ],
+                        )
+                    ),
+
+                    Expanded(
+                        flex: 1,
+                        child: Row(
+                          children: [
+
+                            Expanded(
+                                flex: 1,
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Container(
+                                      width: 50,
+                                      height: 30,
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              width: 1.0,
+                                              color: Colors.grey
+                                          ),
+                                          borderRadius: BorderRadius.all(Radius.circular(2.0))
+                                      ),
+                                      child: TextFormField(
+                                        decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                            ),
+
+                            Expanded(
+                                flex: 1,
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Container(
+                                      width: 50,
+                                      height: 30,
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              width: 1.0,
+                                              color: Colors.grey
+                                          ),
+                                          borderRadius: BorderRadius.all(Radius.circular(2.0))
+                                      ),
+                                      child: TextFormField(
+                                        decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                            )
+
+                          ],
+                        )
+                    ),
+
+                  ],
+                ),
+
+                Padding(
+                  padding: EdgeInsets.only(left: 10,right: 10),
+                  child:  Divider(
+                      thickness: 0.1,
+                      color: Color(0xFF063A06)
+                  ),
+                ),
+
+                Container(
+                  margin: EdgeInsets.only(left: 5),
+                  padding: EdgeInsets.only(left: 5,right: 5),
+                  child: Row(
+                    children: [
+                      Text("Unit Price : "),
+                      Text("0.2",style: TextStyle(color:Colors.grey),)
+                    ],
+                  ),
+                )
+
+              ],
+            ),
+          ),
+
+        ],
+      ),
+    );
+
+  }
+
+  Future<List> loadcategory() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userid = prefs.getInt(Common.USER_ID)!;
+
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.get(Uri.parse(Common.IP_URL+'GetCatgories?userid=768'), headers: headers);
+
+    if(response.statusCode == 200){
+
+      try{
+
+        final list = jsonDecode(response.body);
+
+        List<Categorylist> categorydata = [];
+        categorydata = list.map<Categorylist>((m) => Categorylist.fromJson(Map<String, dynamic>.from(m))).toList();
+
+        for(int i=0 ;i<categorydata.length;i++){
+          catenamlist.add(categorydata[i].typeName.toString());
+          cateidlist.add(categorydata[i].id);
+        }
+
+      }catch(e){
+
+        Fluttertoast.showToast(msg: "Please contact admin!!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+
+      }
+
+    }else{
+
+      Fluttertoast.showToast(msg: "Something went wrong!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }
+
+    return catenamlist;
+  }
 
 }
 

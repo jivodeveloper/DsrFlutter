@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -264,9 +265,10 @@ class AttendanceState extends State<Attendance>{
 
            }
         }
-        beatnamelist.toSet().toList();
 
-    //  beatlist = list.where((m) => Shops.fromJson(Map<String, dynamic>.from((list)))).toList();
+        beatnamelist = LinkedHashSet<String>.from(beatnamelist).toList();
+        beatIdlist = LinkedHashSet<int>.from(beatIdlist).toList();
+
 
     Fluttertoast.showToast(msg: "Successfully login ${beatnamelist.length}",
         toastLength: Toast.LENGTH_SHORT,

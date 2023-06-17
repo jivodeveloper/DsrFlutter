@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/cupertino.dart';
@@ -33,6 +34,7 @@ class NewRetailerState extends State<NewRetailer>{
 
   String? statetypedown,zonetypedown,areatypedown;
   late Future<List> futurestate;
+  late Future<List> futurezone;
   List distIdlist = [];
   XFile? cameraFile;
   var status;
@@ -278,7 +280,7 @@ class NewRetailerState extends State<NewRetailer>{
                             statetypedown = value.toString();
                           });
                         },
-                        items:  snapshot.data?.map((e) =>
+                        items:snapshot.data?.map((e) =>
                             DropdownMenuItem<String>(
                               value: e,
                               child: Text(e.toString()),
@@ -290,12 +292,12 @@ class NewRetailerState extends State<NewRetailer>{
 
                   }else if(snapshot.hasError){
                       return Container();
-                  }
-
-                  return const CircularProgressIndicator();
                 }
 
-            ),
+                  return const CircularProgressIndicator();
+              }
+
+          ),
 
             FutureBuilder<List>(
                 future:futurestate,
@@ -337,47 +339,35 @@ class NewRetailerState extends State<NewRetailer>{
                 }
             ),
 
-            FutureBuilder<List>(
-                future:futurestate,
-                builder: (context,snapshot){
-                  if(snapshot.hasData){
-                    return  Container(
-                      width:double.infinity,
-                      height: 50,
-                      margin: EdgeInsets.all(10),
-                      padding:EdgeInsets.all(7),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          border: Border.all(color: Color(0xFFD2C7C7))
-                      ),
-                      child:DropdownButton<String>(
-                        value: areatypedown,
-                        isExpanded: true,
-                        hint: const Text("Select Area",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
-                        elevation: 16,
-                        style: const TextStyle(color: Color(0xFF063A06)),
-                        underline: Container(),
-                        onChanged:(newVal) {
-                          setState(() {
-                            areatypedown = newVal.toString();
-                          });
-                        },
-                        items: snapshot.data?.map((value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
-                    );
-                  }else if(snapshot.hasError){
-                    return Container();
-                  }
-
-                  return const CircularProgressIndicator();
-
-                }
+            Container(
+            width:double.infinity,
+            height: 50,
+            margin: EdgeInsets.all(10),
+            padding:EdgeInsets.all(7),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                border: Border.all(color: Color(0xFFD2C7C7))
             ),
+            child:DropdownButton<String>(
+              value: areatypedown,
+              isExpanded: true,
+              hint: const Text("Select Area",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+              elevation: 16,
+              style: const TextStyle(color: Color(0xFF063A06)),
+              underline: Container(),
+              onChanged:(newVal) {
+                setState(() {
+                  areatypedown = newVal.toString();
+                });
+              },
+              items: arealist.map((value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+           ),
 
             // FutureBuilder<List>(
             //     future:futurestate,
@@ -422,8 +412,6 @@ class NewRetailerState extends State<NewRetailer>{
             GestureDetector(
               onTap:(){
                 if (formGlobalKey.currentState!.validate()) {
-                  // If the form is valid, display a snackbar. In the real world,
-                  // you'd often call a server or save the information in a database.
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Processing Data')),
                   );
@@ -500,6 +488,7 @@ class NewRetailerState extends State<NewRetailer>{
     var seen = Set<String?>();
 
     final list = jsonDecode(response.body);
+    List<String> arr=[];
     statelist.clear();
     stateid.clear();
     zonelist.clear();
@@ -510,6 +499,7 @@ class NewRetailerState extends State<NewRetailer>{
       statedata = list.map<StateByPerson>((m) => StateByPerson.fromJson(Map<String, dynamic>.from(m))).toList();
 
       for(int i=0;i<statedata.length;i++){
+
         statelist.add(statedata[i].state.toString());
         stateid.add(statedata[i].stateId.toString());
 
@@ -520,7 +510,14 @@ class NewRetailerState extends State<NewRetailer>{
         areaid.add(statedata[i].areaId.toString());
 
       }
-      statelist.toSet().toList();
+
+      statelist = LinkedHashSet<String>.from(statelist).toList();
+      stateid = LinkedHashSet<String>.from(stateid).toList();
+      zonelist = LinkedHashSet<String>.from(zonelist).toList();
+      zoneid = LinkedHashSet<String>.from(zoneid).toList();
+      arealist = LinkedHashSet<String>.from(arealist).toList();
+      areaid = LinkedHashSet<String>.from(areaid).toList();
+
       // statelist = statedata.where((str) => seen.add(str.state)).cast<String>().toList();
       // stateid = statedata.where((str) => seen.add(str.stateId as String?)).cast<String>().toList();
 

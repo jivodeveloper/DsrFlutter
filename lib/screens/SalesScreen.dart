@@ -502,8 +502,14 @@ class SalesScreenState extends State<SalesScreen>{
         retailerdata = list.map<Shops>((m) => Shops.fromJson(Map<String, dynamic>.from(m))).toList();
 
         for(int i=0 ;i<retailerdata.length;i++){
+          //
+          // if(retailerdata[i].type == "Distributor" && retailerdata[i].beatId == beatId){
+          //
+          //   distnamelist.add(retailerdata[i].retailerName.toString());
+          //
+          // }
 
-          if(retailerdata[i].type == "Distributor" && retailerdata[i].beatId == beatId){
+          if(retailerdata[i].type == "Distributor"){
 
             distnamelist.add(retailerdata[i].retailerName.toString());
 
@@ -511,19 +517,19 @@ class SalesScreenState extends State<SalesScreen>{
 
         }
 
-        if(distnamelist.length== 0){
-
-          Fluttertoast.showToast(msg: "No distributor available in your beat!!",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.black,
-              textColor: Colors.white,
-              fontSize: 16.0);
-
-          Navigator.of(context).pop();
-
-        }
+        // if(distnamelist.length== 0){
+        //
+        //   Fluttertoast.showToast(msg: "No distributor available in your beat!!",
+        //       toastLength: Toast.LENGTH_SHORT,
+        //       gravity: ToastGravity.BOTTOM,
+        //       timeInSecForIosWeb: 1,
+        //       backgroundColor: Colors.black,
+        //       textColor: Colors.white,
+        //       fontSize: 16.0);
+        //
+        //   Navigator.of(context).pop();
+        //
+        // }
 
       }catch(e){
 
