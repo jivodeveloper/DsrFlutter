@@ -2,7 +2,7 @@ class Item {
   int? itemID;
   String? itemName;
   String? itemCode;
-  num? quantity;
+  int? quantity;
   bool? status;
   int? mrp;
   int? piecesPerCase;
@@ -20,6 +20,7 @@ class Item {
 
   bool? isVisibleToRetailer;
   bool? isRedeemable;
+  num? boxes;
 
   Item(
       {this.itemID,
@@ -42,9 +43,9 @@ class Item {
         this.gst,
         this.hsnCode,
         this.isCashback,
-
         this.isVisibleToRetailer,
         this.isRedeemable,
+        this.boxes,
      });
 
   Item.fromJson(Map<String, dynamic> json) {
@@ -52,15 +53,11 @@ class Item {
     itemName = json['itemName'];
     itemCode = json['itemCode'];
     quantity = json['quantity'];
-
     status = json['status'];
     mrp = json['mrp'];
     piecesPerCase = json['piecesPerCase'];
-
     uOMId = json['UOMId'];
-
     typeNameId = json['typeNameId'];
-
     visibleToSO = json['visibleToSO'];
     visibleToPromoter = json['visibleToPromoter'];
     itemTypeId = json['itemTypeId'];
@@ -68,10 +65,9 @@ class Item {
     gst = json['gst'];
     hsnCode = json['hsnCode'];
     isCashback = json['isCashback'];
-
     isVisibleToRetailer = json['isVisibleToRetailer'];
     isRedeemable = json['isRedeemable'];
-
+    isRedeemable = json['Boxes'];
   }
 
   Map<String, dynamic> toJson() {
@@ -80,15 +76,11 @@ class Item {
     data['itemName'] = this.itemName;
     data['itemCode'] = this.itemCode;
     data['quantity'] = this.quantity;
-
     data['status'] = this.status;
     data['mrp'] = this.mrp;
     data['piecesPerCase'] = this.piecesPerCase;
-
     data['UOMId'] = this.uOMId;
-
     data['typeNameId'] = this.typeNameId;
-
     data['visibleToSO'] = this.visibleToSO;
     data['visibleToPromoter'] = this.visibleToPromoter;
     data['itemTypeId'] = this.itemTypeId;
@@ -96,10 +88,9 @@ class Item {
     data['gst'] = this.gst;
     data['hsnCode'] = this.hsnCode;
     data['isCashback'] = this.isCashback;
-
     data['isVisibleToRetailer'] = this.isVisibleToRetailer;
     data['isRedeemable'] = this.isRedeemable;
-
+    data['Boxes'] = this.boxes;
     return data;
   }
 }

@@ -32,7 +32,7 @@ class HomeScreenState extends State<HomeScreen>{
   @override
   void initState() {
     super.initState();
-    gettodaybeat();
+   // gettodaybeat();
   }
 
   @override

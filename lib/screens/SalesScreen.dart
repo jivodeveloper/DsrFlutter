@@ -21,9 +21,10 @@ import 'package:native_exif/native_exif.dart';
 
 class SalesScreen extends StatefulWidget{
 
-  String retailerName="",retailerId="",address="",mobile="",latitude="",longitude="";
+  String retailerName="",retailerId="",address="",mobile="";
+  double? latitude,longitude;
 
-  SalesScreen({required this.retailerName,required this.retailerId, required this.address, required this.mobile});
+  SalesScreen({required this.retailerName,required this.retailerId, required this.address, required this.mobile,required this.latitude,required this.longitude});
 
   int count =0;
   String? formatter;
@@ -52,9 +53,9 @@ class SalesScreenState extends State<SalesScreen>{
   ];
 
   int beatId=0;
-  List<String> distnamelist = [];
+  List<String> distnamelist = [],distIdlist = [];
   XFile? cameraFile,shelffile1,shelffile2,shelffile3,shelffile4;
-  String? statusdropdown ,distributordropdown;
+  String? statusdropdown ,distributordropdown,distid;
   late Future<List> furturedist;
   TextEditingController dateController = TextEditingController();
   TextEditingController shelf1Controller = TextEditingController();
@@ -181,7 +182,7 @@ class SalesScreenState extends State<SalesScreen>{
                               setState(() {
                                 distributordropdown = newVal.toString();
                               });
-
+                              getdistId(newVal.toString());
                             }
 
                         ),
@@ -502,16 +503,11 @@ class SalesScreenState extends State<SalesScreen>{
         retailerdata = list.map<Shops>((m) => Shops.fromJson(Map<String, dynamic>.from(m))).toList();
 
         for(int i=0 ;i<retailerdata.length;i++){
-          //
-          // if(retailerdata[i].type == "Distributor" && retailerdata[i].beatId == beatId){
-          //
-          //   distnamelist.add(retailerdata[i].retailerName.toString());
-          //
-          // }
 
           if(retailerdata[i].type == "Distributor"){
 
             distnamelist.add(retailerdata[i].retailerName.toString());
+            distIdlist.add(retailerdata[i].retailerID.toString());
 
           }
 
@@ -602,7 +598,7 @@ class SalesScreenState extends State<SalesScreen>{
         context,
         PageTransition(
             type: PageTransitionType.bottomToTop,
-            child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,address:widget.address,date:dateController.text),
+            child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude),
             inheritTheme: true,
             ctx: context),
       );
@@ -630,6 +626,22 @@ class SalesScreenState extends State<SalesScreen>{
     //       fontSize: 16.0);
     //
     // }
+
+  }
+
+  void getdistId(String dist){
+
+    for(int i=0;i<distnamelist.length;i++){
+
+        if(distnamelist.indexOf(dist)==distIdlist[i]){
+
+          setState(() {
+            distid = distIdlist[i];
+          });
+
+        }
+
+    }
 
   }
 

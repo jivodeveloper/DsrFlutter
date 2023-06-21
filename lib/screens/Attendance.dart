@@ -307,21 +307,23 @@ class AttendanceState extends State<Attendance>{
   Future<void> markattendance(String status, String beatname,BuildContext context) async {
 
     for(int i=0;i<beatnamelist.length;i++){
+
       if(beatname == beatnamelist[i]){
           beatId = beatIdlist[i];
       }
+
     }
 
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
 
-    var response = await http.post(Uri.parse(Common.IP_URL+'/AddSalesPersonAttendanceV3?personId=$userid&status=$status&latitude=$lat&longitude=$lng&beatId=$beatId'), headers: headers);
+    var response = await http.post(Uri.parse('${Common.IP_URL}AddSalesPersonAttendanceV3?personId=$userid&status=$status&latitude=$lat&longitude=$lng&beatId=$beatId'), headers: headers);
 
     if(response.statusCode == 200){
 
       Navigator.pop(context);
-      Fluttertoast.showToast(msg: "${response.body.toString()}",
+      Fluttertoast.showToast(msg: response.body.toString(),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,

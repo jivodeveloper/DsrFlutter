@@ -220,11 +220,10 @@ class LoginScreenState extends State<LoginScreen>{
               prefs.setString(Common.PERSON_TYPE, details.personType);
               prefs.setString(Common.PERSON_NAME, details.personName);
               prefs.setString(Common.GROUP, details.group);
-              prefs.setInt(Common.BEAT_ID, details.beatId as int);
-              prefs.setString(Common.BEAT_NAME,details.beatName);
 
+              print("distanceallowed${details.distanceAllowed}");
             }catch (e){
-
+              print("distanceallowed$e");
             }
 
             Fluttertoast.showToast(msg: "Successfully login ${details.personName}",

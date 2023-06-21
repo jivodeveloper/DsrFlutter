@@ -55,7 +55,7 @@ class DistributorState extends State<Distributor>{
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString(),mobile: snapshot.data![index].mobileNo.toString())));
+                                              SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString(),mobile:snapshot.data![index].mobileNo.toString(),latitude:double.parse(snapshot.data![index].latitude.toString()),longitude:double.parse(snapshot.data![index].longitude.toString()))));
 
 
                                 },
