@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/rendering.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,10 +14,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:loader_overlay/loader_overlay.dart';
-import 'package:native_exif/native_exif.dart';
-
-
+import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart' as Permission;
+import 'package:battery_plus/battery_plus.dart';
+import 'package:geolocator/geolocator.dart';
+import 'dart:async';
+import 'package:flutter/services.dart';
+import '../util/Helper.dart';
 
 class SalesScreen extends StatefulWidget{
 
@@ -37,12 +40,12 @@ class SalesScreen extends StatefulWidget{
 }
 
 class SalesScreenState extends State<SalesScreen>{
-
+  Location location = new Location();
   var perstatus;
   String? persontype;
   int userid=0;
   bool _isLoaderVisible = false;
-
+  int _batteryLevel = 0;
   List<String> status = [
     "DONE",
     "SHOP CLOSED",
@@ -51,10 +54,11 @@ class SalesScreenState extends State<SalesScreen>{
     "NOT INTERESTED",
     "TELEPHONIC"
   ];
-
+  LocationData? _currentPosition;
   int beatId=0;
   List<String> distnamelist = [],distIdlist = [];
   XFile? cameraFile,shelffile1,shelffile2,shelffile3,shelffile4;
+  String? isdistanceallowed;
   String? statusdropdown ,distributordropdown,distid;
   late Future<List> furturedist;
   TextEditingController dateController = TextEditingController();
@@ -64,9 +68,9 @@ class SalesScreenState extends State<SalesScreen>{
   TextEditingController shelf4Controller = TextEditingController();
   String formatter = "";
   final GlobalKey globalKey = new GlobalKey();
-
-
+  bool _isLoading = false, quantity_layout =false,isturnedon=false;
   final picker = ImagePicker();
+  double distanceInMeters=0.0;
 
   @override
   void initState() {
@@ -412,7 +416,7 @@ class SalesScreenState extends State<SalesScreen>{
 
   selectFromCamera(String s) async {
 
-    if(perstatus==PermissionStatus.denied){
+    if(perstatus== PermissionStatus.denied){
 
       Fluttertoast.showToast(msg: "Please allow camera permission!",
           toastLength: Toast.LENGTH_SHORT,
@@ -603,16 +607,8 @@ class SalesScreenState extends State<SalesScreen>{
             ctx: context),
       );
 
-    }else {
-
-      Fluttertoast.showToast(msg: "$statusdropdown",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 16.0);
-
+    }else if(statusdropdown!=null && statusdropdown!="DONE"){
+      submitsales();
     }
 
     // else if(shelf4Controller.text=="" || shelf1Controller.text=="" ||  shelf2Controller.text=="" ||  shelf3Controller.text=="" && persontype=="MT"){
@@ -642,6 +638,162 @@ class SalesScreenState extends State<SalesScreen>{
         }
 
     }
+
+  }
+
+  fetchLocation() async {
+
+    try{
+      bool _serviceEnabled;
+      PermissionStatus _permissionGranted;
+
+      _serviceEnabled = await location.serviceEnabled();
+      if (!_serviceEnabled) {
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          return;
+        }
+      }
+
+      _permissionGranted = await location.hasPermission();
+      if (_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await location.requestPermission();
+        if (_permissionGranted != PermissionStatus.granted) {
+          return;
+        }
+      }
+
+      _currentPosition = await location.getLocation();
+      bool ison = await location.serviceEnabled();
+      if (!ison) {
+        isturnedon = await location.requestService();
+      }
+
+      // location.onLocationChanged.listen((LocationData currentLocation) {
+      //   setState(() {
+      //     _currentPosition = currentLocation;
+      //    // getAddress(_currentPosition.latitude, _currentPosition.longitude)
+      //         .then((value) {
+      //       setState(() {
+      //         _address = "＄{value.first.addressLine}";
+      //       });
+      //     });
+      //   });
+      // });
+    }catch(e){
+      print("$e");
+    }
+
+  }
+
+  Future<void> submitsales() async {
+
+    final imageTemp = File(cameraFile!.path.toString());
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userid = prefs.getInt(Common.USER_ID)!;
+    String? cdate = getcurrentdate();
+    checkdistancecondition();
+
+   //  var salesentry=[{
+   //    "personId":userid,
+   //    "shopId":widget.retailerId,
+   //    "saleDateTime":cdate,
+   //    "status":statusdropdown,
+   //    "latitude":_currentPosition?.latitude,
+   //    "longitude":_currentPosition?.latitude,
+   //    "battery":_batteryLevel,
+   //    "GpsEnabled":isturnedon,
+   //    "accuracy":_currentPosition?.accuracy,
+   //    "speed":_currentPosition?.speed,
+   //    "provider":_currentPosition?.provider,
+   //    "altitude":_currentPosition?.altitude,
+   //    "shopType":"old",
+   //    "salesType":"secondary",
+   //    "timeDuration":"01:01",
+   //    "startLatitude":widget.latitude,
+   //    "startLongitude":widget.longitude,
+   //    "distId":widget.retailerId,
+   //    "distance":distanceInMeters,
+   //    "deliveryDate":dateController.text,
+   //    "allowed":isdistanceallowed}];
+   //
+   //   Map<String, String> headers = {
+   //     'Content-Type': 'application/json',
+   //   };
+   //
+   // // var response = await http.post(Uri.parse('${Common.IP_URL}SaveSalesWithImgAndGetId2?salesEntry=$salesentry'), headers: headers);
+   //  var request = await http.MultipartRequest('POST', Uri.parse('${Common.IP_URL}SaveSalesWithImgAndGetId2'));
+   //  request.fields['salesEntry']= salesentry.toString();
+   //
+   //  request.files.add(await http.MultipartFile.fromPath('key', imageTemp.path));
+   //  var response = await request.send();
+   //  var responsed = await http.Response.fromStream(response);
+   //  final responsedData = json.decode(responsed.body);
+   //  print("responseData${responsedData}");
+
+
+  }
+
+  Future<void> checkdistancecondition() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    int distanceallowed = prefs.getInt(Common.DISTANCE_ALLOWED)!;
+    distanceInMeters = await Geolocator.distanceBetween(_currentPosition!.latitude!.toDouble(),_currentPosition!.longitude!.toDouble(),widget.latitude as double,widget.longitude as double);
+
+    if(distanceInMeters>distanceallowed){
+      isdistanceallowed = "0";
+      showdistanceallowedmessage();
+    }else{
+      isdistanceallowed = "1";
+    }
+    print("distancecondition$isdistanceallowed");
+  }
+
+  Future<void> showdistanceallowedmessage(){
+    return showDialog(
+        context: context,
+        builder:(BuildContext context) {
+          return AlertDialog(
+
+            content:Wrap(
+              children: [
+
+                Image.asset('assets/Images/complain.png',width: 40,height: 40,),
+                Container(
+                  margin: EdgeInsets.all(10),
+                  child:Text("Please check your location, this location doesn\'t match with the older one."),
+                )
+
+              ],
+            ),
+            actions: <Widget>[
+
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Cancel'),
+                child: const Text('Cancel'),
+              ),
+
+              TextButton(
+                onPressed: () =>
+                    Navigator.pop(context, 'Cancel'),
+                child: const Text('Ok'),
+              ),
+
+            ],
+          );
+        }
+    );
+  }
+
+  getBatteryLevel() async {
+    Battery _battery = Battery();
+    final level = await _battery.batteryLevel;
+
+    setState((){
+      _batteryLevel=level;
+    });
 
   }
 

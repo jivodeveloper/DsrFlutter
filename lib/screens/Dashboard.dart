@@ -34,8 +34,8 @@ class Dashboardstate extends State<Dashboard> {
       shopsproductive = 0,
       ltrs=0;
 
-  num boxes=0;
-  String? cdate;
+  num total=0;
+  String? cdate,group;
 
   int achiveved = 0;
   String targettype = "";
@@ -44,6 +44,17 @@ class Dashboardstate extends State<Dashboard> {
     const Color(0xffD95AF3),
     const Color(0xff3EE094),
   ];
+
+  Map<String, dynamic> dataMap =
+  {
+      "id": "Bar",
+      "data": [
+        {'domain': 'Productive', 'measure': 1},
+        {'domain': 'Unprod', 'measure': 0},
+        {'domain': 'Covered', 'measure': 1},
+        {'domain': 'Uncovered', 'measure': 7},
+      ],
+  };
 
   List<Map<String, dynamic>> barchart = [];
 
@@ -96,8 +107,8 @@ class Dashboardstate extends State<Dashboard> {
 
                 PieChart(
                   dataMap: {
-                    "Acheived": ltrs.toDouble(),
-                    "Pending": target -ltrs.toDouble(),
+                    "Acheived": total.toDouble(),
+                    "Pending": target -total.toDouble(),
                   },
                   colorList: colorList,
                   chartRadius: MediaQuery
@@ -229,6 +240,7 @@ class Dashboardstate extends State<Dashboard> {
               setState(() {
                 target = details.target;
                 targettype = "Ltrs";
+
               });
 
             } else {
@@ -236,6 +248,7 @@ class Dashboardstate extends State<Dashboard> {
               setState(() {
                 target = details.targetBoxes;
                 targettype = "Boxes";
+
               });
 
 
@@ -246,18 +259,6 @@ class Dashboardstate extends State<Dashboard> {
             shopscoverd = details.coveredshops;
             shopsproductive = details.productiveshops;
 
-
-            // Map<String, dynamic> dataMap =
-            // {
-            //     "id": "Bar",
-            //     "data": [
-            //       {'domain': 'Productive', 'measure': 1},
-            //       {'domain': 'Unprod', 'measure': 0},
-            //       {'domain': 'Covered', 'measure': 1},
-            //       {'domain': 'Uncovered', 'measure': 7},
-            //     ],
-            // };
-
             barchart.add(dataMap);
           }else{
             print("shopsproductiveelse");
@@ -266,11 +267,9 @@ class Dashboardstate extends State<Dashboard> {
           print("shopsproductive3$e");
         }
 
-
     }catch(e){
       print("shopsproductive$e");
     }
-
 
     return barchart;
   }
@@ -292,18 +291,33 @@ class Dashboardstate extends State<Dashboard> {
     if (response.body.isNotEmpty) {
 
       try {
-
+        num val=0;
         final list = jsonDecode(response.body);
         detailslist = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
+        if(targettype=="Ltrs"){
 
-        for(int i=0;i<detailslist.length;i++){
+          for(int i=0;i<detailslist.length;i++){
 
-            ltrs += detailslist[i].quantity!;
-            boxes += detailslist[i].boxes!;
+              val += detailslist[i].quantity!;
+
+          }
+
+          setState(() {
+            total = val;
+          });
+
+        }else{
+
+          for(int i=0;i<detailslist.length;i++){
+            setState(() {
+              total += detailslist[i].boxes!;
+            });
+
+          }
 
         }
 
-        print("ltrs$boxes");
+        print("ltrs$total");
 
       } catch (e) {
 
