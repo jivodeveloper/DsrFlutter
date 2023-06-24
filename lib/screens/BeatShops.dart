@@ -66,12 +66,18 @@ class BeatShopsState extends State<BeatShops>{
                                                 SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString(),mobile:snapshot.data![index].mobileNo.toString(),latitude:double.parse(snapshot.data![index].latitude.toString()),longitude:double.parse(snapshot.data![index].longitude.toString()))));
 
                                   },
-                                  child: SizedBox(
+
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12.0),
+                                    margin:const EdgeInsets.all(5),
+                                    decoration:BoxDecoration(
+                                      color: Colors.grey[300],
+                                      border: Border.all(color: Colors.green,width: 2, style: BorderStyle.solid,),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
                                     width: double.infinity,
-                                    height: 135,
                                     child:  Column(
                                       children: [
-
                                         Padding(
                                           padding: EdgeInsets.only(left: 30.0,top: 5),
                                           child:  Row(
@@ -117,15 +123,6 @@ class BeatShopsState extends State<BeatShops>{
                                           child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
                                           alignment: Alignment.centerLeft,
                                         ),
-
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 10,right: 10),
-                                          child:  Divider(
-                                              thickness: 2.0,
-                                              color: Color(0xFFDED7D7)
-                                          ),
-                                        )
-
                                       ],
                                     ),
                                   ),

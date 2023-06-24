@@ -91,11 +91,11 @@ class SplashScreenState extends State<SplashScreen>{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var user_id = prefs.getInt(Common.USER_ID);
-
+    String personName= prefs.getString(Common.PERSON_NAME).toString();
     if(prefs.getInt(Common.USER_ID)!=0 && prefs.getInt(Common.USER_ID)!=null){
 
       Timer(Duration(seconds: 3), () =>Navigator.of(context).push(SwipeablePageRoute(
-        builder: (BuildContext context) => HomeScreen(),
+        builder: (BuildContext context) => HomeScreen(personName:personName),
       )));
 
     }else{

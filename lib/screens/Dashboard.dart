@@ -33,7 +33,7 @@ class Dashboardstate extends State<Dashboard> {
       shopscoverd = 0,
       shopsproductive = 0,
       ltrs=0;
-
+  String attStatus="";
   num total=0;
   String? cdate,group;
 
@@ -107,14 +107,14 @@ class Dashboardstate extends State<Dashboard> {
 
                 PieChart(
                   dataMap: {
-                    "Acheived": total.toDouble(),
+                    "Achieved": total.toDouble(),
                     "Pending": target -total.toDouble(),
                   },
                   colorList: colorList,
                   chartRadius: MediaQuery
                       .of(context)
                       .size
-                      .width / 2,
+                      .width / 3,
                   centerText: "Budget",
                   ringStrokeWidth: 24,
                   animationDuration: Duration(seconds: 3),
@@ -134,7 +134,13 @@ class Dashboardstate extends State<Dashboard> {
                 ),
 
                 Container(
-                  height: 300,
+                  margin: EdgeInsets.all(10),
+                  child: Text("Target : $target ",
+                    style: TextStyle(fontSize: 20),),
+                ),
+
+                Container(
+                  height: 200,
                   child: FutureBuilder<List>(
                       future: futurelist,
                       builder: (context, snapshot) {
@@ -171,7 +177,7 @@ class Dashboardstate extends State<Dashboard> {
                             barValue: (barData, index) => '${barData['measure']}',
                             showBarValue: true,
                             barValuePosition: BarValuePosition.auto,
-                            verticalDirection: true,
+                            verticalDirection: false,
 
                           ),);
                         } else if (snapshot.hasError) {
@@ -222,7 +228,6 @@ class Dashboardstate extends State<Dashboard> {
     logindetails details;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
-
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -231,9 +236,10 @@ class Dashboardstate extends State<Dashboard> {
       var response = await http.post(
           Uri.parse('${Common.IP_URL}Userdetails?userId=$userid'),
           headers: headers);
-
+          SharedPreferences prefs = await SharedPreferences.getInstance();
         try {
           details = logindetails.fromJson(json.decode(response.body));
+          prefs.setString(Common.attStatus,details.attStatus);
 
           if (details.personId != 0) {
             if (details.group == "GT") {

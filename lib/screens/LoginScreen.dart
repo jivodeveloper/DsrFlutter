@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../config/Common.dart';
 
+
 class LoginScreen extends StatefulWidget{
 
   @override
@@ -21,7 +22,7 @@ class LoginScreenState extends State<LoginScreen>{
 
   TextEditingController usercontroller = new TextEditingController();
   TextEditingController passcontroller = new TextEditingController();
-
+  bool _obscureText = true;
   @override
   void initState() {
     super.initState();
@@ -65,7 +66,7 @@ class LoginScreenState extends State<LoginScreen>{
                               ),
                               )
                           ),
-                        ),
+                         ),
 
                         Align(
                             alignment: Alignment.centerLeft,
@@ -111,11 +112,27 @@ class LoginScreenState extends State<LoginScreen>{
                             ),
                             child: TextFormField(
                               controller: passcontroller,
+                              obscureText:_obscureText,
+                              keyboardType: TextInputType.text,
                               decoration: InputDecoration(
                                   prefixIcon: Icon(Icons.password,
                                     color: Color(0xFF063A06),),
-                                  hintText: 'password'
+                                  hintText: 'password',
+                                  suffixIcon: GestureDetector(
+                                  onTap: () {
+                            setState(() {
+                            _obscureText = !_obscureText;
+                            });
+                            },
+                              child: Icon(
+                                _obscureText ? Icons.visibility : Icons.visibility_off,
+                                semanticLabel:
+                                _obscureText ? 'show password' : 'hide password',
+                                color:Color(0xFF063A06),
                               ),
+                            ),
+                          ),
+
                             ),
                           )
 
@@ -238,7 +255,7 @@ class LoginScreenState extends State<LoginScreen>{
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        HomeScreen()));
+                        HomeScreen(personName: details.personName)));
 
           }else{
 

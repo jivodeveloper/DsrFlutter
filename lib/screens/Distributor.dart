@@ -60,8 +60,14 @@ class DistributorState extends State<Distributor>{
 
                                 },
                                 child: Container(
+                                  padding: const EdgeInsets.all(12.0),
+                                  margin:const EdgeInsets.all(5),
+                                  decoration:BoxDecoration(
+                                    color: Colors.grey[300],
+                                    border: Border.all(color: Colors.green,width: 2, style: BorderStyle.solid,),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
                                   width: double.infinity,
-                                  height: 135,
                                   child:  Column(
                                     children: [
 

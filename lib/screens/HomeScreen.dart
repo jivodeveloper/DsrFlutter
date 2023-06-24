@@ -14,6 +14,8 @@ import 'dart:convert';
 
 
 class HomeScreen extends StatefulWidget{
+  String personName="";
+  HomeScreen({required this.personName});
 
   @override
   State<StatefulWidget> createState() {
@@ -57,7 +59,7 @@ class HomeScreenState extends State<HomeScreen>{
 
                   Expanded(
                     flex: 3,
-                    child: Text("Welcome",style: TextStyle(fontSize: 20,color: Colors.white,fontFamily: 'OpenSans',fontWeight: FontWeight.w900)),)
+                    child: Text("Welcome ${widget.personName}",style: TextStyle(fontSize: 20,color: Colors.white,fontFamily: 'OpenSans',fontWeight: FontWeight.w900)),)
 
                 ],
 
@@ -72,7 +74,7 @@ class HomeScreenState extends State<HomeScreen>{
                           context,
                           MaterialPageRoute(
                               builder: (contextt) =>
-                                  HomeScreen()
+                                  HomeScreen(personName: widget.personName)
 
                           ));
                     },
