@@ -9,6 +9,7 @@ class logindetails {
     required this.target,
     required this.targetBoxes,
     required this.distanceAllowed,
+    required this.attStatus,
   });
 
   int personId=0;
@@ -22,6 +23,7 @@ class logindetails {
   int coveredshops=0;
   int productiveshops=0;
   int distanceAllowed=0;
+  String attStatus="";
 
   logindetails.fromJson(Map<String, dynamic> json) {
     personId = json['personID'];
@@ -35,6 +37,7 @@ class logindetails {
     coveredshops = json['shopsCovered'];
     productiveshops = json['shopsProductive'];
     distanceAllowed = json['distanceAllowed'];
+    attStatus=json['attStatus'];
   }
 
   Map<String, dynamic> toJson() {
@@ -50,6 +53,7 @@ class logindetails {
     data['shopsCovered'] = this.coveredshops;
     data['shopsProductive'] = this.productiveshops;
     data['distanceAllowed'] = this.distanceAllowed;
+    data['attStatus']=this.attStatus;
     return data;
   }
 

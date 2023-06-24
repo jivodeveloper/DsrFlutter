@@ -33,7 +33,7 @@ class Dashboardstate extends State<Dashboard> {
       shopscoverd = 0,
       shopsproductive = 0,
       ltrs=0;
-
+  String attStatus="";
   num total=0;
   String? cdate,group;
 
@@ -47,13 +47,13 @@ class Dashboardstate extends State<Dashboard> {
 
   Map<String, dynamic> dataMap =
   {
-      "id": "Bar",
-      "data": [
-        {'domain': 'Productive', 'measure': 1},
-        {'domain': 'Unprod', 'measure': 0},
-        {'domain': 'Covered', 'measure': 1},
-        {'domain': 'Uncovered', 'measure': 7},
-      ],
+    "id": "Bar",
+    "data": [
+      {'domain': 'Productive', 'measure': 1},
+      {'domain': 'Unprod', 'measure': 0},
+      {'domain': 'Covered', 'measure': 1},
+      {'domain': 'Uncovered', 'measure': 7},
+    ],
   };
 
   List<Map<String, dynamic>> barchart = [];
@@ -107,14 +107,14 @@ class Dashboardstate extends State<Dashboard> {
 
                 PieChart(
                   dataMap: {
-                    "Acheived": total.toDouble(),
+                    "Achieved": total.toDouble(),
                     "Pending": target -total.toDouble(),
                   },
                   colorList: colorList,
                   chartRadius: MediaQuery
                       .of(context)
                       .size
-                      .width / 2,
+                      .width / 3,
                   centerText: "Budget",
                   ringStrokeWidth: 24,
                   animationDuration: Duration(seconds: 3),
@@ -130,50 +130,56 @@ class Dashboardstate extends State<Dashboard> {
                       legendTextStyle: TextStyle(fontSize: 15),
                       legendPosition: LegendPosition.bottom,
                       showLegendsInRow: true),
-                      gradientList: gradientList,
+                  gradientList: gradientList,
                 ),
 
                 Container(
-                  height: 300,
+                  margin: EdgeInsets.all(10),
+                  child: Text("Target : $target ",
+                    style: TextStyle(fontSize: 20),),
+                ),
+
+                Container(
+                  height: 200,
                   child: FutureBuilder<List>(
                       future: futurelist,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return AspectRatio(aspectRatio: 16/9,
-                          child: DChartBar(
-                            data: [
-                              {
-                                'id': 'Bar',
-                                'data': [
-                                  {
-                                    'domain': 'Productive',
-                                    'measure': shopsproductive
-                                  },
-                                  {'domain': 'Unprod',
-                                    'measure': shopscoverd - shopsproductive},
-                                  {'domain': 'Covered',
-                                    'measure': shopscoverd},
-                                  {
-                                    'domain': 'Uncovered',
-                                    'measure': assignedshops - shopscoverd
-                                  },
-                                ],
-                              },
-                            ],
+                            child: DChartBar(
+                              data: [
+                                {
+                                  'id': 'Bar',
+                                  'data': [
+                                    {
+                                      'domain': 'Productive',
+                                      'measure': shopsproductive
+                                    },
+                                    {'domain': 'Unprod',
+                                      'measure': shopscoverd - shopsproductive},
+                                    {'domain': 'Covered',
+                                      'measure': shopscoverd},
+                                    {
+                                      'domain': 'Uncovered',
+                                      'measure': assignedshops - shopscoverd
+                                    },
+                                  ],
+                                },
+                              ],
 
-                            domainLabelPaddingToAxisLine: 16,
-                            axisLineTick: 2,
-                            axisLinePointTick: 2,
-                            axisLinePointWidth: 10,
-                            axisLineColor: Colors.green,
-                            measureLabelPaddingToAxisLine: 16,
-                            barColor: (barData, index, id) => Colors.green,
-                            barValue: (barData, index) => '${barData['measure']}',
-                            showBarValue: true,
-                            barValuePosition: BarValuePosition.auto,
-                            verticalDirection: true,
+                              domainLabelPaddingToAxisLine: 16,
+                              axisLineTick: 2,
+                              axisLinePointTick: 2,
+                              axisLinePointWidth: 10,
+                              axisLineColor: Colors.green,
+                              measureLabelPaddingToAxisLine: 16,
+                              barColor: (barData, index, id) => Colors.green,
+                              barValue: (barData, index) => '${barData['measure']}',
+                              showBarValue: true,
+                              barValuePosition: BarValuePosition.auto,
+                              verticalDirection: false,
 
-                          ),);
+                            ),);
                         } else if (snapshot.hasError) {
                           return Container();
                         }
@@ -222,7 +228,6 @@ class Dashboardstate extends State<Dashboard> {
     logindetails details;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
-
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -231,41 +236,42 @@ class Dashboardstate extends State<Dashboard> {
       var response = await http.post(
           Uri.parse('${Common.IP_URL}Userdetails?userId=$userid'),
           headers: headers);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      try {
+        details = logindetails.fromJson(json.decode(response.body));
+        prefs.setString(Common.ATT_STATUS,details.attStatus);
 
-        try {
-          details = logindetails.fromJson(json.decode(response.body));
+        if (details.personId != 0) {
+          if (details.group == "GT") {
+            setState(() {
+              target = details.target;
+              targettype = "Ltrs";
 
-          if (details.personId != 0) {
-            if (details.group == "GT") {
-              setState(() {
-                target = details.target;
-                targettype = "Ltrs";
+            });
 
-              });
+          } else {
 
-            } else {
+            setState(() {
+              target = details.targetBoxes;
+              targettype = "Boxes";
 
-              setState(() {
-                target = details.targetBoxes;
-                targettype = "Boxes";
-
-              });
+            });
 
 
-            }
-            prefs.setInt(Common.DISTANCE_ALLOWED,details.distanceAllowed);
-
-            assignedshops = details.assignedshops!;
-            shopscoverd = details.coveredshops;
-            shopsproductive = details.productiveshops;
-
-            barchart.add(dataMap);
-          }else{
-            print("shopsproductiveelse");
           }
-        } catch (e) {
-          print("shopsproductive3$e");
+          prefs.setInt(Common.DISTANCE_ALLOWED,details.distanceAllowed);
+
+          assignedshops = details.assignedshops!;
+          shopscoverd = details.coveredshops;
+          shopsproductive = details.productiveshops;
+
+          barchart.add(dataMap);
+        }else{
+          print("shopsproductiveelse");
         }
+      } catch (e) {
+        print("shopsproductive3$e");
+      }
 
     }catch(e){
       print("shopsproductive$e");
@@ -298,7 +304,7 @@ class Dashboardstate extends State<Dashboard> {
 
           for(int i=0;i<detailslist.length;i++){
 
-              val += detailslist[i].quantity!;
+            val += detailslist[i].quantity!;
 
           }
 

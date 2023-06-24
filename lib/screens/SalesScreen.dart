@@ -14,8 +14,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:location/location.dart';
-
-import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import '../util/Helper.dart';
@@ -43,6 +41,7 @@ class SalesScreenState extends State<SalesScreen>{
   var perstatus;
   int _batteryLevel = 0,userid=0,beatId=0;
   double distance=0.0,distanceInMeters=0.0;
+
   List<String> status = [
     "DONE",
     "SHOP CLOSED",
@@ -51,7 +50,9 @@ class SalesScreenState extends State<SalesScreen>{
     "NOT INTERESTED",
     "TELEPHONIC"
   ];
+
   LocationData? _currentPosition;
+
   List<String> distnamelist = [],distIdlist = [];
   File? cameraFile,shelffile1,shelffile2,shelffile3,shelffile4,f;
   String? statusdropdown ,distributordropdown,distid,isdistanceallowed, persontype , cdate;
@@ -70,25 +71,9 @@ class SalesScreenState extends State<SalesScreen>{
   void initState() {
     super.initState();
     setcurrenttime();
-    int level = getBatteryLevel();
-    setState((){
-      _batteryLevel=level;
-    });
-
+    getbatterylevel();
     furturedist = loadalldist();
     fetchLocation();
-
-  }
-
-  setcurrenttime(){
-
-    final now = new DateTime.now();
-    formatter = DateFormat('yMd').format(now);// 28/03/2020
-
-    if(formatter!=""){
-      dateController.text = formatter;
-    }
-
   }
 
   @override
@@ -651,7 +636,7 @@ class SalesScreenState extends State<SalesScreen>{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
     cdate   = getcurrentdatewithtime();
-    distance = checkdistancecondition();
+    distance = checkdistancecondition(widget.latitude,widget.longitude);
     int distanceallowed = prefs.getInt(Common.DISTANCE_ALLOWED)!;
 
     if(distance > distanceallowed){
@@ -761,6 +746,26 @@ class SalesScreenState extends State<SalesScreen>{
                fontSize: 16.0);
 
     }
+  }
+
+  setcurrenttime(){
+
+    final now = new DateTime.now();
+    formatter = DateFormat('yMd').format(now);// 28/03/2020
+
+    if(formatter!=""){
+      dateController.text = formatter;
+    }
+
+  }
+
+  getbatterylevel(){
+
+    int level = getBatteryLevel();
+    setState((){
+      _batteryLevel=level;
+    });
+
   }
 
 }

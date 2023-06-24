@@ -9,4 +9,5 @@ class Common{
     static var BEAT_ID = "beat_id";
     static var BEAT_NAME = "beat_name";
     static var DISTANCE_ALLOWED = "distance_allowed";
+    static var ATT_STATUS = "attendance_status";
 }

@@ -1,9 +1,7 @@
-import 'dart:async';
 import  'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:location/location.dart';
 import 'package:geolocator/geolocator.dart';
-import '../config/Common.dart';
 import 'package:battery_plus/battery_plus.dart';
 
 LocationData? _currentPosition;
@@ -13,7 +11,7 @@ bool isturnedon = false;
 
 String getcurrentdate(){
 
-  String cdate = DateFormat("yyyyMM/dd").format(DateTime.now());
+  String cdate = DateFormat("yyyy/MM/dd").format(DateTime.now());
   return cdate;
 
 }
@@ -25,13 +23,13 @@ String getcurrentdatewithtime(){
 
 }
 
-double checkdistancecondition() {
+double checkdistancecondition(double? latitude,double? longitude) {
 
   double distanceInMeters=0.0;
   SharedPreferences prefs = SharedPreferences.getInstance() as SharedPreferences;
 
 
-  distanceInMeters = Geolocator.distanceBetween(_currentPosition!.latitude!.toDouble(),_currentPosition!.longitude!.toDouble(),widget.latitude as double,widget.longitude as double);
+  distanceInMeters = Geolocator.distanceBetween(_currentPosition!.latitude!.toDouble(),_currentPosition!.longitude!.toDouble(),latitude! , longitude!);
 
 
 
@@ -80,7 +78,7 @@ fetchLocation() async {
   }catch(e){
     print("$e");
   }
-
+  return _currentPosition;
 }
 
 getBatteryLevel() async {

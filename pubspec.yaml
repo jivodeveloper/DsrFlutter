@@ -71,6 +71,7 @@ dev_dependencies:
   image_watermark: ^0.0.5
   battery_plus: ^2.0.2
   path: ^1.8.3
+  flutter_progress_hud: ^2.0.2
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

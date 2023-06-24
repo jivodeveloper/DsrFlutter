@@ -2,14 +2,12 @@ class Item {
   int? itemID;
   String? itemName;
   String? itemCode;
-  int? quantity;
+  num? quantity;
   bool? status;
   int? mrp;
   int? piecesPerCase;
-
   int? uOMId;
   int? typeNameId;
-
   bool? visibleToSO;
   bool? visibleToPromoter;
   int? itemTypeId;
