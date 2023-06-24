@@ -1,7 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/rendering.dart';
-
+import 'package:path/path.dart' as path;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -15,8 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:location/location.dart';
-import 'package:permission_handler/permission_handler.dart' as Permission;
-import 'package:battery_plus/battery_plus.dart';
+
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -40,12 +38,11 @@ class SalesScreen extends StatefulWidget{
 }
 
 class SalesScreenState extends State<SalesScreen>{
+
   Location location = new Location();
   var perstatus;
-  String? persontype;
-  int userid=0;
-  bool _isLoaderVisible = false;
-  int _batteryLevel = 0;
+  int _batteryLevel = 0,userid=0,beatId=0;
+  double distance=0.0,distanceInMeters=0.0;
   List<String> status = [
     "DONE",
     "SHOP CLOSED",
@@ -55,11 +52,9 @@ class SalesScreenState extends State<SalesScreen>{
     "TELEPHONIC"
   ];
   LocationData? _currentPosition;
-  int beatId=0;
   List<String> distnamelist = [],distIdlist = [];
-  XFile? cameraFile,shelffile1,shelffile2,shelffile3,shelffile4;
-  String? isdistanceallowed;
-  String? statusdropdown ,distributordropdown,distid;
+  File? cameraFile,shelffile1,shelffile2,shelffile3,shelffile4,f;
+  String? statusdropdown ,distributordropdown,distid,isdistanceallowed, persontype , cdate;
   late Future<List> furturedist;
   TextEditingController dateController = TextEditingController();
   TextEditingController shelf1Controller = TextEditingController();
@@ -68,13 +63,25 @@ class SalesScreenState extends State<SalesScreen>{
   TextEditingController shelf4Controller = TextEditingController();
   String formatter = "";
   final GlobalKey globalKey = new GlobalKey();
-  bool _isLoading = false, quantity_layout =false,isturnedon=false;
+  bool quantity_layout = false,isturnedon = false;
   final picker = ImagePicker();
-  double distanceInMeters=0.0;
 
   @override
   void initState() {
     super.initState();
+    setcurrenttime();
+    int level = getBatteryLevel();
+    setState((){
+      _batteryLevel=level;
+    });
+
+    furturedist = loadalldist();
+    fetchLocation();
+
+  }
+
+  setcurrenttime(){
+
     final now = new DateTime.now();
     formatter = DateFormat('yMd').format(now);// 28/03/2020
 
@@ -82,7 +89,6 @@ class SalesScreenState extends State<SalesScreen>{
       dateController.text = formatter;
     }
 
-    furturedist = loadalldist();
   }
 
   @override
@@ -430,38 +436,49 @@ class SalesScreenState extends State<SalesScreen>{
       try{
 
         final cameraFile= await ImagePicker().pickImage(source: ImageSource.camera);
+        File? selectedImage;
+        setState(() {
+          selectedImage = File(cameraFile!.path); // won't have any error now
+        });
+
+        // String dir = path.dirname(selectedImage!.path);
+        // String newName = path.join(dir, 'case01wd03id01.jpg');
+        // selectedImage?.renameSync(newName);
+
+        final now = new DateTime.now();
+        String dir = path.dirname(selectedImage!.path);
+        String newPath = path.join(dir,("$userid-${now.day}-${now.month}-${now.year}-${now.timeZoneName}.jpg"));
+        f = await File(selectedImage!.path).copy(newPath);
 
         if(s=="camera"){
 
           setState(() {
-            this.cameraFile = cameraFile;
+            this.cameraFile = File(cameraFile!.path);
           });
 
         }else if(s=="shelf1"){
 
           setState(() {
-            shelf1Controller.text = cameraFile!.name;
+            shelf1Controller.text = cameraFile!.path.toString();
           });
 
         }else if(s=="shelf2"){
 
           setState(() {
-            shelf2Controller.text = cameraFile!.name;
+            shelf2Controller.text = cameraFile!.path.toString();
           });
 
         }else if(s=="shelf3"){
 
           setState(() {
-            shelf3Controller.text = cameraFile!.name;
+            shelf3Controller.text = cameraFile!.path.toString();
           });
 
         }else if(s=="shelf4"){
           setState(() {
-            shelf4Controller.text = cameraFile!.name;
+            shelf4Controller.text = cameraFile!.path.toString();
           });
         }
-
-
 
       }catch(e){
 
@@ -472,18 +489,6 @@ class SalesScreenState extends State<SalesScreen>{
     }
 
   }
-
-  // Future<GeoPoint?> getLocationDataFromImage(String filePath) async {
-  //   GeoPoint? preciseLocation;
-  //   final exif = await Exif.fromPath(filePath);
-  //   final latLong = await exif.getLatLong();
-  //   await exif.close();
-  //   if (latLong != null) {
-  //     preciseLocation = GeoPoint(latLong.latitude, latLong.longitude);
-  //     return preciseLocation;
-  //   }
-  //   return null;
-  // }
 
   Future<List> loadalldist() async {
 
@@ -640,114 +645,22 @@ class SalesScreenState extends State<SalesScreen>{
 
   }
 
-  fetchLocation() async {
-
-    try{
-      bool _serviceEnabled;
-      PermissionStatus _permissionGranted;
-
-      _serviceEnabled = await location.serviceEnabled();
-      if (!_serviceEnabled) {
-        _serviceEnabled = await location.requestService();
-        if (!_serviceEnabled) {
-          return;
-        }
-      }
-
-      _permissionGranted = await location.hasPermission();
-      if (_permissionGranted == PermissionStatus.denied) {
-        _permissionGranted = await location.requestPermission();
-        if (_permissionGranted != PermissionStatus.granted) {
-          return;
-        }
-      }
-
-      _currentPosition = await location.getLocation();
-      bool ison = await location.serviceEnabled();
-      if (!ison) {
-        isturnedon = await location.requestService();
-      }
-
-      // location.onLocationChanged.listen((LocationData currentLocation) {
-      //   setState(() {
-      //     _currentPosition = currentLocation;
-      //    // getAddress(_currentPosition.latitude, _currentPosition.longitude)
-      //         .then((value) {
-      //       setState(() {
-      //         _address = "＄{value.first.addressLine}";
-      //       });
-      //     });
-      //   });
-      // });
-    }catch(e){
-      print("$e");
-    }
-
-  }
-
   Future<void> submitsales() async {
-
-    final imageTemp = File(cameraFile!.path.toString());
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
-    String? cdate = getcurrentdate();
-    checkdistancecondition();
-
-   //  var salesentry=[{
-   //    "personId":userid,
-   //    "shopId":widget.retailerId,
-   //    "saleDateTime":cdate,
-   //    "status":statusdropdown,
-   //    "latitude":_currentPosition?.latitude,
-   //    "longitude":_currentPosition?.latitude,
-   //    "battery":_batteryLevel,
-   //    "GpsEnabled":isturnedon,
-   //    "accuracy":_currentPosition?.accuracy,
-   //    "speed":_currentPosition?.speed,
-   //    "provider":_currentPosition?.provider,
-   //    "altitude":_currentPosition?.altitude,
-   //    "shopType":"old",
-   //    "salesType":"secondary",
-   //    "timeDuration":"01:01",
-   //    "startLatitude":widget.latitude,
-   //    "startLongitude":widget.longitude,
-   //    "distId":widget.retailerId,
-   //    "distance":distanceInMeters,
-   //    "deliveryDate":dateController.text,
-   //    "allowed":isdistanceallowed}];
-   //
-   //   Map<String, String> headers = {
-   //     'Content-Type': 'application/json',
-   //   };
-   //
-   // // var response = await http.post(Uri.parse('${Common.IP_URL}SaveSalesWithImgAndGetId2?salesEntry=$salesentry'), headers: headers);
-   //  var request = await http.MultipartRequest('POST', Uri.parse('${Common.IP_URL}SaveSalesWithImgAndGetId2'));
-   //  request.fields['salesEntry']= salesentry.toString();
-   //
-   //  request.files.add(await http.MultipartFile.fromPath('key', imageTemp.path));
-   //  var response = await request.send();
-   //  var responsed = await http.Response.fromStream(response);
-   //  final responsedData = json.decode(responsed.body);
-   //  print("responseData${responsedData}");
-
-
-  }
-
-  Future<void> checkdistancecondition() async {
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    cdate   = getcurrentdatewithtime();
+    distance = checkdistancecondition();
     int distanceallowed = prefs.getInt(Common.DISTANCE_ALLOWED)!;
-    distanceInMeters = await Geolocator.distanceBetween(_currentPosition!.latitude!.toDouble(),_currentPosition!.longitude!.toDouble(),widget.latitude as double,widget.longitude as double);
 
-    if(distanceInMeters>distanceallowed){
+    if(distance > distanceallowed){
       isdistanceallowed = "0";
       showdistanceallowedmessage();
     }else{
       isdistanceallowed = "1";
     }
-    print("distancecondition$isdistanceallowed");
+    saveSales();
+
   }
 
   Future<void> showdistanceallowedmessage(){
@@ -776,7 +689,7 @@ class SalesScreenState extends State<SalesScreen>{
 
               TextButton(
                 onPressed: () =>
-                    Navigator.pop(context, 'Cancel'),
+                    saveSales(),
                 child: const Text('Ok'),
               ),
 
@@ -786,15 +699,67 @@ class SalesScreenState extends State<SalesScreen>{
     );
   }
 
-  getBatteryLevel() async {
-    Battery _battery = Battery();
-    final level = await _battery.batteryLevel;
+  Future<void> saveSales() async {
 
-    setState((){
-      _batteryLevel=level;
-    });
+    var salesentry=[{},{
+      "personId":"$userid",
+      "shopId":widget.retailerId,
+      "saleDateTime":cdate,
+      "status":statusdropdown,
+      "latitude":_currentPosition?.latitude,
+      "longitude":_currentPosition?.latitude,
+      "battery":_batteryLevel,
+      "GpsEnabled":isturnedon,
+      "accuracy":_currentPosition?.accuracy,
+      "speed":_currentPosition?.speed,
+      "provider":_currentPosition?.provider,
+      "altitude":_currentPosition?.altitude,
+      "shopType":"old",
+      "salesType":"secondary",
+      "timeDuration":"01:01",
+      "startLatitude":widget.latitude,
+      "startLongitude":widget.longitude,
+      "distId":widget.retailerId,
+      "distance":distanceInMeters,
+      "deliveryDate":dateController.text,
+      "allowed":isdistanceallowed,
+      "items":[]}];
 
+    var body = json.encode(salesentry);
+
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var request = await http.MultipartRequest('POST', Uri.parse('${Common.IP_URL}SaveSalesWithImgAndGetId2'));
+    request.fields['salesEntry']= body.toString();
+    request.files.add(await http.MultipartFile.fromPath('image', f!.path));
+
+    var response = await request.send();
+    var responsed = await http.Response.fromStream(response);
+    final responsedData = json.decode(responsed.body);
+
+    if(responsedData.contains("DONE")){
+
+              Fluttertoast.showToast(msg: "Sales Saved",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.black,
+              textColor: Colors.white,
+              fontSize: 16.0);
+
+    }else{
+
+               Fluttertoast.showToast(msg: "Something went wrong!Please try again!",
+               toastLength: Toast.LENGTH_SHORT,
+               gravity: ToastGravity.BOTTOM,
+               timeInSecForIosWeb: 1,
+               backgroundColor: Colors.black,
+               textColor: Colors.white,
+               fontSize: 16.0);
+
+    }
   }
-
 
 }

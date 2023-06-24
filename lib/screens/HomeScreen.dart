@@ -12,7 +12,6 @@ import '../config/Common.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 class HomeScreen extends StatefulWidget{
   String personName="";
   HomeScreen({required this.personName});
