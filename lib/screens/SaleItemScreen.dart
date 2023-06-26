@@ -41,7 +41,8 @@ class SalesItemState extends State<SalesItemScreen>{
   Future<List>? furturecategoryitem,furturecategory ;
   String? dropdowncategory,dropdownitem,shoptype="old",isdistanceallowed;
   List<String> dropdownOptions= [];
-  List<String>? selectedvalues,selectedvaluesitem,schemevalue,schemevalueitem;
+  List<String>? selectedvalues,selectedvaluesitem,schemevalueitem;
+  List<String> schemevalue=[];
   List<num>? quantity =[];
   List catenamlist = [], cateidlist = [],itemlist = [], itemid = [],categorylistscheme=[],categoryidscheme = [],itemlistscheme=[],itemidscheme = [];
   int numElements = 1,userid=0;
@@ -56,13 +57,13 @@ class SalesItemState extends State<SalesItemScreen>{
   String? _address;
   Location location = new Location();
 
-
   @override
   void initState() {
     super.initState();
 
     getBatteryLevel();
     furturecategory = loadcategory();
+    // furturecategoryitem = loadcategoryitem(index, val, opt);
     fetchLocation();
   }
 
@@ -108,7 +109,9 @@ class SalesItemState extends State<SalesItemScreen>{
           backgroundColor: Color(0xFF063A06),
           leading: GestureDetector(
             onTap:(){
+              dropdownOptionsProvider.remove();
               Navigator.of(context).pop();
+
             },
             child:Icon(Icons.cancel),
           ),
@@ -209,17 +212,19 @@ class SalesItemState extends State<SalesItemScreen>{
                                   future: furturecategory,
                                   builder: (context,snapshot){
                                     if(snapshot.hasData){
+                                      for (int i = 0; i < dynamicList.length; i++) {
+                                        dropdownOptionsProvider.selectedcategory.add("CANOLA");
+                                      }
                                       return DropdownButton<String>(
                                         isExpanded: true,
-                                        value:dropdownOptionsProvider.selectedValues.length>0?
-                                        dropdownOptionsProvider.selectedValues[index]:null,
-                                        hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
+                                        value:dropdownOptionsProvider.selectedcategory[index],
+                                        //  hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
                                         onChanged: (String? newValue) {
-                                          // setState(() {
-                                          //   selectedvalues?.insert(index,newValue.toString());
-                                          // });
-                                          dropdownOptionsProvider.setSelectedValue(index, newValue.toString());
-                                          loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString(),"item");
+
+                                          dropdownOptionsProvider.addDropdownOptions(index,newValue.toString());
+                                          // dropdownOptionsProvider.setSelectedValue(index, newValue.toString());
+                                          furturecategoryitem=loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString(),"item");
+
                                         },
                                         items: catenamlist.map((e) =>
                                             DropdownMenuItem<String>(
@@ -239,26 +244,23 @@ class SalesItemState extends State<SalesItemScreen>{
                                     if(snapshot.hasData){
                                       return DropdownButton<String>(
                                         isExpanded: true,
-                                        value:dropdownOptionsProvider.selecteditem.isEmpty?
-                                        dropdownOptionsProvider.selecteditem[index]:null,
+                                      //  value:dropdownOptionsProvider.selecteditem[index].isEmpty?"Selct item":dropdownOptionsProvider.selecteditem[index],
                                         hint: const Text("Select item",style: TextStyle(fontWeight: FontWeight.w300),),
                                         onChanged: (String? newValue) {
-                                          selectedvaluesitem?.insert(index, newValue.toString());
-                                          // setSelectedValueitem(index, newValue.toString());
+                                          // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
+                                          // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
                                         },
                                         items:itemlist.map((e) =>
                                             DropdownMenuItem<String>(
                                               value: e,
-                                              child: Text(e),
-                                            )
+                                              child: dropdownOptionsProvider.selectedcategory[index].isEmpty?Text("No item"):Text(e),
+                                          )
                                         ).toList(),
                                       );
                                     }
                                     return const CircularProgressIndicator();
                                   },
                                 ),
-
-
 
                                 Container(
                                   margin: EdgeInsets.all(5),
@@ -383,15 +385,17 @@ class SalesItemState extends State<SalesItemScreen>{
                                   future: furturecategory,
                                   builder: (context,snapshot){
                                     if(snapshot.hasData){
+                                      for (int i = 0; i < dynamicList.length; i++) {
+                                        schemevalue.add("CANOLA");
+                                      }
                                       return DropdownButton<String>(
                                         isExpanded: true,
-                                        value:schemevalue?[index],
-                                        hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
+                                        value:schemevalue[index].toString(),
+                                        //  hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
                                         onChanged: (String? newValue) {
-                                          setState(() {
-                                            schemevalue?.insert(index,newValue.toString());
-                                          });
-                                          //schemevalue?.insert(index, newValue.toString());
+                                          schemevalue[index] = newValue.toString();
+                                          setState(() {});
+                                          //  schemevalue?.insert(index, newValue.toString());
                                           //  loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString());
                                         },
                                         items: categorylistscheme.map((e) =>
@@ -559,18 +563,11 @@ class SalesItemState extends State<SalesItemScreen>{
       dynamicList.add(MyWidget());
     });
     submitsales();
+    print("${_currentPosition?.latitude}");
 
   }
 
-  Future<void> loadcategoryitem(int index,String val,String opt) async {
-
-    Fluttertoast.showToast(msg: "Please contact admin!!",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-        fontSize: 16.0);
+  Future<List> loadcategoryitem(int index,String val,String opt) async {
 
     int id=0;
     for(int i=0;i<catenamlist.length;i++){
@@ -597,28 +594,32 @@ class SalesItemState extends State<SalesItemScreen>{
 
         List<Item> categryitem = [];
         categryitem = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
-
-        if(opt=="item"){
-
-          for(int i=0 ;i<categryitem.length;i++){
-
-            setState(() {
-              itemlist.add(categryitem[i].itemName.toString());
-            });
-
-          }
-          itemobjectlist.insert(index, itemlist);
-        }else{
-
-          for(int i=0 ;i<categryitem.length;i++){
-
-            setState(() {
-              itemlistscheme.add(categryitem[i].itemName.toString());
-            });
-
-          }
-
+        for(int i=0 ;i<categryitem.length;i++) {
+          setState(() {
+            itemlist.add(categryitem[i].itemName.toString());
+          });
         }
+        // if(opt=="item"){
+        //
+        //   for(int i=0 ;i<categryitem.length;i++){
+        //
+        //     setState(() {
+        //       itemlist.add(categryitem[i].itemName.toString());
+        //     });
+        //
+        //   }
+        //   itemobjectlist.insert(index, itemlist);
+        // }else{
+        //
+        //   for(int i=0 ;i<categryitem.length;i++){
+        //
+        //     setState(() {
+        //       itemlistscheme.add(categryitem[i].itemName.toString());
+        //     });
+        //
+        //   }
+        //
+        // }
 
 
       }catch(e){
@@ -644,6 +645,16 @@ class SalesItemState extends State<SalesItemScreen>{
           fontSize: 16.0);
 
     }
+
+    Fluttertoast.showToast(msg:"${itemlist.length}",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
+
+    return itemlist;
 
   }
 
@@ -918,7 +929,7 @@ class MyWidget extends StatelessWidget {
     return SizedBox(
       height: 100,
       child: ListView.builder(
-          itemCount: dropdownOptionsProvider.selecteditem.length,
+          itemCount: dropdownOptionsProvider.selectedcategory.length,
           itemBuilder: (context, index) {
             return ListTile(
                 title: FutureBuilder<List>(
@@ -939,12 +950,11 @@ class MyWidget extends StatelessWidget {
                           ),
                           child: DropdownButton<String>(
                             value: dropdownOptionsProvider
-                                .selectedValues[index],
+                                .selectedcategory[index],
                             onChanged: (String? newValue) {
-                              dropdownOptionsProvider.setSelectedValue(
-                                  index, newValue.toString());
+                              // dropdownOptionsProvider.selecteditem(index, newValue.toString());
                             },
-                            items: dropdownOptionsProvider.selecteditem
+                            items: dropdownOptionsProvider.selectedcategory
                                 .map<DropdownMenuItem<String>>(
                                   (String option) =>
                                   DropdownMenuItem<String>(

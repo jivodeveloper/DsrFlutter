@@ -217,7 +217,6 @@ class ReportsScreenState extends State<ReportsScreen>{
                     return Container();
                   }),
 
-
             ],
           ),
         ),
