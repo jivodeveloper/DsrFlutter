@@ -161,7 +161,7 @@ class AttendanceState extends State<Attendance>{
 
   void getAttendanceStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    attStatus = prefs.getString(Common.attStatus) ?? '';
+    attStatus = prefs.getString(Common.ATT_STATUS) ?? '';
 
   }
 

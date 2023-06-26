@@ -238,7 +238,7 @@ class LoginScreenState extends State<LoginScreen>{
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        HomeScreen()));
+                        HomeScreen(personName:details.personName)));
 
           }else{
 

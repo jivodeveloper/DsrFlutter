@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:promoterapp/screens/Dashboard.dart';
+import 'package:promoterapp/screens/ReportsScreen.dart';
 import 'package:slide_drawer/slide_drawer.dart';
 import 'package:promoterapp/screens/LoginScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -125,7 +126,11 @@ class HomeScreenState extends State<HomeScreen>{
                 leading: Image.asset(
                     'assets/Images/report.png', height: 25),
                 onTap: (){
-
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (contextt) =>
+                              ReportsScreen()));
                 },
                 title: Text(
                   'Reports',
