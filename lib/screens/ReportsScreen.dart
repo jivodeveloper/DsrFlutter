@@ -31,18 +31,19 @@ class ReportsScreenState extends State<ReportsScreen>{
   String from="",to="",salesid="";
   List<SalesReport> salesreport = [];
   List<Items> itemsreport = [];
-
+  int totalPcs=0;
+  int totalLtr=0;
+  int count=0;
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("New Outlet",
+        title: const Text("Sales Reports",
             style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
         ),
         backgroundColor: Colors.white,
@@ -55,9 +56,41 @@ class ReportsScreenState extends State<ReportsScreen>{
           height: 900,
           child: Column(
             children: [
+              Center(
+                child:Text("DAILY SALES REPORT",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 25),) ,
+              ),
+
               Container(
-                margin: EdgeInsets.only(left: 10,top:10,right:10,bottom: 5),
-                child: Text("DAILY SALES REPORT",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 25),),
+                alignment: Alignment.centerRight,
+                margin: EdgeInsets.only(right: 10),
+                child: Text("$count"),
+              ),
+
+              SizedBox(
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: GestureDetector(
+                        child:Container(
+                            margin: EdgeInsets.all(10),
+                            child: Center(
+                              child:Text("Total Pcs:$totalPcs"),
+                            )
+                        ),),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: GestureDetector(
+                        child:Container(
+                            margin: EdgeInsets.all(10),
+                            child: Center(
+                              child:Text("Total Ltr:$totalLtr"),
+                            )
+                        ),),
+                    )
+                  ],
+                ),
               ),
               SizedBox(
 
@@ -87,9 +120,18 @@ class ReportsScreenState extends State<ReportsScreen>{
                             margin: EdgeInsets.all(10),
                             color: Colors.green,
                             height: 40,
-                            child: Center(
-                              child:from==""?Text("FROM"):Text("$from"),
-                            )
+                              child:Container(
+
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+
+                                  children: [
+                                    Image.asset('assets/Images/Calender.png', width:20,height: 20,alignment: Alignment.center,),
+                                    from==""?Text("FROM",style: TextStyle(color: Colors.white), textAlign: TextAlign.center,):Text("$from",style: TextStyle(color: Colors.white),),
+                                  ],
+                                ),
+                              )
                         ),
                       ),
 
@@ -106,7 +148,7 @@ class ReportsScreenState extends State<ReportsScreen>{
                                 lastDate: DateTime(2100));
                             if (date != null) {
                               setState((){
-                                to = DateFormat('yyyy/MM/dd').format(date);
+                                to = DateFormat('yyyy/MM/dd',).format(date);
 
                               });
                               if(from!=""){
@@ -130,8 +172,15 @@ class ReportsScreenState extends State<ReportsScreen>{
                               color: Colors.green,
                               height: 40,
                               child: Center(
-                                child:to==""?Text("TO"):Text("$to") ,
+                                child:Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
 
+                                  children: [
+                                    Image.asset('assets/Images/Calender.png', width:20,height: 20),
+                                    to==""?Text("TO",style: TextStyle(color: Colors.white),):Text("$to",style: TextStyle(color: Colors.white),),
+                                  ],
+                                ),
                               )
                           )
                       ),
@@ -159,8 +208,12 @@ class ReportsScreenState extends State<ReportsScreen>{
                                   },
                                   child: Container(
                                       padding: EdgeInsets.all(10),
-                                      color: Colors.grey[300],
                                       margin: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          border: Border.all(color: Color(0xFF063A06))
+                                      ),
                                       child:  Column(
                                           children:[
 
@@ -174,32 +227,41 @@ class ReportsScreenState extends State<ReportsScreen>{
                                                 Expanded(
                                                   flex: 1,
                                                   child:Text("${salesreport[index].date}",style: TextStyle(fontSize: 16,color: Colors.black),),
-                                                )
-
+                                                ),
                                               ],
                                             ),
-                                            Text("${salesreport[index].address}",style: TextStyle(fontSize: 16,color: Colors.black),),
                                             Row(
                                               children: [
                                                 Expanded(
+                                                  flex: 3,
+                                                  child:Text("${salesreport[index].address}",style: TextStyle(fontSize: 16,color: Colors.black),),
+                                                ),
+                                                Expanded(
                                                   flex: 1,
-                                                  child:Text("${salesreport[index].boxes}",style: TextStyle(fontSize: 16,color: Colors.black),),
+                                                  child:Text("Boxes:${salesreport[index].boxes}",style: TextStyle(fontSize: 16,color: Colors.black),),
 
                                                 ),
 
-                                                Expanded(
-                                                    flex: 1,
-                                                    child:Text("${salesreport[index].pieces}",style: TextStyle(fontSize: 16,color: Colors.black),)
 
-                                                )
 
                                               ],
                                             ),
+                                            Row(
+                                              children: [
+                                              Expanded(
+                                                flex:3,
+                                                child: Text("LTR:${salesreport[index].totalQuantity}",style: TextStyle(fontSize: 16,color: Colors.black),),),
+                                                Expanded(
+                                                    flex: 1,
+                                                    child:Text("PCS: ${salesreport[index].pieces}",style: TextStyle(fontSize: 16,color: Colors.black),)
+
+                                                )
+                                            ],),
                                             Padding(
                                               padding: EdgeInsets.only(left: 10,right: 10),
                                               child:  Divider(
                                                   thickness: 1.0,
-                                                  color: Color(0xFFB33232)
+                                                  color: Color(0xFF063A06)
                                               ),
                                             ),
                                             Text(salesreport[index].allowed?"Status: Allowed":"Status: Not Allowed",style: TextStyle(fontSize: 16,color: Colors.black),),
@@ -297,6 +359,9 @@ class ReportsScreenState extends State<ReportsScreen>{
         final list = jsonDecode(response.body);
 
         itemsreport = list["itemList"].map<SalesReport>((m) => Items.fromJson(Map<String, dynamic>.from(m))).toList();
+        setState(() {
+          count = itemsreport.length;
+        });
 
         print("${itemsreport.length}");
 
