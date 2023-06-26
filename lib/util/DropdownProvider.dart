@@ -13,6 +13,13 @@ class DropdownProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  void additemdropdown(int index,String option){
+
+    selecteditem[index]=option;
+    notifyListeners();
+  }
+
+
   void remove(){
     selectedcategory.clear();
     selecteditem.clear();

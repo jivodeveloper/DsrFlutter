@@ -11,8 +11,4 @@ class StateValueModel extends ChangeNotifier{
       notifyListeners();
   }
 
-  List<StateByPerson> getareabyzone(int areaId){
-
-  }
-
 }
