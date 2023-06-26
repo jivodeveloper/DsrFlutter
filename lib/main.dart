@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:promoterapp/screens/SplashScreen.dart';
+import 'package:promoterapp/util/DistributorProvider.dart';
 import 'package:promoterapp/util/DropdownProvider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   runApp(
-      ChangeNotifierProvider(
-        create: (_)=> DropdownProvider(),
-        child:  new MyApp())
+      MultiProvider(
+          providers: [
 
-      );
+            Provider<DropdownProvider>(
+            create: (_)=> DropdownProvider()),
+
+            Provider<DistributorProvider>(
+               create: (_)=> DistributorProvider(),)
+
+          ],
+          child:  new MyApp()
+      ));
+
+  // runApp(
+  //
+  //     ChangeNotifierProvider(
+  //       create: (_)=> DropdownProvider(),
+  //       child:  new MyApp())
+  //
+  //     );
 
 }
 

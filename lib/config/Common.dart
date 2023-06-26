@@ -10,4 +10,16 @@ class Common{
     static var BEAT_NAME = "beat_name";
     static var DISTANCE_ALLOWED = "distance_allowed";
     static var ATT_STATUS = "attendance_status";
+    static var SHOP_NAME = "shop_name";
+    static var ADDRESS = "address";
+    static var STATE = "state";
+    static var ZONE = "zone";
+    static var AREA = "area";
+    static var PINCODE = "pincode";
+    static var CONTACT_PERSON = "contact_person";
+    static var MOBILE_NUMBER = "mobile";
+    static var SHOP_TYPE = "shop_type";
+    static var CATEGORY = "category";
+    static var SHOPGROUP = "shop_group";
+
 }

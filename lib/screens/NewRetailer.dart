@@ -11,6 +11,7 @@ import '../config/Common.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import '../util/Helper.dart';
+import 'SalesScreen.dart';
 
 class NewRetailer extends StatefulWidget{
 
@@ -35,7 +36,7 @@ class NewRetailerState extends State<NewRetailer>{
   TextEditingController owner = TextEditingController();
   TextEditingController mobile = TextEditingController();
 
-  String? statetypedown,zonetypedown,areatypedown ,categorydropdownValue,groupdropdown,
+  String? statetypedown,sid,zonetypedown,zid,areatypedown,aid ,categorydropdownValue,groupdropdown,
       shoptypedown,
       dropdownvalue,formatter,cdate;
 
@@ -307,6 +308,13 @@ class NewRetailerState extends State<NewRetailer>{
                           style: const TextStyle(color: Color(0xFF063A06)),
                           underline: Container(),
                           onChanged: (value) {
+                            for(int i=0;i<statelist.length;i++){
+                              if(statelist.indexOf(value.toString())==i){
+                                setState(() {
+                                  sid = stateid[i];
+                                });
+                              }
+                            }
                             setState(() {
                               statetypedown = value.toString();
                             });
@@ -351,16 +359,28 @@ class NewRetailerState extends State<NewRetailer>{
                           style: const TextStyle(color: Color(0xFF063A06)),
                           underline: Container(),
                           onChanged:(newVal) {
+
+                            for(int i=0;i<zonelist.length;i++){
+                              if(zonelist.indexOf(newVal!)==i){
+                                setState(() {
+                                  zid = zoneid[i];
+                                });
+                              }
+                            }
+
                             setState(() {
                               zonetypedown = newVal.toString();
                             });
+
                           },
+
                           items: zonelist.map((value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value),
                             );
                           }).toList(),
+
                         ),
                       );
                     }else if(snapshot.hasError){
@@ -387,6 +407,13 @@ class NewRetailerState extends State<NewRetailer>{
                   style: const TextStyle(color: Color(0xFF063A06)),
                   underline: Container(),
                   onChanged:(newVal) {
+                    for(int i=0;i<arealist.length;i++){
+                      if(arealist.indexOf(newVal!)==i){
+                        setState(() {
+                          aid = areaid[i];
+                        });
+                      }
+                    }
                     setState(() {
                       areatypedown = newVal.toString();
                     });
@@ -569,7 +596,8 @@ class NewRetailerState extends State<NewRetailer>{
     stateid.clear();
     zonelist.clear();
     zoneid.clear();
-
+    arealist.clear();
+    zoneid.clear();
     try{
 
       statedata = list.map<StateByPerson>((m) => StateByPerson.fromJson(Map<String, dynamic>.from(m))).toList();
@@ -701,7 +729,6 @@ class NewRetailerState extends State<NewRetailer>{
 
     }else {
 
-
       withsaledialog(context);
 
     }
@@ -722,22 +749,42 @@ class NewRetailerState extends State<NewRetailer>{
                 },
                 child: const Text('No'),
               ),
+
               TextButton(
                 onPressed: () async {
-                  SharedPreferences preferences = await SharedPreferences.getInstance();
-                  await preferences.clear();
-
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (contextt) =>
-                  //             SalesScreen(retailerName: retailerName, retailerId: retailerId, address: address, mobile: mobile, latitude: latitude, longitude: longitude)));
+                  savealldata();
                 },
                 child: const Text('Yes'),
               )
+
             ],
           ),
     );
+  }
+
+  Future<void> savealldata() async {
+
+    SharedPreferences prefs= await SharedPreferences.getInstance();
+    prefs.setString(Common.SHOP_NAME, name.text);
+    prefs.setString(Common.ADDRESS, address.text);
+    prefs.setString(Common.STATE, sid.toString());
+    prefs.setString(Common.ZONE, zid.toString());
+    prefs.setString(Common.AREA, aid.toString());
+    prefs.setString(Common.PINCODE, pincode.text);
+    prefs.setString(Common.CONTACT_PERSON, owner.text);
+    prefs.setString(Common.MOBILE_NUMBER,mobile.text);
+    prefs.setString(Common.SHOP_TYPE,shoptypedown.toString());
+    prefs.setString(Common.CATEGORY,categorydropdownValue.toString());
+    prefs.setString(Common.SHOPGROUP,groupdropdown.toString());
+
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (contextt) =>
+                SalesScreen(retailerName: name.text, retailerId: "", address: address.text, mobile: mobile.text, latitude: _currentPosition?.latitude, longitude:  _currentPosition?.longitude)));
+
+
   }
 
   void savenewretailer() async{
@@ -763,6 +810,7 @@ class NewRetailerState extends State<NewRetailer>{
       "latitude":"${_currentPosition?.latitude}",
       "longitude":"${_currentPosition?.longitude}",
       "shopgroup":"$groupdropdown"}];
+
 
     var body = json.encode(salesentry);
 

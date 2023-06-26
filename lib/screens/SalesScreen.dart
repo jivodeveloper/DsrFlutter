@@ -17,6 +17,10 @@ import 'package:location/location.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import '../util/Helper.dart';
+import 'package:battery_plus/battery_plus.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 
 class SalesScreen extends StatefulWidget{
 
@@ -36,7 +40,9 @@ class SalesScreen extends StatefulWidget{
 }
 
 class SalesScreenState extends State<SalesScreen>{
-
+  Stopwatch _stopwatch = Stopwatch();
+  late Timer _timer;
+  String _elapsedTime = "00:00";
   Location location = new Location();
   var perstatus;
   int _batteryLevel = 0,userid=0,beatId=0;
@@ -66,14 +72,26 @@ class SalesScreenState extends State<SalesScreen>{
   final GlobalKey globalKey = new GlobalKey();
   bool quantity_layout = false,isturnedon = false;
   final picker = ImagePicker();
-
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer();
+  String? type;
   @override
   void initState() {
     super.initState();
+    if(widget.retailerId==""){
+      type="newShop";
+    }else{
+      type="old";
+    }
     setcurrenttime();
     getbatterylevel();
     furturedist = loadalldist();
     fetchLocation();
+    _startStopwatch();
+  }
+
+  void dispose() async {
+    super.dispose();
+    await _stopWatchTimer.dispose();  // Need to call dispose function.
   }
 
   @override
@@ -85,323 +103,383 @@ class SalesScreenState extends State<SalesScreen>{
             style: TextStyle(color:Color(0xFF063A06),
                 fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
         ),
+        actions: [
+          Center(
+            child: Text("$_elapsedTime",style: TextStyle(color:Color(0xFF063A06),fontSize: 19)),
+          )
+        ],
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color:Color(0xFF063A06)),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
+      body: ProgressHUD(
+          child:Builder(
+          builder: (context) => SingleChildScrollView(
+          child: Column(
+           children: [
 
             Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    border: Border.all(color: Color(0xFFC2FAC0))
-                ),
-                width: double.infinity,
-                margin: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  border: Border.all(color: Color(0xFFC2FAC0))
+              ),
+              width: double.infinity,
+              margin: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
+              child: Container(
                 padding: EdgeInsets.all(5),
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.green[100],
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  ),
-                  child: Row(
-                      children: [
-
-                        Flexible(
-                          flex: 6,
-                          child:Column(
-                            children: [
-
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child:Text("${widget.retailerName}",style: TextStyle(fontSize: 20),),
-                              ),
-
-                              Align(alignment: Alignment.centerLeft,
-                                child:Text("${widget.address}"),
-                              ),
-
-                              Align(alignment: Alignment.centerLeft,
-                                child:Text("${widget.mobile}"),
-                              )
-
-                            ],
-                          ),
-                        ),
-
-                        Flexible(
-                            flex: 1,
-                            child: Align(
-                              alignment:Alignment.center,
-                              child: Icon(Icons.location_pin,size: 36,color: Colors.red,),
-                            )
-                        )
-
-                      ]
-                  ),
-                )
-            ),
-
-            Container(
-              margin:EdgeInsets.fromLTRB(10,20,10,10),
-              child:FutureBuilder<List>(
-                  future: furturedist,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Container(
-                        width:double.infinity,
-                        height: 50,
-                        padding:EdgeInsets.all(7),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            border: Border.all(color: Color(0xFFD2C7C7))
-                        ),
-                        child: DropdownButton<String>(
-                            value : distributordropdown,
-                            underline:Container(),
-                            hint: const Text("Select Distributor",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
-                            isExpanded: true,
-                            items: snapshot.data?.map((e) =>
-                                DropdownMenuItem<String>(
-                                  value: e,
-                                  child: Text(e.toString()),
-                                )
-                            ).toList(),
-
-                            onChanged:(newVal) {
-
-                              setState(() {
-                                distributordropdown = newVal.toString();
-                              });
-                              getdistId(newVal.toString());
-                            }
-
-                        ),
-                      );
-
-                    } else if (snapshot.hasError) {
-                      return Container();
-                    }
-                    return const CircularProgressIndicator();
-                  }
-              ),
-            ),
-
-            Container(
-              width:double.infinity,
-              height: 50,
-              margin: EdgeInsets.all(10),
-              padding:EdgeInsets.all(7),
-              decoration: BoxDecoration(
+                decoration: BoxDecoration(
+                  color: Colors.green[100],
                   borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  border: Border.all(color: Color(0xFFD2C7C7))
-              ),
-              child:DropdownButton<String>(
-                value: statusdropdown,
-                isExpanded: true,
-                elevation: 80,
-                style: const TextStyle(color: Color(0xFF063A06)),
-                hint: const Text("Select Status",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
-                underline: Container(),
-                onChanged: (String? value) {
-
-                  setState(() {
-                    statusdropdown = value!;
-                  });
-
-                },
-
-                items: status.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-
-              ),
-            ),
-
-            Container(
-              margin:EdgeInsets.fromLTRB(10,20,10,10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Color(0xFFEFE4E4))
-              ),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.calendar_month,
-                    color: Color(0xFF063A06),),
-                  hintText:'Select Date',
                 ),
-                readOnly: true,
-                controller: dateController,
+                child: Row(
+                    children: [
 
-                onTap: () async {
-                  var date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100));
-                  if (date != null) {
+                      Flexible(
+                        flex: 6,
+                        child:Column(
+                          children: [
 
-                    dateController.text = DateFormat('MM/dd/yyyy').format(date);
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child:Text("${widget.retailerName}",style: TextStyle(fontSize: 20),),
+                            ),
 
-                  }
-                },
+                            Align(alignment: Alignment.centerLeft,
+                              child:Text("${widget.address}"),
+                            ),
 
-              ),
-            ),
+                            Align(alignment: Alignment.centerLeft,
+                              child:Text("${widget.mobile}"),
+                            )
+
+                          ],
+                        ),
+                      ),
+
+                      Flexible(
+                          flex: 1,
+                          child: Align(
+                            alignment:Alignment.center,
+                            child: Icon(Icons.location_pin,size: 36,color: Colors.red,),
+                          )
+                      )
+
+                    ]
+                ),
+              )
+          ),
 
             Container(
-              width:double.infinity,
-              height: 100,
-              margin: EdgeInsets.all(10),
-              padding:EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  border: Border.all(color: Color(0xFFD2C7C7))
+            margin:EdgeInsets.fromLTRB(10,20,10,10),
+            child:FutureBuilder<List>(
+                future: furturedist,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Container(
+                      width:double.infinity,
+                      height: 50,
+                      padding:EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          border: Border.all(color: Color(0xFFD2C7C7))
+                      ),
+                      child: DropdownButton<String>(
+                          value : distributordropdown,
+                          underline:Container(),
+                          hint: const Text("Select Distributor",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                          isExpanded: true,
+                          items: snapshot.data?.map((e) =>
+                              DropdownMenuItem<String>(
+                                value: e,
+                                child: Text(e.toString()),
+                              )
+                          ).toList(),
+
+                          onChanged:(newVal) {
+
+                            setState(() {
+                              distributordropdown = newVal.toString();
+                            });
+                            getdistId(newVal.toString());
+                          }
+
+                      ),
+                    );
+
+                  } else if (snapshot.hasError) {
+                    return Container();
+                  }
+                  return const CircularProgressIndicator();
+                }
+            ),
+          ),
+
+            Container(
+            width:double.infinity,
+            height: 50,
+            margin: EdgeInsets.all(10),
+            padding:EdgeInsets.all(7),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                border: Border.all(color: Color(0xFFD2C7C7))
+            ),
+            child:DropdownButton<String>(
+              value: statusdropdown,
+              isExpanded: true,
+              elevation: 80,
+              style: const TextStyle(color: Color(0xFF063A06)),
+              hint: const Text("Select Status",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+              underline: Container(),
+              onChanged: (String? value) {
+
+                setState(() {
+                  statusdropdown = value!;
+                });
+
+              },
+
+              items: status.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+
+            ),
+          ),
+
+            Container(
+            margin:EdgeInsets.fromLTRB(10,20,10,10),
+            decoration: BoxDecoration(
+                border: Border.all(color: Color(0xFFEFE4E4))
+            ),
+            child: TextFormField(
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.calendar_month,
+                  color: Color(0xFF063A06),),
+                hintText:'Select Date',
               ),
-              child:GestureDetector(
+              readOnly: true,
+              controller: dateController,
+
+              onTap: () async {
+                var date = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime(2100));
+                if (date != null) {
+
+                  dateController.text = DateFormat('MM/dd/yyyy').format(date);
+
+                }
+              },
+
+            ),
+          ),
+
+            Container(
+            width:double.infinity,
+            height: 100,
+            margin: EdgeInsets.all(10),
+            padding:EdgeInsets.all(7),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                border: Border.all(color: Color(0xFFD2C7C7))
+            ),
+            child:GestureDetector(
 
                 onTap: (){
                   selectFromCamera("camera");
                 },
                 child: cameraFile == null ?
-                  Center(child: Image.asset('assets/Images/picture.png',width: 500)):
-                   RepaintBoundary(
+                Center(child: Image.asset('assets/Images/picture.png',width: 500)):
+                RepaintBoundary(
                     child: Stack(
                         children: <Widget>[
-                    Center(child: Image.file(File(cameraFile!.path))),
-                    Center(child: Text("text")),
-                   ]
-                  )
-                   )
-                ),
-              ),
+                          Center(child: Image.file(File(cameraFile!.path))),
+                        ]
+                    )
+                )
+            ),
+          ),
 
             Container(
-              margin:EdgeInsets.fromLTRB(10,20,10,10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Color(0xFFEFE4E4))
-              ),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.image,
-                    color: Color(0xFF063A06),),
-                  hintText:'Shelf image 1',
-                ),
-                readOnly: true,
-                controller: shelf1Controller,
-
-                onTap: () async {
-                  selectFromCamera("shelf1");
-                },
-
-              ),
+            margin:EdgeInsets.fromLTRB(10,20,10,10),
+            decoration: BoxDecoration(
+                border: Border.all(color: Color(0xFFEFE4E4))
             ),
-
-            Container(
-              margin:EdgeInsets.fromLTRB(10,20,10,10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Color(0xFFEFE4E4))
+            child: TextFormField(
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.image,
+                  color: Color(0xFF063A06),),
+                hintText:'Shelf image 1',
               ),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.image,
-                    color: Color(0xFF063A06),),
-                  hintText:'Shelf image 2',
-                ),
-                readOnly: true,
-                controller: shelf2Controller,
+              readOnly: true,
+              controller: shelf1Controller,
 
-                onTap: () async {
-                  selectFromCamera("shelf2");
-                },
-
-              ),
-            ),
-
-            Container(
-              margin:EdgeInsets.fromLTRB(10,20,10,10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Color(0xFFEFE4E4))
-              ),
-              child: TextFormField(
-                controller: shelf3Controller,
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.image,
-                    color: Color(0xFF063A06),),
-                  hintText:'Shelf image 3',
-                ),
-                onTap: (){
-                  selectFromCamera("shelf3");
-                },
-              ),
-            ),
-
-            Container(
-              margin:EdgeInsets.fromLTRB(10,20,10,10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Color(0xFFEFE4E4))
-              ),
-              child: TextFormField(
-                controller: shelf4Controller,
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.image,
-                    color: Color(0xFF063A06),),
-                  hintText:'Shelf image 4',
-                ),
-                onTap: (){
-                  selectFromCamera("shelf4");
-                },
-              ),
-            ),
-
-            GestureDetector(
-              onTap: (){
-                checkvalidtion();
-
+              onTap: () async {
+                selectFromCamera("shelf1");
               },
 
-              child: Container(
-                  margin: EdgeInsets.only(left:0,top:40,right:0,bottom: 0),
-                  height: 55,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF063A06),
-                  ),
+            ),
+          ),
 
-                  child: Row(
-                    children: [
-
-                      Expanded(flex:1,
-                        child:Align(
-                          alignment: Alignment.centerRight,
-                          child:Text(
-                            "CONTINUE  ",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),),
-
-                      Expanded(
-                          flex: 1,
-                          child:Align(
-                            alignment: Alignment.centerLeft,
-                            child:Image.asset('assets/Images/right-arrow.png',height: 30,width: 20),
-                          ))
-
-                    ],
-                  )
+            Container(
+            margin:EdgeInsets.fromLTRB(10,20,10,10),
+            decoration: BoxDecoration(
+                border: Border.all(color: Color(0xFFEFE4E4))
+            ),
+            child: TextFormField(
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.image,
+                  color: Color(0xFF063A06),),
+                hintText:'Shelf image 2',
               ),
+              readOnly: true,
+              controller: shelf2Controller,
 
-            )
+              onTap: () async {
+                selectFromCamera("shelf2");
+              },
 
-          ],
-        ),
+            ),
+          ),
+
+            Container(
+            margin:EdgeInsets.fromLTRB(10,20,10,10),
+            decoration: BoxDecoration(
+                border: Border.all(color: Color(0xFFEFE4E4))
+            ),
+            child: TextFormField(
+              controller: shelf3Controller,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.image,
+                  color: Color(0xFF063A06),),
+                hintText:'Shelf image 3',
+              ),
+              onTap: (){
+                selectFromCamera("shelf3");
+              },
+            ),
+          ),
+
+            Container(
+            margin:EdgeInsets.fromLTRB(10,20,10,10),
+            decoration: BoxDecoration(
+                border: Border.all(color: Color(0xFFEFE4E4))
+            ),
+            child: TextFormField(
+              controller: shelf4Controller,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.image,
+                  color: Color(0xFF063A06),),
+                hintText:'Shelf image 4',
+              ),
+              onTap: (){
+                selectFromCamera("shelf4");
+              },
+            ),
+          ),
+
+            GestureDetector(
+            onTap: (){
+              checkvalidtion(context);
+
+            },
+
+            child: Container(
+                margin: EdgeInsets.only(left:0,top:40,right:0,bottom: 0),
+                height: 55,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Color(0xFF063A06),
+                ),
+
+                child: Row(
+                  children: [
+
+                    Expanded(flex:1,
+                      child:Align(
+                        alignment: Alignment.centerRight,
+                        child:Text(
+                          "CONTINUE  ",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),),
+
+                    Expanded(
+                        flex: 1,
+                        child:Align(
+                          alignment: Alignment.centerLeft,
+                          child:Image.asset('assets/Images/right-arrow.png',height: 30,width: 20),
+                        ))
+
+                  ],
+                )
+            ),
+
+          )
+
+        ],
       ),
-    );
+     ),
+    )));
+  }
+
+  fetchLocation() async {
+
+    try{
+      bool _serviceEnabled;
+      PermissionStatus _permissionGranted;
+
+      _serviceEnabled = await location.serviceEnabled();
+      if (!_serviceEnabled) {
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          return;
+        }
+      }
+
+      _permissionGranted = await location.hasPermission();
+      if (_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await location.requestPermission();
+        if (_permissionGranted != PermissionStatus.granted) {
+          return;
+        }
+      }
+
+      _currentPosition = await location.getLocation();
+      bool ison = await location.serviceEnabled();
+      if (!ison) {
+        isturnedon = await location.requestService();
+      }
+
+      // location.onLocationChanged.listen((LocationData currentLocation) {
+      //   setState(() {
+      //     _currentPosition = currentLocation;
+      //    // getAddress(_currentPosition.latitude, _currentPosition.longitude)
+      //         .then((value) {
+      //       setState(() {
+      //         _address = "＄{value.first.addressLine}";
+      //       });
+      //     });
+      //   });
+      // });
+    }catch(e){
+      print("$e");
+    }
+    return _currentPosition;
+  }
+
+  void _startStopwatch() {
+    _stopwatch.start();
+    _timer = Timer.periodic(Duration(milliseconds: 1), (timer) {
+      setState(() {
+        _elapsedTime = _stopwatch.elapsed.toString().substring(0, 8);
+      });
+    });
   }
 
   selectFromCamera(String s) async {
@@ -550,7 +628,7 @@ class SalesScreenState extends State<SalesScreen>{
 
   }
 
-  void checkvalidtion() async{
+  void checkvalidtion(context) async{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     persontype = prefs.getString(Common.PERSON_TYPE);
@@ -597,7 +675,7 @@ class SalesScreenState extends State<SalesScreen>{
       );
 
     }else if(statusdropdown!=null && statusdropdown!="DONE"){
-      submitsales();
+          submitsales(context);
     }
 
     // else if(shelf4Controller.text=="" || shelf1Controller.text=="" ||  shelf2Controller.text=="" ||  shelf3Controller.text=="" && persontype=="MT"){
@@ -630,7 +708,7 @@ class SalesScreenState extends State<SalesScreen>{
 
   }
 
-  Future<void> submitsales() async {
+  Future<void> submitsales(context) async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
@@ -643,10 +721,28 @@ class SalesScreenState extends State<SalesScreen>{
       showdistanceallowedmessage();
     }else{
       isdistanceallowed = "1";
+      if(type=="old")
+        {
+          saveSales(context);
+        }else{
+        savenewretailerwithsales(context);
+       }
+
     }
-    saveSales();
+
 
   }
+
+  double checkdistancecondition(double? latitude,double? longitude) {
+
+    double distanceInMeters=0.0;
+
+    distanceInMeters = Geolocator.distanceBetween(_currentPosition!.latitude!.toDouble(),_currentPosition!.longitude!.toDouble(),latitude! , longitude!);
+
+
+    return distanceInMeters;
+  }
+
 
   Future<void> showdistanceallowedmessage(){
     return showDialog(
@@ -673,8 +769,14 @@ class SalesScreenState extends State<SalesScreen>{
               ),
 
               TextButton(
-                onPressed: () =>
-                    saveSales(),
+                onPressed: () =>{
+
+                 if(type=="old"){
+                   saveSales(context),
+                 }else{
+                   savenewretailerwithsales(context),
+                 }
+                },
                 child: const Text('Ok'),
               ),
 
@@ -684,7 +786,9 @@ class SalesScreenState extends State<SalesScreen>{
     );
   }
 
-  Future<void> saveSales() async {
+  Future<void> saveSales(context) async {
+
+    ProgressHUD.of(context)?.show();
 
     var salesentry=[{},{
       "personId":"$userid",
@@ -699,9 +803,9 @@ class SalesScreenState extends State<SalesScreen>{
       "speed":_currentPosition?.speed,
       "provider":_currentPosition?.provider,
       "altitude":_currentPosition?.altitude,
-      "shopType":"old",
+      "shopType":type,
       "salesType":"secondary",
-      "timeDuration":"01:01",
+      "timeDuration":_elapsedTime,
       "startLatitude":widget.latitude,
       "startLongitude":widget.longitude,
       "distId":widget.retailerId,
@@ -711,7 +815,7 @@ class SalesScreenState extends State<SalesScreen>{
       "items":[]}];
 
     var body = json.encode(salesentry);
-
+    print("sales$body");
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -726,6 +830,8 @@ class SalesScreenState extends State<SalesScreen>{
 
     if(responsedData.contains("DONE")){
 
+              ProgressHUD.of(context)?.dismiss();
+
               Fluttertoast.showToast(msg: "Sales Saved",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
@@ -734,7 +840,9 @@ class SalesScreenState extends State<SalesScreen>{
               textColor: Colors.white,
               fontSize: 16.0);
 
-    }else{
+              Navigator.of(context).pop();
+
+     }else{
 
                Fluttertoast.showToast(msg: "Something went wrong!Please try again!",
                toastLength: Toast.LENGTH_SHORT,
@@ -758,12 +866,100 @@ class SalesScreenState extends State<SalesScreen>{
 
   }
 
-  getbatterylevel(){
+  Future<void> getbatterylevel() async {
 
-    int level = getBatteryLevel();
+    Battery _battery = Battery();
+    final level = await _battery.batteryLevel;
+
+  //  int level = getBatteryLevel();
     setState((){
       _batteryLevel=level;
     });
+
+  }
+
+  void savenewretailerwithsales(context) async{
+
+    ProgressHUD.of(context)?.show();
+
+    SharedPreferences prefs= await SharedPreferences.getInstance();
+    int userid = prefs.getInt(Common.USER_ID)!;
+
+    var salesentry=[{},{
+      "personId":"$userid",
+      "shopName":widget.retailerName,
+      "address":widget.address,
+      "state":prefs.getString(Common.STATE),
+      "zone":prefs.getString(Common.ZONE),
+      "area":prefs.getString(Common.AREA),
+      "pincode":prefs.getString(Common.PINCODE),
+      "contactPerson":prefs.getString(Common.CONTACT_PERSON),
+      "contactNo":"",
+      "mobileNo":prefs.getString(Common.MOBILE_NUMBER),
+      "shopType":type,
+      "category":prefs.getString(Common.CATEGORY),
+      "imagePath":"",
+      "creationDate":cdate.toString(),
+      "latitude":"${_currentPosition?.latitude}",
+      "longitude":"${_currentPosition?.longitude}",
+      "shopgroup":prefs.getString(Common.SHOPGROUP),
+      "saleDateTime":cdate.toString(),
+      "status":statusdropdown,
+      "battery":_batteryLevel,
+      "GpsEnabled":isturnedon,
+      "accuracy":_currentPosition?.accuracy,
+      "speed":_currentPosition?.speed,
+      "provider":_currentPosition?.provider,
+      "altitude":_currentPosition?.altitude,
+      "distId":distid,
+      "distName":distributordropdown,
+      "timeDuration":_elapsedTime,
+      "items":[]
+    }];
+
+    var body = json.encode(salesentry);
+
+    print("${body.toString()}");
+
+
+    Map<String,String> headers={
+      'Content-Type': 'application/json',
+    };
+
+    var request = await http.MultipartRequest('POST', Uri.parse('${Common.IP_URL}SaveNewRetailer'));
+    request.fields['newRetailer']= body.toString();
+    request.files.add(await http.MultipartFile.fromPath('image', cameraFile!.path));
+
+    var response = await request.send();
+    var responsed = await http.Response.fromStream(response);
+    final responsedData = json.decode(responsed.body);
+
+    if(responsedData.contains("DONE")){
+
+      ProgressHUD.of(context)?.dismiss();
+
+      Fluttertoast.showToast(msg: "Sales Saved",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+      Navigator.of(context).pop();
+
+    }else{
+
+      Fluttertoast.showToast(msg: "Something went wrong!Please try again!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }
+
 
   }
 

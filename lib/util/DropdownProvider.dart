@@ -2,50 +2,46 @@ import 'package:flutter/cupertino.dart';
 
 class DropdownProvider extends ChangeNotifier{
 
+  List<String> selectedcategory= [];
   List<String> selecteditem= [];
-  List<String> selectedValues= [""];
 
-  // void addDropdownOptions(String option){
-  //   dropdownOptions.add(option);
-  //   notifyListeners();
-  // }
-  //
-  // void removeDropdownOptions(int index){
-  //   dropdownOptions.removeAt(index);
-  //   selectedValues.removeAt(index);
-  //   notifyListeners();
-  // }
+  void addDropdownOptions(int index,String option){
+    //  selecteditem.add(option);
 
-
-  void setSelectedItem(int index,String value){
-    // selectedValues[index]= value;
-    selecteditem.insert(index,value);
+    selectedcategory[index]=option;
+    // selecteditem[index]=option;
     notifyListeners();
   }
 
-  void setSelectedValue(int index,String value){
-    // selectedValues[index]= value;
-    selectedValues.insert(index,value);
-    notifyListeners();
-  }
-  
-  void removeSelectedValue(int index,String value){
-    // selectedValues[index]= value;
-    selectedValues.remove(index);
+  void additemdropdown(int index,String option){
+
+    selecteditem[index]=option;
     notifyListeners();
   }
 
-  void removeSelectedItem(int index){
-    // selectedValues[index]= value;
-    selectedValues.remove(index);
+
+  void remove(){
+    selectedcategory.clear();
+    selecteditem.clear();
     notifyListeners();
   }
 
-  String getSelectedValue(int index){
-    // selectedValues[index]= value;
-    var value = selectedValues.elementAt(index);
+  void removeDropdownOptions(int index){
+    selectedcategory.removeAt(index);
+    selecteditem.removeAt(index);
     notifyListeners();
-    return value;
   }
+
+// void setSelectedValue(int index,String value){
+//   selectedValues.insert(index, value);
+//   print("valueofcategory${selectedValues.length}");
+//   // notifyListeners();
+// }
+//
+// void setSelectedItemValue(int index,String value){
+//   selecteditem.insert(index, value);
+//   print("valueofcategory${selectedValues.length}");
+//   // notifyListeners();
+// }
 
 }

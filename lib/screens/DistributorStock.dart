@@ -13,39 +13,10 @@ import 'package:provider/provider.dart';
 import 'package:location/location.dart';
 import '../util/Helper.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:flutter/rendering.dart';
-import 'package:path/path.dart' as path;
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:promoterapp/screens/SaleItemScreen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../models/Shops.dart';
-import '../config/Common.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:page_transition/page_transition.dart';
-import 'package:location/location.dart';
-import 'dart:async';
-import 'package:flutter/services.dart';
-import '../util/Helper.dart';
-
 
 class DistributorStock extends StatefulWidget{
 

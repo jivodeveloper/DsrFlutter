@@ -41,7 +41,8 @@ class SalesItemState extends State<SalesItemScreen>{
   Future<List>? furturecategoryitem,furturecategory ;
   String? dropdowncategory,dropdownitem,shoptype="old",isdistanceallowed;
   List<String> dropdownOptions= [];
-  List<String>? selectedvalues,selectedvaluesitem,schemevalue,schemevalueitem;
+  List<String>? selectedvalues,selectedvaluesitem,schemevalueitem;
+  List<String> schemevalue=[];
   List<num>? quantity =[];
   List catenamlist = [], cateidlist = [],itemlist = [], itemid = [],categorylistscheme=[],categoryidscheme = [],itemlistscheme=[],itemidscheme = [];
   int numElements = 1,userid=0;
@@ -50,12 +51,11 @@ class SalesItemState extends State<SalesItemScreen>{
   List dynamicList = [];
   var pwdWidgets = <Widget>[];
   bool _isLoading = false, quantity_layout =false,isturnedon=false;
-  int _batteryLevel = 0;
+  int _batteryLevel = 0,lisindex=0;
   Future<dynamic>? best;
   LocationData? _currentPosition;
   String? _address;
   Location location = new Location();
-
 
   @override
   void initState() {
@@ -63,6 +63,7 @@ class SalesItemState extends State<SalesItemScreen>{
 
     getBatteryLevel();
     furturecategory = loadcategory();
+    furturecategoryitem = loadcategoryitem(0, "", "");
     fetchLocation();
   }
 
@@ -108,7 +109,9 @@ class SalesItemState extends State<SalesItemScreen>{
           backgroundColor: Color(0xFF063A06),
           leading: GestureDetector(
             onTap:(){
+              dropdownOptionsProvider.remove();
               Navigator.of(context).pop();
+
             },
             child:Icon(Icons.cancel),
           ),
@@ -180,7 +183,7 @@ class SalesItemState extends State<SalesItemScreen>{
                 ),
 
                 SizedBox(
-                  height: 400,
+                  height: 900,
                   child: ListView.builder(
                     itemCount: dynamicList.length,
                     itemBuilder: (_, index) =>
@@ -209,17 +212,22 @@ class SalesItemState extends State<SalesItemScreen>{
                                   future: furturecategory,
                                   builder: (context,snapshot){
                                     if(snapshot.hasData){
+
+                                      for (int i = 0; i < dynamicList.length; i++) {
+                                        dropdownOptionsProvider.selectedcategory.add("CANOLA");
+                                      }
+
                                       return DropdownButton<String>(
                                         isExpanded: true,
-                                        value:dropdownOptionsProvider.selectedValues.length>0?
-                                        dropdownOptionsProvider.selectedValues[index]:null,
-                                        hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
+                                        value:dropdownOptionsProvider.selectedcategory[index],
+                                        //  hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
                                         onChanged: (String? newValue) {
-                                          // setState(() {
-                                          //   selectedvalues?.insert(index,newValue.toString());
-                                          // });
-                                          dropdownOptionsProvider.setSelectedValue(index, newValue.toString());
-                                          loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString(),"item");
+
+                                          dropdownOptionsProvider.addDropdownOptions(index,newValue.toString());
+                                          // dropdownOptionsProvider.setSelectedValue(index, newValue.toString());
+                                          furturecategoryitem=loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString(),"item");
+                                          lisindex = index;
+
                                         },
                                         items: catenamlist.map((e) =>
                                             DropdownMenuItem<String>(
@@ -228,6 +236,7 @@ class SalesItemState extends State<SalesItemScreen>{
                                             )
                                         ).toList(),
                                       );
+
                                     }
                                     return const CircularProgressIndicator();
                                   },
@@ -239,17 +248,21 @@ class SalesItemState extends State<SalesItemScreen>{
                                     if(snapshot.hasData){
                                       return DropdownButton<String>(
                                         isExpanded: true,
-                                        value:dropdownOptionsProvider.selecteditem.isEmpty?
-                                        dropdownOptionsProvider.selecteditem[index]:null,
+                                        // value:dropdownOptionsProvider.selecteditem[index].isEmpty?"No item":dropdownOptionsProvider.selecteditem[index],
                                         hint: const Text("Select item",style: TextStyle(fontWeight: FontWeight.w300),),
                                         onChanged: (String? newValue) {
-                                          selectedvaluesitem?.insert(index, newValue.toString());
-                                          // setSelectedValueitem(index, newValue.toString());
+                                          dropdownOptionsProvider.additemdropdown(index, newValue.toString());
+                                          // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
                                         },
-                                        items:itemlist.map((e) =>
+                                        items:dropdownOptionsProvider.selectedcategory[index].isNotEmpty?itemlist.map((e) =>
                                             DropdownMenuItem<String>(
                                               value: e,
                                               child: Text(e),
+                                            )
+                                        ).toList():itemlist.map((e) =>
+                                            DropdownMenuItem<String>(
+                                                value: e,
+                                                child: Text("No item")
                                             )
                                         ).toList(),
                                       );
@@ -258,114 +271,58 @@ class SalesItemState extends State<SalesItemScreen>{
                                   },
                                 ),
 
-
-
                                 Container(
                                   margin: EdgeInsets.all(5),
                                   child: Row(
                                     children: [
-
                                       Expanded(
-                                          flex: 2,
-                                          child:Row(
-                                            children: [
-
-                                              Expanded(
-                                                  flex: 1,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 25,
-                                                    margin: EdgeInsets.only(right: 15),
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(width: 1.0,color:Colors.grey),
-                                                        borderRadius: BorderRadius.all(Radius.circular(10.0))
+                                          flex: 1,
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Container(
+                                                width: 100,
+                                                height: 30,
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        width: 1.0,
+                                                        color: Colors.grey
                                                     ),
-                                                    child: Center(
-                                                      child: Text("RS 2500"),
-                                                    ),
-                                                  )
+                                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
+                                                ),
+                                                child: TextFormField(
+                                                  decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
+                                                ),
                                               ),
-
-                                              Expanded(
-                                                  flex: 1,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 25,
-                                                    margin: EdgeInsets.only(right: 15),
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(width: 1.0,color:Colors.grey),
-                                                        borderRadius: BorderRadius.all(Radius.circular(10.0))
-                                                    ),
-                                                    child: Center(
-                                                      child: Text("RS 2500"),
-                                                    ),
-                                                  )
-                                              ),
-
-                                            ],
+                                            ),
                                           )
                                       ),
 
                                       Expanded(
-                                          flex: 2,
-                                          child:Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: SizedBox(
-                                                        width: double.infinity,
-                                                        child: Align(
-                                                          alignment: Alignment.centerRight,
-                                                          child: Container(
-                                                            width: 50,
-                                                            height: 30,
-                                                            decoration: BoxDecoration(
-                                                                border: Border.all(
-                                                                    width: 1.0,
-                                                                    color: Colors.grey
-                                                                ),
-                                                                borderRadius: BorderRadius.all(Radius.circular(2.0))
-                                                            ),
-                                                            child: TextFormField(
-                                                              decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                  ),
-
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: SizedBox(
-                                                        width: double.infinity,
-                                                        child: Align(
-                                                          alignment: Alignment.centerRight,
-                                                          child: Container(
-                                                            width: 50,
-                                                            height: 30,
-                                                            decoration: BoxDecoration(
-                                                                border: Border.all(
-                                                                    width: 1.0,
-                                                                    color: Colors.grey
-                                                                ),
-                                                                borderRadius: BorderRadius.all(Radius.circular(2.0))
-                                                            ),
-                                                            child: TextFormField(
-                                                              decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                  ),
-
-                                                ],
+                                          flex: 1,
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Container(
+                                                width: 100,
+                                                height: 30,
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        width: 1.0,
+                                                        color: Colors.grey
+                                                    ),
+                                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
+                                                ),
+                                                child: TextFormField(
+                                                  decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
+                                                ),
                                               ),
-
-                                            ],
+                                            ),
                                           )
-                                      )
+                                      ),
+
 
                                     ],
                                   ),
@@ -383,15 +340,17 @@ class SalesItemState extends State<SalesItemScreen>{
                                   future: furturecategory,
                                   builder: (context,snapshot){
                                     if(snapshot.hasData){
+                                      for (int i = 0; i < dynamicList.length; i++) {
+                                        schemevalue.add("CANOLA");
+                                      }
                                       return DropdownButton<String>(
                                         isExpanded: true,
-                                        value:schemevalue?[index],
-                                        hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
+                                        value:schemevalue[index].toString(),
+                                        //  hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
                                         onChanged: (String? newValue) {
-                                          setState(() {
-                                            schemevalue?.insert(index,newValue.toString());
-                                          });
-                                          //schemevalue?.insert(index, newValue.toString());
+                                          schemevalue[index] = newValue.toString();
+                                          setState(() {});
+                                          //  schemevalue?.insert(index, newValue.toString());
                                           //  loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString());
                                         },
                                         items: categorylistscheme.map((e) =>
@@ -427,106 +386,94 @@ class SalesItemState extends State<SalesItemScreen>{
                                   child: Row(
                                     children: [
 
+                                      // Expanded(
+                                      //     flex: 2,
+                                      //     child:Row(
+                                      //       children: [
+                                      //
+                                      //         Expanded(
+                                      //             flex: 1,
+                                      //             child: Container(
+                                      //               width: 50,
+                                      //               height: 25,
+                                      //               margin: EdgeInsets.only(right: 15),
+                                      //               decoration: BoxDecoration(
+                                      //                   border: Border.all(width: 1.0,color:Colors.grey),
+                                      //                   borderRadius: BorderRadius.all(Radius.circular(10.0))
+                                      //               ),
+                                      //               child: Center(
+                                      //                 child: Text("RS 2500"),
+                                      //               ),
+                                      //             )
+                                      //         ),
+                                      //
+                                      //         Expanded(
+                                      //             flex: 1,
+                                      //             child: Container(
+                                      //               width: 50,
+                                      //               height: 25,
+                                      //               margin: EdgeInsets.only(right: 15),
+                                      //               decoration: BoxDecoration(
+                                      //                   border: Border.all(width: 1.0,color:Colors.grey),
+                                      //                   borderRadius: BorderRadius.all(Radius.circular(10.0))
+                                      //               ),
+                                      //               child: Center(
+                                      //                 child: Text("RS 2500"),
+                                      //               ),
+                                      //             )
+                                      //         ),
+                                      //
+                                      //       ],
+                                      //     )
+                                      // ),
+
                                       Expanded(
-                                          flex: 2,
-                                          child:Row(
-                                            children: [
-
-                                              Expanded(
-                                                  flex: 1,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 25,
-                                                    margin: EdgeInsets.only(right: 15),
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(width: 1.0,color:Colors.grey),
-                                                        borderRadius: BorderRadius.all(Radius.circular(10.0))
+                                          flex: 1,
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Container(
+                                                width: 100,
+                                                height: 30,
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        width: 1.0,
+                                                        color: Colors.grey
                                                     ),
-                                                    child: Center(
-                                                      child: Text("RS 2500"),
-                                                    ),
-                                                  )
+                                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
+                                                ),
+                                                child: TextFormField(
+                                                  decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
+                                                ),
                                               ),
-
-                                              Expanded(
-                                                  flex: 1,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 25,
-                                                    margin: EdgeInsets.only(right: 15),
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(width: 1.0,color:Colors.grey),
-                                                        borderRadius: BorderRadius.all(Radius.circular(10.0))
-                                                    ),
-                                                    child: Center(
-                                                      child: Text("RS 2500"),
-                                                    ),
-                                                  )
-                                              ),
-
-                                            ],
+                                            ),
                                           )
                                       ),
 
                                       Expanded(
-                                          flex: 2,
-                                          child:Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: SizedBox(
-                                                        width: double.infinity,
-                                                        child: Align(
-                                                          alignment: Alignment.centerRight,
-                                                          child: Container(
-                                                            width: 50,
-                                                            height: 30,
-                                                            decoration: BoxDecoration(
-                                                                border: Border.all(
-                                                                    width: 1.0,
-                                                                    color: Colors.grey
-                                                                ),
-                                                                borderRadius: BorderRadius.all(Radius.circular(2.0))
-                                                            ),
-                                                            child: TextFormField(
-                                                              decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                  ),
-
-                                                  Expanded(
-                                                      flex: 1,
-                                                      child: SizedBox(
-                                                        width: double.infinity,
-                                                        child: Align(
-                                                          alignment: Alignment.centerRight,
-                                                          child: Container(
-                                                            width: 50,
-                                                            height: 30,
-                                                            decoration: BoxDecoration(
-                                                                border: Border.all(
-                                                                    width: 1.0,
-                                                                    color: Colors.grey
-                                                                ),
-                                                                borderRadius: BorderRadius.all(Radius.circular(2.0))
-                                                            ),
-                                                            child: TextFormField(
-                                                              decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                  ),
-
-                                                ],
+                                          flex: 1,
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Container(
+                                                width: 100,
+                                                height: 30,
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        width: 1.0,
+                                                        color: Colors.grey
+                                                    ),
+                                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
+                                                ),
+                                                child: TextFormField(
+                                                  decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
+                                                ),
                                               ),
-                                            ],
+                                            ),
                                           )
-                                      )
+                                      ),
 
                                     ],
                                   ),
@@ -559,24 +506,20 @@ class SalesItemState extends State<SalesItemScreen>{
       dynamicList.add(MyWidget());
     });
     submitsales();
+    print("${_currentPosition?.latitude}");
 
   }
 
-  Future<void> loadcategoryitem(int index,String val,String opt) async {
-
-    Fluttertoast.showToast(msg: "Please contact admin!!",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-        fontSize: 16.0);
+  Future<List> loadcategoryitem(int index,String val,String opt) async {
 
     int id=0;
+
     for(int i=0;i<catenamlist.length;i++){
       if(index==i){
         id = cateidlist[i];
       }
+      print("id$id}");
+
     }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -597,28 +540,32 @@ class SalesItemState extends State<SalesItemScreen>{
 
         List<Item> categryitem = [];
         categryitem = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
-
-        if(opt=="item"){
-
-          for(int i=0 ;i<categryitem.length;i++){
-
-            setState(() {
-              itemlist.add(categryitem[i].itemName.toString());
-            });
-
-          }
-          itemobjectlist.insert(index, itemlist);
-        }else{
-
-          for(int i=0 ;i<categryitem.length;i++){
-
-            setState(() {
-              itemlistscheme.add(categryitem[i].itemName.toString());
-            });
-
-          }
-
+        for(int i=0 ;i<categryitem.length;i++) {
+          setState(() {
+            itemlist.add(categryitem[i].itemName.toString());
+          });
         }
+        // if(opt=="item"){
+        //
+        //   for(int i=0 ;i<categryitem.length;i++){
+        //
+        //     setState(() {
+        //       itemlist.add(categryitem[i].itemName.toString());
+        //     });
+        //
+        //   }
+        //   itemobjectlist.insert(index, itemlist);
+        // }else{
+        //
+        //   for(int i=0 ;i<categryitem.length;i++){
+        //
+        //     setState(() {
+        //       itemlistscheme.add(categryitem[i].itemName.toString());
+        //     });
+        //
+        //   }
+        //
+        // }
 
 
       }catch(e){
@@ -644,6 +591,16 @@ class SalesItemState extends State<SalesItemScreen>{
           fontSize: 16.0);
 
     }
+
+    Fluttertoast.showToast(msg:"${itemlist.length}",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
+
+    return itemlist;
 
   }
 
@@ -918,7 +875,7 @@ class MyWidget extends StatelessWidget {
     return SizedBox(
       height: 100,
       child: ListView.builder(
-          itemCount: dropdownOptionsProvider.selecteditem.length,
+          itemCount: dropdownOptionsProvider.selectedcategory.length,
           itemBuilder: (context, index) {
             return ListTile(
                 title: FutureBuilder<List>(
@@ -939,12 +896,11 @@ class MyWidget extends StatelessWidget {
                           ),
                           child: DropdownButton<String>(
                             value: dropdownOptionsProvider
-                                .selectedValues[index],
+                                .selectedcategory[index],
                             onChanged: (String? newValue) {
-                              dropdownOptionsProvider.setSelectedValue(
-                                  index, newValue.toString());
+                              // dropdownOptionsProvider.selecteditem(index, newValue.toString());
                             },
-                            items: dropdownOptionsProvider.selecteditem
+                            items: dropdownOptionsProvider.selectedcategory
                                 .map<DropdownMenuItem<String>>(
                                   (String option) =>
                                   DropdownMenuItem<String>(

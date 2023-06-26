@@ -18,8 +18,9 @@ String getcurrentdate(){
 
 String getcurrentdatewithtime(){
 
-  String cdate = DateTime.now().toString();
-  return cdate;
+  // String cdate = DateTime.now().toString();
+  String date =DateFormat('MM-dd-yyyy HH:mm').format(DateTime.now());
+  return date;
 
 }
 
@@ -82,9 +83,11 @@ fetchLocation() async {
 }
 
 getBatteryLevel() async {
+
   Battery _battery = Battery();
   final level = await _battery.batteryLevel;
 
+  return level;
 }
 
 
