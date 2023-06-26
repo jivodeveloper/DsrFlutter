@@ -24,7 +24,7 @@ class AttendanceState extends State<Attendance>{
   List beatnamelist = [];
   List<int> beatIdlist = [];
   int userid=0,beatId=0;
-
+  String attStatus="";
   @override
   void initState() {
     super.initState();
@@ -34,8 +34,17 @@ class AttendanceState extends State<Attendance>{
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         appBar: AppBar(
+            backgroundColor: Colors.white,
+            leading: GestureDetector(
+              onTap: (){
+                Navigator.pop(context);
+              },
+              child: Icon(Icons.arrow_back,color:Color(0xFF063A06)),
+            ),
+
             title: const Text("Attendance",
                 style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
             )
@@ -47,16 +56,22 @@ class AttendanceState extends State<Attendance>{
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+              children:[
               GestureDetector(
                 onTap: (){
                   showdilaog("P");
                 },
                 child:Container(
-                  height: 40,
-                  width: 190,
+                  height: 100,
+                  width: 100,
                   margin: EdgeInsets.all(10),
-                  color: Colors.black,
+                  decoration: BoxDecoration(
+                    color: const Color(0xff0e0e0e),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: const Center(
                       child:Text("PRESENT",style: TextStyle(
                           color: Colors.white
@@ -71,10 +86,13 @@ class AttendanceState extends State<Attendance>{
                   showdilaog("EOD");
                 },
                 child:  Container(
-                  height: 40,
-                  width: 150,
+                  height: 100,
+                  width: 100,
                   margin: EdgeInsets.all(10),
-                  color: Colors.black,
+                  decoration: BoxDecoration(
+                    color: const Color(0xff0e0e0e),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: const Center(
                       child:Text("END OF DAY",style: TextStyle(
                           color: Colors.white
@@ -83,16 +101,24 @@ class AttendanceState extends State<Attendance>{
                   ),
                 ),
               ),
-
+              ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+              children:[
               GestureDetector(
                 onTap: (){
                   showdilaog("HD");
                 },
                 child: Container(
-                  height: 40,
-                  width: 150,
+                  height: 100,
+                  width: 100,
                   margin: EdgeInsets.all(10),
-                  color: Colors.black,
+                  decoration: BoxDecoration(
+                    color: const Color(0xff0e0e0e),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: const Center(
                       child: Text("HALF DAY",style: TextStyle(
                           color: Colors.white
@@ -108,10 +134,13 @@ class AttendanceState extends State<Attendance>{
                   showdilaog("WO");
                 },
                 child:Container(
-                  height: 40,
-                  width: 150,
+                  height: 100,
+                  width: 100,
                   margin: EdgeInsets.all(10),
-                  color: Colors.black,
+                  decoration: BoxDecoration(
+                    color: const Color(0xff0e0e0e),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: const Center(
                       child:Text("WEEK OFF",style: TextStyle(
                           color: Colors.white
@@ -124,12 +153,19 @@ class AttendanceState extends State<Attendance>{
 
             ],
           ),
+          ]
+        ),
         )
     );
   }
 
-  Future<bool> _handleLocationPermission() async {
+  void getAttendanceStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    attStatus = prefs.getString(Common.attStatus) ?? '';
 
+  }
+
+  Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
     serviceEnabled = await Geolocator.isLocationServiceEnabled();

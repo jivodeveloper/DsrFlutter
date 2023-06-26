@@ -99,7 +99,6 @@ class SalesScreenState extends State<SalesScreen>{
                     border: Border.all(color: Color(0xFFC2FAC0))
                 ),
                 width: double.infinity,
-                height: 80,
                 margin: EdgeInsets.all(10),
                 padding: EdgeInsets.all(5),
                 child: Container(
