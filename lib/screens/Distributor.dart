@@ -71,35 +71,49 @@ class DistributorState extends State<Distributor>{
                                   child:  Column(
                                     children: [
 
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 30.0,top: 5),
-                                        child:  Row(
-                                          children: [
+                                      // Padding(
+                                      //   padding: EdgeInsets.only(left: 30.0,top: 5),
+                                      //   child:  Row(
+                                      //     children: [
+                                      //
+                                      //       Container(
+                                      //         height: 10.0,
+                                      //         width: 10.0,
+                                      //         decoration: BoxDecoration(
+                                      //             color: Colors.green,
+                                      //             shape: BoxShape.circle
+                                      //         ),
+                                      //       ),
+                                      //
+                                      //       Align(
+                                      //         child: Text(' Visited',style: TextStyle(color: Colors.green),),
+                                      //         alignment: Alignment.centerLeft,
+                                      //       ),
+                                      //
+                                      //     ],
+                                      //   ),
+                                      // ),
 
-                                            Container(
-                                              height: 10.0,
-                                              width: 10.0,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.green,
-                                                  shape: BoxShape.circle
-                                              ),
-                                            ),
-
-                                            Align(
-                                              child: Text(' Visited',style: TextStyle(color: Colors.green),),
+                                      Row(
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 5),
+                                            child: Align(
+                                              child: Image.asset('assets/Images/store.png',width: 30,),
                                               alignment: Alignment.centerLeft,
                                             ),
+                                          ),
 
-                                          ],
-                                        ),
-                                      ),
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 5),
+                                            child: Align(
+                                              child: Text(' ${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                              alignment: Alignment.centerLeft,
+                                            ),
+                                          ),
 
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 5),
-                                        child: Align(
-                                          child: Text('${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
-                                          alignment: Alignment.centerLeft,
-                                        ),
+
+                                        ],
                                       ),
 
                                       Align(

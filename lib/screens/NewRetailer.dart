@@ -25,9 +25,7 @@ class NewRetailer extends StatefulWidget{
 class NewRetailerState extends State<NewRetailer>{
 
   final formGlobalKey = GlobalKey < FormState > ();
-  List<String> shoptype = ["Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
-  List<String> category = ["A","B","C","D"];
-  List<String> group = ["GT","MT"];
+  List<String> group = ["GT","MT"],category = ["A","B","C","D"],shoptype = ["Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
   List<String> statelist = [],stateid = [],zonelist = [],zoneid = [],arealist = [],areaid = [];
 
   TextEditingController name = TextEditingController();
@@ -36,12 +34,13 @@ class NewRetailerState extends State<NewRetailer>{
   TextEditingController owner = TextEditingController();
   TextEditingController mobile = TextEditingController();
 
-  String? statetypedown,sid,zonetypedown,zid,areatypedown,aid ,categorydropdownValue,groupdropdown,
-      shoptypedown,
-      dropdownvalue,formatter,cdate;
+  String? statetypedown, sid, zonetypedown, zid, areatypedown, aid ,categorydropdownValue, groupdropdown,
+      shoptypedown, dropdownvalue, formatter, cdate;
+  Map<int,String> area = Map();
 
   late Future<List> futurestate;
   late Future<List> futurezone;
+
   List distIdlist = [];
   XFile? cameraFile;
   var status;
@@ -372,6 +371,12 @@ class NewRetailerState extends State<NewRetailer>{
                               zonetypedown = newVal.toString();
                             });
 
+                            for (var entry in area.entries) {
+                              if(area['newVal']==newVal){
+                                print("$entry");
+                              }
+                            }
+
                           },
 
                           items: zonelist.map((value) {
@@ -613,6 +618,8 @@ class NewRetailerState extends State<NewRetailer>{
         arealist.add(statedata[i].area.toString());
         areaid.add(statedata[i].areaId.toString());
 
+        area[statedata[i].zoneId!] = statedata[i].area!;
+
       }
 
       statelist = LinkedHashSet<String>.from(statelist).toList();
@@ -649,6 +656,7 @@ class NewRetailerState extends State<NewRetailer>{
     }
 
     return statelist;
+
   }
 
   // void checkPermissionStatus() async{
@@ -757,9 +765,9 @@ class NewRetailerState extends State<NewRetailer>{
                 child: const Text('Yes'),
               )
 
-            ],
-          ),
-    );
+          ],
+        ),
+     );
   }
 
   Future<void> savealldata() async {
@@ -776,7 +784,6 @@ class NewRetailerState extends State<NewRetailer>{
     prefs.setString(Common.SHOP_TYPE,shoptypedown.toString());
     prefs.setString(Common.CATEGORY,categorydropdownValue.toString());
     prefs.setString(Common.SHOPGROUP,groupdropdown.toString());
-
 
     Navigator.push(
         context,

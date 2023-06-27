@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/Common.dart';
 import '../models/logindetails.dart';
 import '../util/Helper.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 
 class Dashboard extends StatefulWidget{
 
@@ -23,22 +24,21 @@ class Dashboard extends StatefulWidget{
 class Dashboardstate extends State<Dashboard> {
 
   late Future<List<Map<String, dynamic>>> futurelist;
-  late Future<List<Map<String, dynamic>>> futurepielist;
+ // late Future<List<Map<String, dynamic>>> futurepielist;
 
   int target = 0,
       targetboxes = 0,
       userid = 0,
+      pending =0 ,
       reportUom = 0,
       assignedshops = 0,
       shopscoverd = 0,
       shopsproductive = 0,
-      ltrs=0;
-  String attStatus="";
-  num total=0;
-  String? cdate,group;
+      ltrs=0,
+      achiveved = 0;
 
-  int achiveved = 0;
-  String targettype = "";
+  num total=0;
+  String? cdate,group,targettype,attStatus;
 
   List<Color> colorList = [
     const Color(0xffD95AF3),
@@ -70,16 +70,28 @@ class Dashboardstate extends State<Dashboard> {
     ],
 
   ];
+  int difference =0 ;
 
   @override
   void initState() {
     super.initState();
+    DateTime now = DateTime.now(); // March 2022
+
+    cdate = getcurrentdate();
     futurelist = getpersondata();
-    futurepielist= gettargetdata();
+
+    final d1 = DateTime.now();
+    final date = new DateTime(now.year, now.month + 1, 0);
+    setState(() {
+      difference = date.difference(d1).inDays;
+    });
+
+
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         appBar: AppBar(
             backgroundColor: Colors.white,
@@ -95,47 +107,16 @@ class Dashboardstate extends State<Dashboard> {
                 'assets/Icons/nav_menu.png', width: 104.0, height: 104.0,),
             )
         ),
-        body: SingleChildScrollView(
-            child: Column(
+        body:ProgressHUD(
+            child:Builder(
+             builder: (context) => Scaffold(
+            body:SingleChildScrollView(
+             child: Column(
               children: [
 
                 Container(
                   margin: EdgeInsets.all(10),
-                  child: Text("Target : $target $targettype",
-                    style: TextStyle(fontSize: 20),),
-                ),
-
-                PieChart(
-                  dataMap: {
-                    "Achieved": total.toDouble(),
-                    "Pending": target -total.toDouble(),
-                  },
-                  colorList: colorList,
-                  chartRadius: MediaQuery
-                      .of(context)
-                      .size
-                      .width / 3,
-                  centerText: "Budget",
-                  ringStrokeWidth: 24,
-                  animationDuration: Duration(seconds: 3),
-                  chartValuesOptions: ChartValuesOptions(
-                      showChartValues: true,
-                      showChartValuesOutside: true,
-                      showChartValuesInPercentage: false,
-                      showChartValueBackground: false),
-
-                  legendOptions: LegendOptions(
-                      showLegends: true,
-                      legendShape: BoxShape.rectangle,
-                      legendTextStyle: TextStyle(fontSize: 15),
-                      legendPosition: LegendPosition.bottom,
-                      showLegendsInRow: true),
-                  gradientList: gradientList,
-                ),
-
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Text("Target : $target ",
+                  child: Text("Per day goal : ${pending/difference!}",
                     style: TextStyle(fontSize: 20),),
                 ),
 
@@ -183,10 +164,79 @@ class Dashboardstate extends State<Dashboard> {
                         } else if (snapshot.hasError) {
                           return Container();
                         }
-                        return const CircularProgressIndicator();
+                        return Container();
                       }
                   ),
-                )
+                ),
+
+                Container(
+                  margin: EdgeInsets.all(10),
+                  child: Text("Target : $target ",
+                    style: TextStyle(fontSize: 20),),
+                ),
+
+                PieChart(
+                 dataMap: {
+                   "Achieved": total.toDouble(),
+                   "Pending":  pending.toDouble(),
+                 },
+                 colorList: colorList,
+                 chartRadius: MediaQuery
+                     .of(context)
+                     .size
+                     .width / 3,
+                 centerText: "Budget",
+                 ringStrokeWidth: 24,
+                 animationDuration: Duration(seconds: 3),
+                 chartValuesOptions: ChartValuesOptions(
+                     showChartValues: true,
+                     showChartValuesOutside: true,
+                     showChartValuesInPercentage: false,
+                     showChartValueBackground: false),
+
+                 legendOptions: LegendOptions(
+                     showLegends: true,
+                     legendShape: BoxShape.rectangle,
+                     legendTextStyle: TextStyle(fontSize: 15),
+                     legendPosition: LegendPosition.bottom,
+                     showLegendsInRow: true),
+                 gradientList: gradientList,
+               )
+
+                // FutureBuilder(
+                //     future: futurepielist,
+                //     builder: (context,snapshot){
+                //       if(snapshot.hasData){
+                //         return PieChart(
+                //           dataMap: {
+                //             "Achieved": total.toDouble(),
+                //             "Pending":  pending.toDouble(),
+                //           },
+                //           colorList: colorList,
+                //           chartRadius: MediaQuery
+                //               .of(context)
+                //               .size
+                //               .width / 3,
+                //           centerText: "Budget",
+                //           ringStrokeWidth: 24,
+                //           animationDuration: Duration(seconds: 3),
+                //           chartValuesOptions: ChartValuesOptions(
+                //               showChartValues: true,
+                //               showChartValuesOutside: true,
+                //               showChartValuesInPercentage: false,
+                //               showChartValueBackground: false),
+                //
+                //           legendOptions: LegendOptions(
+                //               showLegends: true,
+                //               legendShape: BoxShape.rectangle,
+                //               legendTextStyle: TextStyle(fontSize: 15),
+                //               legendPosition: LegendPosition.bottom,
+                //               showLegendsInRow: true),
+                //           gradientList: gradientList,
+                //         );
+                //       }
+                //       return Container();
+                //     }),
 
                 // Padding(
                 //   padding: EdgeInsets.only(left:10,top: 60,right:10),
@@ -220,6 +270,9 @@ class Dashboardstate extends State<Dashboard> {
               ],
             )
         )
+       )
+        )
+      )
     );
   }
 
@@ -236,18 +289,23 @@ class Dashboardstate extends State<Dashboard> {
       var response = await http.post(
           Uri.parse('${Common.IP_URL}Userdetails?userId=$userid'),
           headers: headers);
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
+
       try {
+
         details = logindetails.fromJson(json.decode(response.body));
         prefs.setString(Common.ATT_STATUS,details.attStatus);
 
         if (details.personId != 0) {
           if (details.group == "GT") {
+
             setState(() {
               target = details.target;
               targettype = "Ltrs";
-
             });
+
+            print("group$targettype");
 
           } else {
 
@@ -257,6 +315,7 @@ class Dashboardstate extends State<Dashboard> {
 
             });
 
+            print("Boxes${details.group }");
 
           }
           prefs.setInt(Common.DISTANCE_ALLOWED,details.distanceAllowed);
@@ -266,23 +325,32 @@ class Dashboardstate extends State<Dashboard> {
           shopsproductive = details.productiveshops;
 
           barchart.add(dataMap);
+
         }else{
+
           print("shopsproductiveelse");
+
         }
       } catch (e) {
+
         print("shopsproductive3$e");
+
       }
 
     }catch(e){
-      print("shopsproductive$e");
-    }
 
+      print("shopsproductive$e");
+
+    }
+    gettargetdata();
     return barchart;
   }
 
   Future<List<Map<String, dynamic>>> gettargetdata() async {
-    cdate = getcurrentdate();
-    Item details;
+
+    // final progress  = ProgressHUD.of(context);
+    // progress?.show();
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
     List<Item> detailslist = [];
@@ -300,6 +368,7 @@ class Dashboardstate extends State<Dashboard> {
         num val=0;
         final list = jsonDecode(response.body);
         detailslist = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
+
         if(targettype=="Ltrs"){
 
           for(int i=0;i<detailslist.length;i++){
@@ -310,6 +379,7 @@ class Dashboardstate extends State<Dashboard> {
 
           setState(() {
             total = val;
+            pending = target - total.toInt();
           });
 
         }else{
@@ -323,14 +393,13 @@ class Dashboardstate extends State<Dashboard> {
 
         }
 
-        print("ltrs$total");
-
       } catch (e) {
-
+          print("exception$e");
       }
 
     }
 
+   // progress?.dismiss();
     return barchart;
   }
 

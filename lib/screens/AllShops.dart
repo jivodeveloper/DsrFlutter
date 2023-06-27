@@ -57,11 +57,19 @@ class AllShopsState extends State<AllShops>{
                                   return GestureDetector(
                                     onTap: (){
 
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString(),mobile:snapshot.data![index].mobileNo.toString(),latitude:double.parse(snapshot.data![index].latitude.toString()),longitude:double.parse(snapshot.data![index].longitude.toString()))));
+                                      Fluttertoast.showToast(msg: "Sorry! This shop is not available in your beat !",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.black,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
+
+                                      // Navigator.push(
+                                      //     context,
+                                      //     MaterialPageRoute(
+                                      //         builder: (context) =>
+                                      //             SalesScreen(retailerName :snapshot.data![index].retailerName.toString(),retailerId:snapshot.data![index].retailerID.toString(),address:snapshot.data![index].address.toString(),mobile:snapshot.data![index].mobileNo.toString(),latitude:double.parse(snapshot.data![index].latitude.toString()),longitude:double.parse(snapshot.data![index].longitude.toString()))));
 
                                     },
                                     child: Container(
@@ -76,35 +84,49 @@ class AllShopsState extends State<AllShops>{
                                       child:  Column(
                                         children: [
 
-                                          Padding(
-                                            padding: EdgeInsets.only(left: 30.0,top: 5),
-                                            child:  Row(
-                                              children: [
+                                          // Padding(
+                                          //   padding: EdgeInsets.only(left: 30.0,top: 5),
+                                          //   child:  Row(
+                                          //     children: [
+                                          //
+                                          //       Container(
+                                          //         height: 10.0,
+                                          //         width: 10.0,
+                                          //         decoration: BoxDecoration(
+                                          //             color: Colors.green,
+                                          //             shape: BoxShape.circle
+                                          //         ),
+                                          //       ),
+                                          //       //
+                                          //       // Align(
+                                          //       //   child: Text(' Visited',style: TextStyle(color: Colors.green),),
+                                          //       //   alignment: Alignment.centerLeft,
+                                          //       // ),
+                                          //
+                                          //     ],
+                                          //   ),
+                                          // ),
 
-                                                Container(
-                                                  height: 10.0,
-                                                  width: 10.0,
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.green,
-                                                      shape: BoxShape.circle
-                                                  ),
-                                                ),
-
-                                                Align(
-                                                  child: Text(' Visited',style: TextStyle(color: Colors.green),),
+                                          Row(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.only(top: 5),
+                                                child: Align(
+                                                  child: Image.asset('assets/Images/store.png',width: 30,),
                                                   alignment: Alignment.centerLeft,
                                                 ),
+                                              ),
 
-                                              ],
-                                            ),
-                                          ),
+                                              Padding(
+                                                padding: EdgeInsets.only(top: 5),
+                                                child: Align(
+                                                  child: Text(' ${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                                  alignment: Alignment.centerLeft,
+                                                ),
+                                              ),
 
-                                          Padding(
-                                            padding: EdgeInsets.only(top: 5),
-                                            child: Align(
-                                              child: Text('${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
-                                              alignment: Alignment.centerLeft,
-                                            ),
+
+                                            ],
                                           ),
 
                                           Align(

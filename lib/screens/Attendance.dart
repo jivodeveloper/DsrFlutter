@@ -8,6 +8,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import '../models/Shops.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+
+import 'HomeScreen.dart';
 
 class Attendance extends StatefulWidget{
 
@@ -25,10 +28,13 @@ class AttendanceState extends State<Attendance>{
   List<int> beatIdlist = [];
   int userid=0,beatId=0;
   String attStatus="";
+  bool present = false, hd = false, wo=false,eod =false;
+
   @override
   void initState() {
     super.initState();
     _handleLocationPermission();
+    getAttendanceStatus();
     getallshops();
   }
 
@@ -39,129 +45,175 @@ class AttendanceState extends State<Attendance>{
         appBar: AppBar(
             backgroundColor: Colors.white,
             leading: GestureDetector(
-              onTap: (){
-                Navigator.pop(context);
+            onTap: (){
+
+            Navigator.push(
+            context,
+              MaterialPageRoute(
+              builder: (context) =>
+                  HomeScreen(personName: "")));
+
               },
+
               child: Icon(Icons.arrow_back,color:Color(0xFF063A06)),
             ),
 
             title: const Text("Attendance",
                 style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
-            )
+           )
         ),
-        body:SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child:  Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+        body:ProgressHUD(
+            child:Builder(
+            builder: (context) => Scaffold(
+             body: SizedBox(
+        width: double.infinity,
+         height: double.infinity,
+        child:  Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children:[
-              GestureDetector(
-                onTap: (){
-                  showdilaog("P");
-                },
-                child:Container(
-                  height: 100,
-                  width: 100,
-                  margin: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff0e0e0e),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                      child:Text("PRESENT",style: TextStyle(
-                          color: Colors.white
-                      ),
-                      )
-                  ),
-                ),
-              ),
 
-              GestureDetector(
-                onTap: (){
-                  showdilaog("EOD");
-                },
-                child:  Container(
-                  height: 100,
-                  width: 100,
-                  margin: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff0e0e0e),
-                    borderRadius: BorderRadius.circular(12),
+                GestureDetector(
+
+                  onTap: (){
+                    showdilaog("P");
+                  },
+
+                  child:Container(
+                    height: 100,
+                    width: 100,
+                    margin: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color:  present ? Colors.grey : const Color(0xff0e0e0e),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                        child:Text(
+                          "PRESENT",
+                          style: TextStyle(color:Colors.white
+                          ),
+                        )
+                    ),
                   ),
-                  child: const Center(
-                      child:Text("END OF DAY",style: TextStyle(
-                          color: Colors.white
-                      ),
-                      )
+
+                ),
+
+                GestureDetector(
+                  onTap: (){
+                    showdilaog("EOD");
+                  },
+                  child:  Container(
+                    height: 100,
+                    width: 100,
+                    margin: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: eod ? Colors.grey : const Color(0xff0e0e0e),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                        child:Text("END OF DAY",style: TextStyle(
+                            color: Colors.white
+                        ),
+                        )
+                    ),
                   ),
                 ),
-              ),
+
               ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children:[
-              GestureDetector(
-                onTap: (){
-                  showdilaog("HD");
-                },
-                child: Container(
-                  height: 100,
-                  width: 100,
-                  margin: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff0e0e0e),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                      child: Text("HALF DAY",style: TextStyle(
-                          color: Colors.white
-                      ),
-                      )
+
+                GestureDetector(
+                  onTap: (){
+                    showdilaog("HD");
+                  },
+                  child: Container(
+                    height: 100,
+                    width: 100,
+                    margin: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: hd ? Colors.grey : const Color(0xff0e0e0e),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                        child: Text("HALF DAY",style: TextStyle(
+                            color: Colors.white
+                        ),
+                        )
+                    ),
                   ),
                 ),
+
+                GestureDetector(
+
+                  onTap: (){
+                    showdilaog("WO");
+                  },
+
+                  child:Container(
+                    height: 100,
+                    width: 100,
+                    margin: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: wo ? Colors.grey : const Color(0xff0e0e0e),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                        child: Text("WEEK OFF",style: TextStyle(
+                            color: Colors.white
+                        ),
+                        )
+                    ),
+                  ),
+                )
+
+                ],
               ),
-
-              GestureDetector(
-
-                onTap: (){
-                  showdilaog("WO");
-                },
-                child:Container(
-                  height: 100,
-                  width: 100,
-                  margin: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff0e0e0e),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                      child:Text("WEEK OFF",style: TextStyle(
-                          color: Colors.white
-                      ),
-                      )
-                  ),
-                ),
-
-              )
-
-            ],
-          ),
-          ]
-        ),
+             ]
+            ),
+            )
+           )
+          )
         )
     );
+
   }
 
   void getAttendanceStatus() async {
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    attStatus = prefs.getString(Common.ATT_STATUS) ?? '';
+    attStatus = prefs.getString(Common.ATT_STATUS).toString();
+
+    if(attStatus=="P"){
+        present = true;
+        wo = true;
+
+    }else if(attStatus=="EOD"){
+      present = true;
+      eod = true;
+      wo = true;
+      hd = true;
+    }else if(attStatus=="HD"){
+      present = true;
+      eod = true;
+      wo = true;
+      hd = true;
+    }else if(attStatus=="EOD"){
+
+      present = true;
+      eod = true;
+      wo = true;
+      hd = true;
+
+    }
 
   }
 
@@ -194,6 +246,7 @@ class AttendanceState extends State<Attendance>{
   }
 
   Future<void> showdilaog(String status) async {
+
     return showDialog(
         context: context,
         builder:(BuildContext context) {
@@ -244,6 +297,7 @@ class AttendanceState extends State<Attendance>{
           return AlertDialog(
             title: const Text('Select Beat'),
             content:ListView.builder(
+                shrinkWrap: true,
                 itemCount: beatnamelist.length,
                 itemBuilder: (context,i){
                   return GestureDetector(
