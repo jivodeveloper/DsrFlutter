@@ -11,7 +11,6 @@ import '../config/Common.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import '../util/Helper.dart';
-import 'SalesScreen.dart';
 
 class NewRetailer extends StatefulWidget{
 
@@ -25,8 +24,11 @@ class NewRetailer extends StatefulWidget{
 class NewRetailerState extends State<NewRetailer>{
 
   final formGlobalKey = GlobalKey < FormState > ();
-  List<String> group = ["GT","MT"],category = ["A","B","C","D"],shoptype = ["Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
-  List<String> statelist = [],stateid = [],zonelist = [],zoneid = [],arealist = [],areaid = [];
+  List<String> shoptype = ["Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
+  List<String> category = ["A","B","C","D"];
+  List<String> group = ["GT","MT"];
+  List<String> statelist = [],stateid = [],zonelist = [],arealist = [];
+  List<int> zoneidlist = [],areaidlist = [];
 
   TextEditingController name = TextEditingController();
   TextEditingController address = TextEditingController();
@@ -34,18 +36,18 @@ class NewRetailerState extends State<NewRetailer>{
   TextEditingController owner = TextEditingController();
   TextEditingController mobile = TextEditingController();
 
-  String? statetypedown, sid, zonetypedown, zid, areatypedown, aid ,categorydropdownValue, groupdropdown,
-      shoptypedown, dropdownvalue, formatter, cdate;
-  Map<int,String> area = Map();
+  String? statetypedown,zonetypedown,areatypedown ,categorydropdownValue,groupdropdown,
+      shoptypedown,
+      dropdownvalue,formatter,cdate;
 
   late Future<List> futurestate;
   late Future<List> futurezone;
-
   List distIdlist = [];
   XFile? cameraFile;
   var status;
   LocationData? _currentPosition;
 
+  List<StateByPerson> statedata = [];
   @override
   void initState() {
     super.initState();
@@ -307,13 +309,6 @@ class NewRetailerState extends State<NewRetailer>{
                           style: const TextStyle(color: Color(0xFF063A06)),
                           underline: Container(),
                           onChanged: (value) {
-                            for(int i=0;i<statelist.length;i++){
-                              if(statelist.indexOf(value.toString())==i){
-                                setState(() {
-                                  sid = stateid[i];
-                                });
-                              }
-                            }
                             setState(() {
                               statetypedown = value.toString();
                             });
@@ -359,33 +354,19 @@ class NewRetailerState extends State<NewRetailer>{
                           underline: Container(),
                           onChanged:(newVal) {
 
-                            for(int i=0;i<zonelist.length;i++){
-                              if(zonelist.indexOf(newVal!)==i){
-                                setState(() {
-                                  zid = zoneid[i];
-                                });
-                              }
-                            }
-
                             setState(() {
                               zonetypedown = newVal.toString();
                             });
 
-                            for (var entry in area.entries) {
-                              if(area['newVal']==newVal){
-                                print("$entry");
-                              }
-                            }
+                            getarea(newVal.toString());
 
                           },
-
                           items: zonelist.map((value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value),
                             );
                           }).toList(),
-
                         ),
                       );
                     }else if(snapshot.hasError){
@@ -412,13 +393,6 @@ class NewRetailerState extends State<NewRetailer>{
                   style: const TextStyle(color: Color(0xFF063A06)),
                   underline: Container(),
                   onChanged:(newVal) {
-                    for(int i=0;i<arealist.length;i++){
-                      if(arealist.indexOf(newVal!)==i){
-                        setState(() {
-                          aid = areaid[i];
-                        });
-                      }
-                    }
                     setState(() {
                       areatypedown = newVal.toString();
                     });
@@ -534,6 +508,32 @@ class NewRetailerState extends State<NewRetailer>{
 
   }
 
+  getarea(String zone){
+    int zoneid=0;
+
+    areaidlist.clear();
+    arealist.clear();
+
+    for(int i=0;i<zonelist.length;i++) {
+      if (zonelist.indexOf(zone) == i) {
+        zoneid = zoneidlist[i];
+      }
+    }
+
+    for(int i=0;i<statedata.length;i++){
+
+      if(statedata[i].zoneId==zoneid){
+
+        setState(() {
+          arealist.add(statedata[i].area.toString());
+          areaidlist.add(statedata[i].areaId!);
+        });
+
+      }
+    }
+
+  }
+
   fetchLocation() async {
 
     try{
@@ -592,7 +592,6 @@ class NewRetailerState extends State<NewRetailer>{
 
     var response = await http.get(Uri.parse(Common.IP_URL+'GetStateZoneAreaByPerson?personId=$userid'), headers: headers);
 
-    List<StateByPerson> statedata = [];
     var seen = Set<String?>();
 
     final list = jsonDecode(response.body);
@@ -600,9 +599,9 @@ class NewRetailerState extends State<NewRetailer>{
     statelist.clear();
     stateid.clear();
     zonelist.clear();
-    zoneid.clear();
-    arealist.clear();
-    zoneid.clear();
+    zoneidlist.clear();
+
+
     try{
 
       statedata = list.map<StateByPerson>((m) => StateByPerson.fromJson(Map<String, dynamic>.from(m))).toList();
@@ -613,21 +612,16 @@ class NewRetailerState extends State<NewRetailer>{
         stateid.add(statedata[i].stateId.toString());
 
         zonelist.add(statedata[i].zone.toString());
-        zoneid.add(statedata[i].zoneId.toString());
-
-        arealist.add(statedata[i].area.toString());
-        areaid.add(statedata[i].areaId.toString());
-
-        area[statedata[i].zoneId!] = statedata[i].area!;
+        zoneidlist.add(statedata[i].zoneId!.toInt());
 
       }
 
       statelist = LinkedHashSet<String>.from(statelist).toList();
       stateid = LinkedHashSet<String>.from(stateid).toList();
       zonelist = LinkedHashSet<String>.from(zonelist).toList();
-      zoneid = LinkedHashSet<String>.from(zoneid).toList();
-      arealist = LinkedHashSet<String>.from(arealist).toList();
-      areaid = LinkedHashSet<String>.from(areaid).toList();
+      zoneidlist = LinkedHashSet<int>.from(zoneidlist).toList();
+      // arealist = LinkedHashSet<String>.from(arealist).toList();
+      // areaid = LinkedHashSet<String>.from(areaid).toList();
 
       // statelist = statedata.where((str) => seen.add(str.state)).cast<String>().toList();
       // stateid = statedata.where((str) => seen.add(str.stateId as String?)).cast<String>().toList();
@@ -656,7 +650,6 @@ class NewRetailerState extends State<NewRetailer>{
     }
 
     return statelist;
-
   }
 
   // void checkPermissionStatus() async{
@@ -737,6 +730,7 @@ class NewRetailerState extends State<NewRetailer>{
 
     }else {
 
+
       withsaledialog(context);
 
     }
@@ -757,41 +751,22 @@ class NewRetailerState extends State<NewRetailer>{
                 },
                 child: const Text('No'),
               ),
-
               TextButton(
                 onPressed: () async {
-                  savealldata();
+                  SharedPreferences preferences = await SharedPreferences.getInstance();
+                  await preferences.clear();
+
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (contextt) =>
+                  //             SalesScreen(retailerName: retailerName, retailerId: retailerId, address: address, mobile: mobile, latitude: latitude, longitude: longitude)));
                 },
                 child: const Text('Yes'),
               )
-
-          ],
-        ),
-     );
-  }
-
-  Future<void> savealldata() async {
-
-    SharedPreferences prefs= await SharedPreferences.getInstance();
-    prefs.setString(Common.SHOP_NAME, name.text);
-    prefs.setString(Common.ADDRESS, address.text);
-    prefs.setString(Common.STATE, sid.toString());
-    prefs.setString(Common.ZONE, zid.toString());
-    prefs.setString(Common.AREA, aid.toString());
-    prefs.setString(Common.PINCODE, pincode.text);
-    prefs.setString(Common.CONTACT_PERSON, owner.text);
-    prefs.setString(Common.MOBILE_NUMBER,mobile.text);
-    prefs.setString(Common.SHOP_TYPE,shoptypedown.toString());
-    prefs.setString(Common.CATEGORY,categorydropdownValue.toString());
-    prefs.setString(Common.SHOPGROUP,groupdropdown.toString());
-
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (contextt) =>
-                SalesScreen(retailerName: name.text, retailerId: "", address: address.text, mobile: mobile.text, latitude: _currentPosition?.latitude, longitude:  _currentPosition?.longitude)));
-
-
+            ],
+          ),
+    );
   }
 
   void savenewretailer() async{
@@ -817,7 +792,6 @@ class NewRetailerState extends State<NewRetailer>{
       "latitude":"${_currentPosition?.latitude}",
       "longitude":"${_currentPosition?.longitude}",
       "shopgroup":"$groupdropdown"}];
-
 
     var body = json.encode(salesentry);
 

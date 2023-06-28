@@ -405,6 +405,7 @@ class DistributorStockState extends State<DistributorStock>{
       itemid.add(int.parse(itemidlist[index]));
       boxes.add(value);
     }
+
     print("does not exist ${itemidlist[index]} $value");
 
     // itemid.insert(index,int.parse(itemidlist[index]));
