@@ -434,7 +434,6 @@ class DistributorStockState extends State<DistributorStock>{
 
     }
 
-
     var salesentry=[{},{
       "distId":distid,
       "salesPersonId":userid,
@@ -455,38 +454,38 @@ class DistributorStockState extends State<DistributorStock>{
 
     print("body$body");
 
-    // Map<String, String> headers = {
-    //   'Content-Type': 'application/json'};
-    //
-    // var request = await http.MultipartRequest(
-    //     'POST', Uri.parse('${Common.IP_URL}CreateDistributorStock'));
-    // request.fields['stockEntry'] = body.toString();
-    // request.files.add(await http.MultipartFile.fromPath('image', f!.path));
-    //
-    // var response = await request.send();
-    // var responsed = await http.Response.fromStream(response);
-    // final responsedData = json.decode(responsed.body);
-    //
-    // if(responsedData.contains("DONE")){
-    //
-    //   Fluttertoast.showToast(msg: "Sales Saved",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       timeInSecForIosWeb: 1,
-    //       backgroundColor: Colors.black,
-    //       textColor: Colors.white,
-    //       fontSize: 16.0);
-    //
-    // }else{
-    //   Fluttertoast.showToast(msg: "Not Saved",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       timeInSecForIosWeb: 1,
-    //       backgroundColor: Colors.black,
-    //       textColor: Colors.white,
-    //       fontSize: 16.0);
-    // }
-    //
+    Map<String, String> headers = {
+      'Content-Type': 'application/json'};
+
+    var request = await http.MultipartRequest(
+        'POST', Uri.parse('${Common.IP_URL}CreateDistributorStock'));
+    request.fields['stockEntry'] = body.toString();
+    request.files.add(await http.MultipartFile.fromPath('image', f!.path));
+
+    var response = await request.send();
+    var responsed = await http.Response.fromStream(response);
+    final responsedData = json.decode(responsed.body);
+
+    if(responsedData.contains("DONE")){
+
+      Fluttertoast.showToast(msg: "Sales Saved",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }else{
+      Fluttertoast.showToast(msg: "Not Saved",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+
 
     // try{
     //   print("boxes");
