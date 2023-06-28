@@ -27,6 +27,7 @@ class ReportsScreenState extends State<ReportsScreen>{
   String from="",to="",salesid="";
   List<SalesReport> salesreport = [];
   List<Items> itemsreport = [];
+  List<Items> stockreport=[];
   int totalPcs=0,totalLtr=0, count=0;
 
   @override
@@ -38,6 +39,7 @@ class ReportsScreenState extends State<ReportsScreen>{
   Widget build(BuildContext context) {
 
     return Scaffold(
+
         appBar: AppBar(
           title: const Text("Sales Reports",
               style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
@@ -296,6 +298,7 @@ class ReportsScreenState extends State<ReportsScreen>{
                   ),
                 )
             ))
+
     );
 
   }
@@ -377,6 +380,8 @@ class ReportsScreenState extends State<ReportsScreen>{
         final list = jsonDecode(response.body);
 
         itemsreport = list["itemList"].map<Items>((m) => Items.fromJson(Map<String, dynamic>.from(m))).toList();
+        stockreport = list["stockList"].map<Items>((m) => Items.fromJson(Map<String, dynamic>.from(m))).toList();
+
         setState(() {
           count = itemsreport.length;
         });
@@ -385,7 +390,7 @@ class ReportsScreenState extends State<ReportsScreen>{
 
       }catch(e){
 
-        Fluttertoast.showToast(msg: "Please contact admin!!",
+        Fluttertoast.showToast(msg: "Please contact admin!!$e",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -420,39 +425,109 @@ class ReportsScreenState extends State<ReportsScreen>{
         contextt = context;
         return AlertDialog(
           title: const Text('Items'),
-          content:ListView.builder(
-              itemCount: itemsreport.length,
-              itemBuilder: (context,i){
-                return GestureDetector(
-                    onTap: (){
-                      //markattendance(status,beatnamelist[i].toString(),contextt);
-                    },
+          content:Container(
+            child: Column(
+              children: [
 
-                    child: Container(
+                Container(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Orders",style: TextStyle(fontWeight: FontWeight.bold),),
+                ),
 
-                        child:Column(
-                          children: [
+                ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: itemsreport.length,
+                    itemBuilder: (context,i){
+                      return GestureDetector(
+                          onTap: (){
+                            //markattendance(status,beatnamelist[i].toString(),contextt);
+                          },
 
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              child:Text("${itemsreport[i].itemName}"),
-                            ),
+                          child: Container(
+                              margin: EdgeInsets.only(top:10),
+                              child:Column(
+                                children: [
 
-                            Row(
-                              children: [
+                                  Container(
+                                    alignment: Alignment.centerLeft,
+                                    child:Text("${itemsreport[i].itemName}"),
+                                  ),
 
-                                Text("PCS : ${itemsreport[i].pieces}"),
-                                Text("QTY : ${itemsreport[i].quantity}"),
+                                  Row(
+                                    children: [
 
-                              ],
-                            )
+                                      Expanded(
+                                        flex: 1,
+                                        child: Text("PCS : ${itemsreport[i].pieces}"),),
 
-                          ],
-                        )
-                    )
-                );
-              }
-          ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Text("QTY : ${itemsreport[i].quantity}"),),
+
+                                    ],
+                                  ),
+
+                                ],
+                              )
+
+                          )
+                      );
+                   }
+                ),
+
+                SizedBox(height: 4,),
+
+                Container(
+                  margin: EdgeInsets.only(top:10),
+                  alignment: Alignment.centerLeft,
+                  child: Text("Items",style: TextStyle(fontWeight: FontWeight.bold),),
+                ),
+
+                ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: itemsreport.length,
+                    itemBuilder: (context,i){
+                      return GestureDetector(
+                          onTap: (){
+                            //markattendance(status,beatnamelist[i].toString(),contextt);
+                          },
+
+                          child: Container(
+                              margin: EdgeInsets.only(top:10),
+                              child:Column(
+                                children: [
+
+                                  Container(
+                                    alignment: Alignment.centerLeft,
+                                    child:Text("${itemsreport[i].itemName}"),
+                                  ),
+
+                                  Row(
+                                    children: [
+
+                                      Expanded(
+                                        flex: 1,
+                                        child: Text("PCS : ${itemsreport[i].pieces}"),),
+
+                                      Expanded(
+                                        flex: 1,
+                                        child: Text("QTY : ${itemsreport[i].quantity}"),),
+
+                                    ],
+                                  ),
+
+                                ],
+                              )
+
+                          )
+                      );
+                    }
+                ),
+
+
+              ],
+            ),
+          )
         );
       },
     );

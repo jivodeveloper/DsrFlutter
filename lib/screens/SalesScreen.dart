@@ -671,12 +671,12 @@ class SalesScreenState extends State<SalesScreen>{
             type: PageTransitionType.bottomToTop,
             child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude),
             inheritTheme: true,
-            ctx: context),
-      );
+            ctx: context));
 
-    }else if(statusdropdown!=null && statusdropdown!="DONE"){
+      }else if(statusdropdown!=null && statusdropdown!="DONE"){
           submitsales(context);
-    }
+     }
+
 
     // else if(shelf4Controller.text=="" || shelf1Controller.text=="" ||  shelf2Controller.text=="" ||  shelf3Controller.text=="" && persontype=="MT"){
     //

@@ -27,13 +27,16 @@ class DistributorStock extends StatefulWidget{
 
 }
 
+class Selected{
+  int is_selected=0;
+}
+
 class DistributorStockState extends State<DistributorStock>{
 
   List<String> shoptype = ["Select shoptype","Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
   int userid=0;
   List<String> distnamelist = [];
-  List distIdlist = [];
-  List itemlist = [],itemidlist=[];
+  List itemlist = [],itemidlist=[],distIdlist = [];
   List<int> itemid = [], boxes=[];
   String? selectedValue ;
   var layout = false ,dropdown =false;
@@ -44,16 +47,61 @@ class DistributorStockState extends State<DistributorStock>{
   LocationData? _currentPosition;
   String? cdate;
   TextEditingController remarks = TextEditingController();
-  File? cameraFile,f;
+  File? cameraFile;
   var perstatus;
 
   @override
   void initState() {
     super.initState();
-
+    cdate   = getcurrentdatewithtime();
     furturedist = getdistributor();
     futureitem = getdistributoritem();
+    fetchLocation();
+  }
 
+  fetchLocation() async {
+
+    try{
+      bool _serviceEnabled;
+      PermissionStatus _permissionGranted;
+
+      _serviceEnabled = await location.serviceEnabled();
+      if (!_serviceEnabled) {
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          return;
+        }
+      }
+
+      _permissionGranted = await location.hasPermission();
+      if (_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await location.requestPermission();
+        if (_permissionGranted != PermissionStatus.granted) {
+          return;
+        }
+      }
+
+      _currentPosition = await location.getLocation();
+      bool ison = await location.serviceEnabled();
+      if (!ison) {
+        isturnedon = await location.requestService();
+      }
+
+      // location.onLocationChanged.listen((LocationData currentLocation) {
+      //   setState(() {
+      //     _currentPosition = currentLocation;
+      //    // getAddress(_currentPosition.latitude, _currentPosition.longitude)
+      //         .then((value) {
+      //       setState(() {
+      //         _address = "＄{value.first.addressLine}";
+      //       });
+      //     });
+      //   });
+      // });
+    }catch(e){
+      print("$e");
+    }
+    return _currentPosition;
   }
 
   void backbutton(DistributorProvider dropdownOptionsProvider){
@@ -271,7 +319,7 @@ class DistributorStockState extends State<DistributorStock>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(Common.IP_URL+'GetShopsData?id=$userid'), headers: headers);
+    var response = await http.get(Uri.parse('${Common.IP_URL}GetShopsData?id=$userid'), headers: headers);
 
     if(response.statusCode == 200){
 
@@ -463,7 +511,7 @@ class DistributorStockState extends State<DistributorStock>{
     var request = await http.MultipartRequest(
         'POST', Uri.parse('${Common.IP_URL}CreateDistributorStock'));
     request.fields['stockEntry'] = body.toString();
-    request.files.add(await http.MultipartFile.fromPath('image', f!.path));
+    request.files.add(await http.MultipartFile.fromPath('image', cameraFile!.path));
 
     var response = await request.send();
     var responsed = await http.Response.fromStream(response);
@@ -638,6 +686,5 @@ class DistributorStockState extends State<DistributorStock>{
     });
 
   }
-
 
 }

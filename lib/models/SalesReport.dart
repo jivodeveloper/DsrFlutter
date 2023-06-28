@@ -45,7 +45,7 @@ class SalesReport {
   int? salesId;
   int? personId;
   String? personName;
-  dynamic? personContact;
+  dynamic personContact;
 
   SalesReport({
       required this.salesId,
@@ -86,7 +86,7 @@ class SalesReport {
       this.personType,
 });
   int? parentId;
-  dynamic? parentName;
+  dynamic parentName;
   int? retailerId;
   String? retailerName;
   dynamic retContact;
@@ -105,19 +105,19 @@ class SalesReport {
   int? totalPieces;
   int? schemeQuantity;
   String? products;
-  dynamic? productName;
-  dynamic? productQuantity;
+  dynamic productName;
+  dynamic productQuantity;
   int? cost;
   int? totalCost;
-  dynamic? stock;
-  dynamic? remarks;
-  dynamic? deavtivated;
-  dynamic? status;
+  dynamic stock;
+  dynamic remarks;
+  dynamic deavtivated;
+  dynamic status;
   bool allowed =false;
-  dynamic? retailer;
-  dynamic? item;
+  dynamic retailer;
+  dynamic item;
 
-  dynamic? personType;
+  dynamic personType;
 
 
   Map<String, dynamic> toJson() {

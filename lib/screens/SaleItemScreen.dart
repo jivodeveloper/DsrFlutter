@@ -13,9 +13,20 @@ import '../models/Categorylist.dart';
 import 'package:provider/provider.dart';
 import 'package:battery_plus/battery_plus.dart';
 import '../models/Item.dart';
+import '../models/Items.dart';
 import '../util/Helper.dart';
 import 'package:location/location.dart';
 import 'package:geolocator/geolocator.dart';
+
+class Selected{
+  int is_selected=0;
+
+
+  Selected({
+    required this.is_selected});
+
+}
+
 
 class SalesItemScreen extends StatefulWidget{
 
@@ -37,6 +48,7 @@ class SalesItemScreen extends StatefulWidget{
 
 class SalesItemState extends State<SalesItemScreen>{
 
+  List<Selected> selected_list = [];
   String? cdate;
   Future<List>? furturecategoryitem,furturecategory ;
   String? dropdowncategory,dropdownitem,shoptype="old",isdistanceallowed;
@@ -44,8 +56,9 @@ class SalesItemState extends State<SalesItemScreen>{
   List<String>? selectedvalues,selectedvaluesitem,schemevalueitem;
   List<String> schemevalue=[];
   List<num>? quantity =[];
-  List catenamlist = [], cateidlist = [],itemlist = [], itemid = [],categorylistscheme=[],categoryidscheme = [],itemlistscheme=[],itemidscheme = [];
+  List catenamlist = [], cateidlist = [], itemid = [],categorylistscheme=[],categoryidscheme = [],itemlistscheme=[],itemidscheme = [];
   int numElements = 1,userid=0;
+  List<List<Item>> itemlist = [];
   List<Object> itemobjectlist = [];
   double distanceInMeters=0.0;
   List dynamicList = [];
@@ -56,6 +69,7 @@ class SalesItemState extends State<SalesItemScreen>{
   LocationData? _currentPosition;
   String? _address;
   Location location = new Location();
+  int idx=0;
 
   @override
   void initState() {
@@ -63,8 +77,10 @@ class SalesItemState extends State<SalesItemScreen>{
 
     getBatteryLevel();
     furturecategory = loadcategory();
-    furturecategoryitem = loadcategoryitem(0, "", "");
+    // furturecategoryitem = loadcategoryitem(0, "", "");
+
     fetchLocation();
+
   }
 
   getBatteryLevel() async {
@@ -79,7 +95,9 @@ class SalesItemState extends State<SalesItemScreen>{
 
   @override
   Widget build(BuildContext context) {
+
     final dropdownOptionsProvider = Provider.of<DropdownProvider>(context);
+
     return Scaffold(
         appBar: AppBar(
           systemOverlayStyle: const SystemUiOverlayStyle(
@@ -183,7 +201,7 @@ class SalesItemState extends State<SalesItemScreen>{
                 ),
 
                 SizedBox(
-                  height: 900,
+                  height: 400,
                   child: ListView.builder(
                     itemCount: dynamicList.length,
                     itemBuilder: (_, index) =>
@@ -222,11 +240,9 @@ class SalesItemState extends State<SalesItemScreen>{
                                         value:dropdownOptionsProvider.selectedcategory[index],
                                         //  hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
                                         onChanged: (String? newValue) {
-
+                                          idx=index;
                                           dropdownOptionsProvider.addDropdownOptions(index,newValue.toString());
-                                          // dropdownOptionsProvider.setSelectedValue(index, newValue.toString());
-                                          furturecategoryitem=loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString(),"item");
-                                          lisindex = index;
+                                          furturecategoryitem=loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString(),idx);
 
                                         },
                                         items: catenamlist.map((e) =>
@@ -245,31 +261,89 @@ class SalesItemState extends State<SalesItemScreen>{
                                 FutureBuilder(
                                   future: furturecategoryitem,
                                   builder: (context,snapshot){
-                                    if(snapshot.hasData){
-                                      return DropdownButton<String>(
-                                        isExpanded: true,
-                                        // value:dropdownOptionsProvider.selecteditem[index].isEmpty?"No item":dropdownOptionsProvider.selecteditem[index],
-                                        hint: const Text("Select item",style: TextStyle(fontWeight: FontWeight.w300),),
-                                        onChanged: (String? newValue) {
-                                          dropdownOptionsProvider.additemdropdown(index, newValue.toString());
-                                          // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
-                                        },
-                                        items:dropdownOptionsProvider.selectedcategory[index].isNotEmpty?itemlist.map((e) =>
-                                            DropdownMenuItem<String>(
-                                              value: e,
-                                              child: Text(e),
-                                            )
-                                        ).toList():itemlist.map((e) =>
-                                            DropdownMenuItem<String>(
-                                                value: e,
-                                                child: Text("No item")
-                                            )
-                                        ).toList(),
-                                      );
+                                    if(idx==index){
+                                      if(snapshot.hasData) {
+                                        return DropdownButton<String>(
+                                            isExpanded: true,
+                                            // value:selected_list[index].is_selected == 1?dropdownOptionsProvider.selecteditem[index]:"No item",
+                                            hint: const Text("Select item", style: TextStyle(fontWeight: FontWeight.w300),),
+                                            onChanged: (String? newValue) {
+                                              dropdownOptionsProvider.additemdropdown(index, newValue.toString());
+                                              // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
+                                            },
+                                            items: itemlist[idx].map((e) =>
+                                                DropdownMenuItem<String>(
+                                                  value: e.itemName,
+                                                  child: Text("${e.itemName}"),
+                                                )
+                                            ).toList()
+                                        );
+
+                                      }
+                                    }else{
+                                      if(snapshot.hasData) {
+                                        return DropdownButton<String>(
+                                            isExpanded: true,
+                                            // value:selected_list[index].is_selected == 1?dropdownOptionsProvider.selecteditem[index]:"No item",
+                                            hint: const Text("Select item", style: TextStyle(fontWeight: FontWeight.w300),),
+                                            onChanged: (String? newValue) {
+                                              dropdownOptionsProvider.additemdropdown(index, newValue.toString());
+                                              // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
+                                            },
+                                            items: itemlist[index].map((e) =>
+                                                DropdownMenuItem<String>(
+                                                  value: e.itemName,
+                                                  child: Text("${e.itemName}"),
+                                                )
+                                            ).toList()
+                                        );
+
+                                      }
                                     }
+
                                     return const CircularProgressIndicator();
                                   },
                                 ),
+
+                                // FutureBuilder(
+                                //   future: furturecategoryitem,
+                                //   builder: (context,snapshot){
+                                //     if(selected_list.isNotEmpty){
+                                //
+                                //       if(snapshot.hasData && selected_list[index].is_selected == 1) {
+                                //         return DropdownButton<String>(
+                                //           isExpanded: true,
+                                //           value:dropdownOptionsProvider.selecteditem[index].isEmpty?"No item":dropdownOptionsProvider.selecteditem[index],
+                                //           hint: const Text("Select item",
+                                //             style: TextStyle(
+                                //                 fontWeight: FontWeight.w300),),
+                                //           onChanged: (String? newValue) {
+                                //             dropdownOptionsProvider
+                                //                 .additemdropdown(
+                                //                 index, newValue.toString());
+                                //             // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
+                                //           },
+                                //           items: dropdownOptionsProvider
+                                //               .selectedcategory[index]
+                                //               .isNotEmpty ? itemlist.map((e) =>
+                                //               DropdownMenuItem<String>(
+                                //                 value: e,
+                                //                 child: Text(e),
+                                //               )
+                                //           ).toList() : itemlist.map((e) =>
+                                //               DropdownMenuItem<String>(
+                                //                   value: e,
+                                //                   child: Text("No item")
+                                //               )
+                                //           ).toList(),
+                                //         );
+                                //       }
+                                //
+                                //     }
+                                //
+                                //     return const CircularProgressIndicator();
+                                //   },
+                                // ),
 
                                 Container(
                                   margin: EdgeInsets.all(5),
@@ -510,7 +584,15 @@ class SalesItemState extends State<SalesItemScreen>{
 
   }
 
-  Future<List> loadcategoryitem(int index,String val,String opt) async {
+  Future<List> loadcategoryitem(int index,String val,int opt) async {
+
+    Fluttertoast.showToast(msg: "Please contact admin!!$opt",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
 
     int id=0;
 
@@ -538,13 +620,24 @@ class SalesItemState extends State<SalesItemScreen>{
 
         final list = jsonDecode(response.body);
 
-        List<Item> categryitem = [];
+        List<Item> categryitem = [],itemlistt = [];
         categryitem = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
+
         for(int i=0 ;i<categryitem.length;i++) {
+
           setState(() {
-            itemlist.add(categryitem[i].itemName.toString());
+            itemlistt.add(Item(itemName: categryitem[i].itemName));
           });
+
         }
+
+        itemlist.add(itemlistt);
+
+        itemlist[idx].map((e) =>
+
+            print("itemname${e.itemName}")
+        ).toList();
+
         // if(opt=="item"){
         //
         //   for(int i=0 ;i<categryitem.length;i++){
@@ -566,7 +659,6 @@ class SalesItemState extends State<SalesItemScreen>{
         //   }
         //
         // }
-
 
       }catch(e){
 
@@ -784,26 +876,6 @@ class SalesItemState extends State<SalesItemScreen>{
         }
     );
   }
-
-  /* void addDropdownOptions(String option){
-    dropdownOptions.add(option);
-  }
-
-  void removeDropdownOptions(int index){
-    dropdownOptions.removeAt(index);
-    selectedvalues?.removeAt(index);
-  }
-
-  void setSelectedValue(int index,String value){
-    setState(() {
-      selectedvalues?.insert(index,value);
-    });
-
-  }
-
-  void setSelectedValueitem(int index,String value){
-    selectedvaluesitem?[index]= value;
-  }*/
 
   fetchLocation() async {
 
