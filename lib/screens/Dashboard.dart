@@ -107,11 +107,8 @@ class Dashboardstate extends State<Dashboard> {
                 'assets/Icons/nav_menu.png', width: 104.0, height: 104.0,),
             )
         ),
-        body:ProgressHUD(
-            child:Builder(
-             builder: (context) => Scaffold(
-            body:SingleChildScrollView(
-             child: Column(
+        body:SingleChildScrollView(
+            child: Column(
               children: [
 
                 Container(
@@ -176,32 +173,32 @@ class Dashboardstate extends State<Dashboard> {
                 ),
 
                 PieChart(
-                 dataMap: {
-                   "Achieved": total.toDouble(),
-                   "Pending":  pending.toDouble(),
-                 },
-                 colorList: colorList,
-                 chartRadius: MediaQuery
-                     .of(context)
-                     .size
-                     .width / 3,
-                 centerText: "Budget",
-                 ringStrokeWidth: 24,
-                 animationDuration: Duration(seconds: 3),
-                 chartValuesOptions: ChartValuesOptions(
-                     showChartValues: true,
-                     showChartValuesOutside: true,
-                     showChartValuesInPercentage: false,
-                     showChartValueBackground: false),
+                  dataMap: {
+                    "Achieved": total.toDouble(),
+                    "Pending":  pending.toDouble(),
+                  },
+                  colorList: colorList,
+                  chartRadius: MediaQuery
+                      .of(context)
+                      .size
+                      .width / 3,
+                  centerText: "Budget",
+                  ringStrokeWidth: 24,
+                  animationDuration: Duration(seconds: 3),
+                  chartValuesOptions: ChartValuesOptions(
+                      showChartValues: true,
+                      showChartValuesOutside: true,
+                      showChartValuesInPercentage: false,
+                      showChartValueBackground: false),
 
-                 legendOptions: LegendOptions(
-                     showLegends: true,
-                     legendShape: BoxShape.rectangle,
-                     legendTextStyle: TextStyle(fontSize: 15),
-                     legendPosition: LegendPosition.bottom,
-                     showLegendsInRow: true),
-                 gradientList: gradientList,
-               )
+                  legendOptions: LegendOptions(
+                      showLegends: true,
+                      legendShape: BoxShape.rectangle,
+                      legendTextStyle: TextStyle(fontSize: 15),
+                      legendPosition: LegendPosition.bottom,
+                      showLegendsInRow: true),
+                  gradientList: gradientList,
+                )
 
                 // FutureBuilder(
                 //     future: futurepielist,
@@ -270,9 +267,6 @@ class Dashboardstate extends State<Dashboard> {
               ],
             )
         )
-       )
-        )
-      )
     );
   }
 

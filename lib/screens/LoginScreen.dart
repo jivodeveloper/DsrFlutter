@@ -223,9 +223,6 @@ class LoginScreenState extends State<LoginScreen>{
 
   Future<logindetails> login(progress) async{
 
-    final progress  = ProgressHUD.of(context);
-    progress?.show();
-
     logindetails details;
     SharedPreferences prefs= await SharedPreferences.getInstance();
     Map<String,String> headers={
@@ -251,7 +248,9 @@ class LoginScreenState extends State<LoginScreen>{
             prefs.setString(Common.GROUP, details.group);
 
           }catch (e){
+
             print("distanceallowed$e");
+
           }
 
           Fluttertoast.showToast(msg: "Successfully login ${details.personName}",
@@ -262,14 +261,11 @@ class LoginScreenState extends State<LoginScreen>{
               textColor: Colors.white,
               fontSize: 16.0);
 
-
           Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) =>
                       HomeScreen(personName: details.personName)));
-
-
 
         }else{
 

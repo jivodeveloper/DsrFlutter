@@ -223,6 +223,7 @@ class NewRetailerState extends State<NewRetailer>{
                     Padding(
                       padding: EdgeInsets.all(10),
                       child: TextFormField(
+                        maxLength: 6,
                         controller: pincode,
                         keyboardType: TextInputType.number,
                         validator: (pincode) {
@@ -257,6 +258,7 @@ class NewRetailerState extends State<NewRetailer>{
                     Padding(
                       padding: EdgeInsets.all(10),
                       child:TextFormField(
+                        maxLength: 10,
                         controller:mobile,
                         keyboardType: TextInputType.phone,
                         validator: (mobile) {

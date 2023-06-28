@@ -324,7 +324,9 @@ class DistributorStockState extends State<DistributorStock>{
           textColor: Colors.white,
           fontSize: 16.0);
     }
+
     return distnamelist;
+
   }
 
   Future<List> getdistributoritem() async {
