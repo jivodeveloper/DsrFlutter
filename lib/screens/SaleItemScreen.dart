@@ -52,9 +52,8 @@ class SalesItemState extends State<SalesItemScreen>{
   String? cdate;
   Future<List>? furturecategoryitem,furturecategory ;
   String? dropdowncategory,dropdownitem,shoptype="old",isdistanceallowed;
-  List<String> dropdownOptions= [];
   List<String>? selectedvalues,selectedvaluesitem,schemevalueitem;
-  List<String> schemevalue=[];
+  List<String> schemevalue=[],dropdownOptions= [];
   List<num>? quantity =[];
   List catenamlist = [], cateidlist = [], itemid = [],categorylistscheme=[],categoryidscheme = [],itemlistscheme=[],itemidscheme = [];
   int numElements = 1,userid=0;

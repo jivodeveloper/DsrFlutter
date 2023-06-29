@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:promoterapp/screens/HomeScreen.dart';
 import 'package:promoterapp/util/DistributorProvider.dart';
 import '../config/Common.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 
 class DistributorStock extends StatefulWidget{
 
@@ -53,7 +55,7 @@ class DistributorStockState extends State<DistributorStock>{
   @override
   void initState() {
     super.initState();
-    cdate   = getcurrentdatewithtime();
+    cdate   = getcurrentdate();
     furturedist = getdistributor();
     futureitem = getdistributoritem();
     fetchLocation();
@@ -123,153 +125,169 @@ class DistributorStockState extends State<DistributorStock>{
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color:Color(0xFF063A06)),
       ),
-      body:Container(
-        margin: EdgeInsets.only(left:10,top: 20,right: 10,bottom: 0),
-        child: Column(
-          children: [
+      body:ProgressHUD(
+          child:Builder(
+          builder: (context) => Scaffold(
+          body:Container(
+            margin: EdgeInsets.only(left:10,top: 20,right: 10,bottom: 0),
+            child: Column(
+              children: [
 
-            Container(
-              width:double.infinity,
-              height: 100,
-              margin: EdgeInsets.all(10),
-              padding:EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  border: Border.all(color: Color(0xFFD2C7C7))
-              ),
-              child:GestureDetector(
-
-                  onTap: (){
-                    selectFromCamera("camera");
-                  },
-                  child: cameraFile == null ?
-                  Center(child: Image.asset('assets/Images/picture.png',width: 500)):
-                  RepaintBoundary(
-                      child: Stack(
-                          children: <Widget>[
-                            Center(child: Image.file(File(cameraFile!.path))),
-
-                          ]
-                      )
-                  )
-
-              ),
-            ),
-
-            FutureBuilder<List>(
-                future: furturedist,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Container(
-                      width:double.infinity,
-                      height: 50,
-                      padding:EdgeInsets.all(7),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          border: Border.all(color: Color(0xFFD2C7C7))
-                      ),
-                      child: DropdownButton<String>(
-                          underline:Container(),
-                          value:selectedValue,
-                          hint: const Text("Select Distributor",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
-                          isExpanded: true,
-                          items: snapshot.data?.map((e) =>
-                              DropdownMenuItem<String>(
-                                value: e,
-                                child: Text(e),
-                              )
-                          ).toList(),
-
-                          onChanged:(newVal) {
-                            this.setState(() {
-                              selectedValue = newVal.toString();
-                            });
-                          }
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Container();
-                  }
-                  return const CircularProgressIndicator();
-                }
-            ),
-
-            FutureBuilder<List>(
-                future: futureitem,
-                builder: (context, snapshot){
-                  if (snapshot.hasData) {
-                    return Expanded(
-                        child: layout?ListView.builder(
-                            itemCount: snapshot.data?.length,
-                            itemBuilder: (context,index){
-                              return Container(
-                                padding: EdgeInsets.all(5),
-                                child: Row(
-                                  children: [
-
-                                    Expanded(
-                                        flex :6,
-                                        child: Text('${snapshot.data![index]}')
-                                    ),
-
-                                    Expanded(
-                                      flex: 1,
-                                      child: TextFormField(
-
-                                        decoration: InputDecoration(
-                                            hintText:'Boxes'
-                                        ),
-                                        onChanged: (value) {
-                                          // storevalue(index,int.parse(value));
-                                          dropdownOptionsProvider.setSelectedItemValue(index, int.parse(value),int.parse(itemidlist[index]));
-                                        },
-                                      ),
-                                    ),
-
-                                  ],
-                                ),
-                              );
-                            }
-                        ):Container()
-                    );
-                  }else{
-
-                  }
-                  return const CircularProgressIndicator();
-                }
-            ),
-
-            Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: GestureDetector(
-
-                onTap: (){
-                  submitdiststock(dropdownOptionsProvider.itemidlist,dropdownOptionsProvider.boxeslist);
-                },
-
-                child: Container(
-                  margin: const EdgeInsets.all(10),
-                  width: double.infinity,
-                  height: 55,
+                Container(
+                  width:double.infinity,
+                  height: 100,
+                  margin: EdgeInsets.all(10),
+                  padding:EdgeInsets.all(7),
                   decoration: BoxDecoration(
-                      color: Color(0xFF063A06),
-                      borderRadius: BorderRadius.all(Radius.circular(15.0))
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      border: Border.all(color: Color(0xFFD2C7C7))
                   ),
+                  child:GestureDetector(
 
-                  child: Center(
-                    child: Text(
-                      "SUBMIT",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                      onTap: (){
+                        selectFromCamera("camera");
+                      },
+                      child: cameraFile == null ?
+                      Center(child: Image.asset('assets/Images/picture.png',width: 500)):
+                      RepaintBoundary(
+                          child: Stack(
+                              children: <Widget>[
+                                Center(child: Image.file(File(cameraFile!.path))),
+
+                              ]
+                          )
+                      )
+
                   ),
                 ),
 
-              ),
-            ),
+                FutureBuilder<List>(
+                    future: furturedist,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Container(
+                          width:double.infinity,
+                          height: 50,
+                          padding:EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              border: Border.all(color: Color(0xFFD2C7C7))
+                          ),
+                          child: DropdownButton<String>(
+                              underline:Container(),
+                              value:selectedValue,
+                              hint: const Text("Select Distributor",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                              isExpanded: true,
+                              items: snapshot.data?.map((e) =>
+                                  DropdownMenuItem<String>(
+                                    value: e,
+                                    child: Text(e),
+                                  )
+                              ).toList(),
 
-          ],
-        ),
-      ),
+                              onChanged:(newVal) {
+                                setState(() {
+                                  selectedValue = newVal.toString();
+                                });
+
+                                for(int i=0;i<distnamelist.length;i++){
+
+                                  if(distnamelist.indexOf(newVal.toString()) == i){
+
+                                    distid = distIdlist[i];
+
+                                   }
+                                }
+
+                              }
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Container();
+                      }
+                      return const CircularProgressIndicator();
+                    }
+                ),
+
+                FutureBuilder<List>(
+                    future: futureitem,
+                    builder: (context, snapshot){
+                      if (snapshot.hasData) {
+                        return Expanded(
+                            child: layout?ListView.builder(
+                                itemCount: snapshot.data?.length,
+                                itemBuilder: (context,index){
+                                  return Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: Row(
+                                      children: [
+
+                                        Expanded(
+                                            flex :6,
+                                            child: Text('${snapshot.data![index]}')
+                                        ),
+
+                                        Expanded(
+                                          flex: 1,
+                                          child: TextFormField(
+                                            decoration: const InputDecoration(
+                                                hintText:'Boxes'
+                                            ),
+                                            onChanged: (value) {
+
+                                              dropdownOptionsProvider.setSelectedItemValue(index, int.parse(value),int.parse(itemidlist[index]));
+
+                                             },
+                                           ),
+                                         ),
+
+                                      ],
+                                    ),
+                                  );
+                                }
+                            ):Container()
+                        );
+                      }else{
+
+                      }
+                      return const CircularProgressIndicator();
+                    }
+                ),
+
+                Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: GestureDetector(
+
+                    onTap: (){
+                      submitdiststock(dropdownOptionsProvider.itemidlist,dropdownOptionsProvider.boxeslist,context);
+                    },
+
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      width: double.infinity,
+                      height: 55,
+                      decoration: BoxDecoration(
+                          color: Color(0xFF063A06),
+                          borderRadius: BorderRadius.all(Radius.circular(15.0))
+                      ),
+
+                      child: Center(
+                        child: Text(
+                          "SUBMIT",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+          )
+        )
+      )
     );
 
   }
@@ -475,7 +493,10 @@ class DistributorStockState extends State<DistributorStock>{
 
   }
 
-  Future<void> submitdiststock(List<int> itemidlist,List<int> boxesidlist) async {
+  Future<void> submitdiststock(List<int> itemidlist,List<int> boxesidlist,BuildContext context) async {
+
+    final progress  = ProgressHUD.of(context);
+    progress?.show();
 
     List<Distributoritem> items = [];
 
@@ -496,7 +517,7 @@ class DistributorStockState extends State<DistributorStock>{
       "speed":_currentPosition?.speed,
       "provider":_currentPosition?.provider,
       "entryType":"stock",
-      "stockDate":cdate,
+      "stockDate": cdate,
       "remarks":remarks.text,
       "items":items
     }];
@@ -527,6 +548,12 @@ class DistributorStockState extends State<DistributorStock>{
           textColor: Colors.white,
           fontSize: 16.0);
 
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+          builder: (contextt) =>
+          HomeScreen(personName: "")));
+
     }else{
       Fluttertoast.showToast(msg: "Not Saved",
           toastLength: Toast.LENGTH_SHORT,
@@ -536,81 +563,7 @@ class DistributorStockState extends State<DistributorStock>{
           textColor: Colors.white,
           fontSize: 16.0);
     }
-
-
-    // try{
-    //   print("boxes");
-    //
-    //   for(int i=0;i<itemid.length;i++){
-    //     print("itemid${itemid[i]}");
-    //     print("boxes${boxes[i]}");
-    //   }
-    //
-    //   itemid.clear();
-    //   boxes.clear();
-    //
-    // }catch(e){
-    //   print("boxes$e");
-    // }
-
-
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // userid = prefs.getInt(Common.USER_ID)!;
-    //
-    // Map<String, String> headers = {
-    //   'Content-Type': 'application/json',
-    // };
-    //
-    // var response = await http.get(Uri.parse(Common.IP_URL+'GetShopsItemData?id=$userid'), headers: headers);
-    //
-    // if(response.statusCode == 200){
-    //
-    //   try{
-    //
-    //     final list = jsonDecode(response.body);
-    //     List<Item> itemdata = [];
-    //     itemdata = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
-    //
-    //     for(int i=0 ;i<itemdata.length;i++){
-    //       itemlist.add(itemdata[i].itemName.toString());
-    //     }
-    //
-    //     layout = true;
-    //     Fluttertoast.showToast(msg: "${itemlist.length}",
-    //         toastLength: Toast.LENGTH_SHORT,
-    //         gravity: ToastGravity.BOTTOM,
-    //         timeInSecForIosWeb: 1,
-    //         backgroundColor: Colors.black,
-    //         textColor: Colors.white,
-    //         fontSize: 16.0);
-    //
-    //   }catch(e){
-    //
-    //     Navigator.pop(context);
-    //
-    //     Fluttertoast.showToast(msg: "$e",
-    //         toastLength: Toast.LENGTH_SHORT,
-    //         gravity: ToastGravity.BOTTOM,
-    //         timeInSecForIosWeb: 1,
-    //         backgroundColor: Colors.black,
-    //         textColor: Colors.white,
-    //         fontSize: 16.0);
-    //
-    //   }
-    //
-    // }else{
-    //
-    //   Fluttertoast.showToast(msg: "Something went wrong!",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       timeInSecForIosWeb: 1,
-    //       backgroundColor: Colors.black,
-    //       textColor: Colors.white,
-    //       fontSize: 16.0);
-    // }
-    //
-    // return itemlist;
-
+    progress?.dismiss();
   }
 
   void submit() async{

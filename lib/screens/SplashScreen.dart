@@ -45,48 +45,6 @@ class SplashScreenState extends State<SplashScreen>{
     );
   }
 
-
-  Future<void> askpersmion() async {
-    //
-    // if(PermissionStatus.camera.isGranted == true || PermissionStatus.camera.isGranted ==true){
-    //
-    //   Fluttertoast.showToast(msg: "Please check your credentials",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       timeInSecForIosWeb: 1,
-    //       backgroundColor: Colors.black,
-    //       textColor: Colors.white,
-    //       fontSize: 16.0);
-    //
-    //   checkisalreadyloggedin();
-    //
-    // }else{
-    //
-    //   Fluttertoast.showToast(msg: "Please check your credentials2",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       timeInSecForIosWeb: 1,
-    //       backgroundColor: Colors.black,
-    //       textColor: Colors.white,
-    //       fontSize: 16.0);
-    //
-    //   Map<Permission, PermissionStatus> statuses = await [Permission.location,Permission.camera].request();
-    //
-    //   if(statuses[Permission.location]!.isDenied || statuses[Permission.camera]!.isDenied){
-    //
-    //     SystemNavigator.pop();
-    //
-    //   }else{
-    //
-    //     checkisalreadyloggedin();
-    //
-    //   }
-    // }
-
-
-  }
-
-
   void checkisalreadyloggedin() async{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -106,4 +64,47 @@ class SplashScreenState extends State<SplashScreen>{
     }
 
   }
+
+  //
+  //
+  // Future<void> askpersmion() async {
+  //   //
+  //   // if(PermissionStatus.camera.isGranted == true || PermissionStatus.camera.isGranted ==true){
+  //   //
+  //   //   Fluttertoast.showToast(msg: "Please check your credentials",
+  //   //       toastLength: Toast.LENGTH_SHORT,
+  //   //       gravity: ToastGravity.BOTTOM,
+  //   //       timeInSecForIosWeb: 1,
+  //   //       backgroundColor: Colors.black,
+  //   //       textColor: Colors.white,
+  //   //       fontSize: 16.0);
+  //   //
+  //   //   checkisalreadyloggedin();
+  //   //
+  //   // }else{
+  //   //
+  //   //   Fluttertoast.showToast(msg: "Please check your credentials2",
+  //   //       toastLength: Toast.LENGTH_SHORT,
+  //   //       gravity: ToastGravity.BOTTOM,
+  //   //       timeInSecForIosWeb: 1,
+  //   //       backgroundColor: Colors.black,
+  //   //       textColor: Colors.white,
+  //   //       fontSize: 16.0);
+  //   //
+  //   //   Map<Permission, PermissionStatus> statuses = await [Permission.location,Permission.camera].request();
+  //   //
+  //   //   if(statuses[Permission.location]!.isDenied || statuses[Permission.camera]!.isDenied){
+  //   //
+  //   //     SystemNavigator.pop();
+  //   //
+  //   //   }else{
+  //   //
+  //   //     checkisalreadyloggedin();
+  //   //
+  //   //   }
+  //   // }
+  //
+  //
+  // }
+
 }

@@ -524,7 +524,6 @@ class ReportsScreenState extends State<ReportsScreen>{
                     }
                 ),
 
-
               ],
             ),
           )

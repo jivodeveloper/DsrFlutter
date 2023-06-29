@@ -5,7 +5,7 @@ class Distributoritem {
   Distributoritem(this.itemid, this.boxes);
 
   Map toJson() => {
-    'itemid': itemid,
-    'boxes': boxes,
+    'itemId': itemid,
+    'totalPieces': boxes,
   };
 }
