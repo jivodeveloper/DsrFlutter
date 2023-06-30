@@ -5,16 +5,16 @@ class DropdownProvider extends ChangeNotifier{
   List<String> selectedcategory= [];
   List<String> selecteditem= [];
 
-  void addDropdownOptions(int index,String option){
-    //  selecteditem.add(option);
+  List<String> skulist = [] ;
 
+  void addDropdownOptions(int index,String option){
     selectedcategory[index]=option;
     // selecteditem[index]=option;
     notifyListeners();
   }
 
   void additemdropdown(int index,String option){
-
+    print('printing HS new 3 $index $option');
     selecteditem[index]=option;
     notifyListeners();
   }

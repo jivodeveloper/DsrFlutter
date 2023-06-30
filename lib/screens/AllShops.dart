@@ -49,7 +49,7 @@ class AllShopsState extends State<AllShops>{
                       child: Column(
                         children: [
 
-                          Text("Count : $count"),
+                          Text("Total Shops : $count"),
                           Expanded(
                             child:ListView.builder(
                                 itemCount: snapshot.data?.length,

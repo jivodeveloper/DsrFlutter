@@ -45,7 +45,7 @@ class SalesScreenState extends State<SalesScreen>{
   String _elapsedTime = "00:00";
   Location location = new Location();
   var perstatus;
-  int _batteryLevel = 0,userid=0,beatId=0;
+  int _batteryLevel = 0,userid=0,beatId=0,distanceallowed =0 ;
   double distance=0.0,distanceInMeters=0.0;
 
   List<String> status = [
@@ -74,6 +74,7 @@ class SalesScreenState extends State<SalesScreen>{
   final picker = ImagePicker();
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
   String? type;
+
   @override
   void initState() {
     super.initState();
@@ -113,7 +114,7 @@ class SalesScreenState extends State<SalesScreen>{
       ),
       body: ProgressHUD(
           child:Builder(
-          builder: (context) => SingleChildScrollView(
+          builder: (ctx) => SingleChildScrollView(
           child: Column(
            children: [
 
@@ -168,7 +169,7 @@ class SalesScreenState extends State<SalesScreen>{
                     ]
                 ),
               )
-          ),
+            ),
 
             Container(
             margin:EdgeInsets.fromLTRB(10,20,10,10),
@@ -385,8 +386,7 @@ class SalesScreenState extends State<SalesScreen>{
 
             GestureDetector(
             onTap: (){
-              checkvalidtion(context);
-
+              checkvalidtion(ctx);
             },
 
             child: Container(
@@ -503,10 +503,6 @@ class SalesScreenState extends State<SalesScreen>{
         setState(() {
           selectedImage = File(cameraFile!.path); // won't have any error now
         });
-
-        // String dir = path.dirname(selectedImage!.path);
-        // String newName = path.join(dir, 'case01wd03id01.jpg');
-        // selectedImage?.renameSync(newName);
 
         final now = new DateTime.now();
         String dir = path.dirname(selectedImage!.path);
@@ -632,6 +628,9 @@ class SalesScreenState extends State<SalesScreen>{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     persontype = prefs.getString(Common.PERSON_TYPE);
+    cdate   = getcurrentdatewithtime();
+    distance = checkdistancecondition(widget.latitude,widget.longitude);
+    distanceallowed = prefs.getInt(Common.DISTANCE_ALLOWED)!;
 
     if(distributordropdown==null){
 
@@ -665,18 +664,33 @@ class SalesScreenState extends State<SalesScreen>{
 
     }else if(statusdropdown=="DONE"){
 
+      if(distance > distanceallowed){
+
+        isdistanceallowed = "0";
+        showdistanceallowedmessage(context);
+
+      }else{
+
+        isdistanceallowed = "1";
+        if(type=="old")
+        {
+          saveSales(context);
+        }else{
+          savenewretailerwithsales(context);
+        }
+
+      }
       Navigator.push(
-        context,
-        PageTransition(
-            type: PageTransitionType.bottomToTop,
-            child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude),
-            inheritTheme: true,
-            ctx: context));
+          context,
+          PageTransition(
+              type: PageTransitionType.bottomToTop,
+              child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude,distance:distance,isdistanceallowed:isdistanceallowed,deliveryDate: dateController.text, elapsedTime: _elapsedTime,cameraFile:cameraFile!.path),
+              inheritTheme: true,
+              ctx: context));
 
-      }else if(statusdropdown!=null && statusdropdown!="DONE"){
+    }else if(statusdropdown!=null && statusdropdown!="DONE"){
           submitsales(context);
-     }
-
+    }
 
     // else if(shelf4Controller.text=="" || shelf1Controller.text=="" ||  shelf2Controller.text=="" ||  shelf3Controller.text=="" && persontype=="MT"){
     //
@@ -712,21 +726,21 @@ class SalesScreenState extends State<SalesScreen>{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
-    cdate   = getcurrentdatewithtime();
-    distance = checkdistancecondition(widget.latitude,widget.longitude);
-    int distanceallowed = prefs.getInt(Common.DISTANCE_ALLOWED)!;
 
     if(distance > distanceallowed){
+
       isdistanceallowed = "0";
-      showdistanceallowedmessage();
+      showdistanceallowedmessage(context);
+
     }else{
+
       isdistanceallowed = "1";
       if(type=="old")
-        {
+      {
           saveSales(context);
         }else{
         savenewretailerwithsales(context);
-       }
+      }
 
     }
 
@@ -739,12 +753,10 @@ class SalesScreenState extends State<SalesScreen>{
 
     distanceInMeters = Geolocator.distanceBetween(_currentPosition!.latitude!.toDouble(),_currentPosition!.longitude!.toDouble(),latitude! , longitude!);
 
-
     return distanceInMeters;
   }
 
-
-  Future<void> showdistanceallowedmessage(){
+  Future<void> showdistanceallowedmessage(context){
     return showDialog(
         context: context,
         builder:(BuildContext context) {
@@ -771,11 +783,13 @@ class SalesScreenState extends State<SalesScreen>{
               TextButton(
                 onPressed: () =>{
 
-                 if(type=="old"){
+                  Navigator.pop(context, 'Ok'),
+                  if(type=="old"){
                    saveSales(context),
-                 }else{
+                  }else{
                    savenewretailerwithsales(context),
-                 }
+                  }
+
                 },
                 child: const Text('Ok'),
               ),
@@ -788,7 +802,7 @@ class SalesScreenState extends State<SalesScreen>{
 
   Future<void> saveSales(context) async {
 
-    ProgressHUD.of(context)?.show();
+      // ProgressHUD.of(context)?.show();
 
     var salesentry=[{},{
       "personId":"$userid",
@@ -815,7 +829,7 @@ class SalesScreenState extends State<SalesScreen>{
       "items":[]}];
 
     var body = json.encode(salesentry);
-    print("sales$body");
+
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };

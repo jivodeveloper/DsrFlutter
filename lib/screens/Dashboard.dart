@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/Common.dart';
 import '../models/logindetails.dart';
 import '../util/Helper.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 
 class Dashboard extends StatefulWidget{
 
@@ -24,7 +23,6 @@ class Dashboard extends StatefulWidget{
 class Dashboardstate extends State<Dashboard> {
 
   late Future<List<Map<String, dynamic>>> futurelist;
- // late Future<List<Map<String, dynamic>>> futurepielist;
 
   int target = 0,
       targetboxes = 0,
@@ -81,11 +79,11 @@ class Dashboardstate extends State<Dashboard> {
     futurelist = getpersondata();
 
     final d1 = DateTime.now();
-    final date = new DateTime(now.year, now.month + 1, 0);
-    setState(() {
-      difference = date.difference(d1).inDays;
-    });
 
+    final date = DateTime(now.year, now.month + 1, 0);
+    setState(() {
+      difference = date.difference(d1).inDays+2;
+    });
 
   }
 
@@ -95,7 +93,7 @@ class Dashboardstate extends State<Dashboard> {
     return Scaffold(
         appBar: AppBar(
             backgroundColor: Colors.white,
-            title: Text("Dashboard",
+            title: const Text("Dashboard",
                 style: TextStyle(color: Color(0xFF095909),
                     fontFamily: 'OpenSans',
                     fontWeight: FontWeight.w300)),
@@ -113,11 +111,11 @@ class Dashboardstate extends State<Dashboard> {
 
                 Container(
                   margin: EdgeInsets.all(10),
-                  child: Text("Per day goal : ${pending/difference!}",
-                    style: TextStyle(fontSize: 20),),
+                  child: Text("Target : $target ",
+                    style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
                 ),
 
-                Container(
+                SizedBox(
                   height: 200,
                   child: FutureBuilder<List>(
                       future: futurelist,
@@ -167,9 +165,9 @@ class Dashboardstate extends State<Dashboard> {
                 ),
 
                 Container(
-                  margin: EdgeInsets.all(10),
-                  child: Text("Target : $target ",
-                    style: TextStyle(fontSize: 20),),
+                  margin: const EdgeInsets.only(top: 30,bottom: 20),
+                  child: Text("Per day goal : ${pending/difference}",
+                    style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
                 ),
 
                 PieChart(
@@ -185,13 +183,13 @@ class Dashboardstate extends State<Dashboard> {
                   centerText: "Budget",
                   ringStrokeWidth: 24,
                   animationDuration: Duration(seconds: 3),
-                  chartValuesOptions: ChartValuesOptions(
+                  chartValuesOptions: const ChartValuesOptions(
                       showChartValues: true,
                       showChartValuesOutside: true,
                       showChartValuesInPercentage: false,
                       showChartValueBackground: false),
 
-                  legendOptions: LegendOptions(
+                  legendOptions: const LegendOptions(
                       showLegends: true,
                       legendShape: BoxShape.rectangle,
                       legendTextStyle: TextStyle(fontSize: 15),
@@ -200,74 +198,11 @@ class Dashboardstate extends State<Dashboard> {
                   gradientList: gradientList,
                 )
 
-                // FutureBuilder(
-                //     future: futurepielist,
-                //     builder: (context,snapshot){
-                //       if(snapshot.hasData){
-                //         return PieChart(
-                //           dataMap: {
-                //             "Achieved": total.toDouble(),
-                //             "Pending":  pending.toDouble(),
-                //           },
-                //           colorList: colorList,
-                //           chartRadius: MediaQuery
-                //               .of(context)
-                //               .size
-                //               .width / 3,
-                //           centerText: "Budget",
-                //           ringStrokeWidth: 24,
-                //           animationDuration: Duration(seconds: 3),
-                //           chartValuesOptions: ChartValuesOptions(
-                //               showChartValues: true,
-                //               showChartValuesOutside: true,
-                //               showChartValuesInPercentage: false,
-                //               showChartValueBackground: false),
-                //
-                //           legendOptions: LegendOptions(
-                //               showLegends: true,
-                //               legendShape: BoxShape.rectangle,
-                //               legendTextStyle: TextStyle(fontSize: 15),
-                //               legendPosition: LegendPosition.bottom,
-                //               showLegendsInRow: true),
-                //           gradientList: gradientList,
-                //         );
-                //       }
-                //       return Container();
-                //     }),
-
-                // Padding(
-                //   padding: EdgeInsets.only(left:10,top: 60,right:10),
-                //   child: AspectRatio(
-                //     aspectRatio: 16 / 9,
-                //     child: DChartBar(
-                //       data: [
-                //         {
-                //           'id': 'Bar',
-                //           'data': [
-                //             {'domain': 'Productive', 'measure': assignedshops},
-                //             {'domain': 'Unprod', 'measure': 500},
-                //             {'domain': 'Covered', 'measure': 1500},
-                //             {'domain': 'Uncovered', 'measure': 500},
-                //           ],
-                //         },
-                //       ],
-                //     //  data: barchart,
-                //       domainLabelPaddingToAxisLine: 16,
-                //       axisLineTick: 2,
-                //       axisLinePointTick: 2,
-                //       axisLinePointWidth: 10,
-                //       axisLineColor: Colors.green,
-                //       measureLabelPaddingToAxisLine: 16,
-                //       barColor: (barData, index, id) => Colors.green,
-                //       showBarValue: true,
-                //     ),
-                //   ),
-                // ),
-
               ],
             )
         )
     );
+
   }
 
   Future<List<Map<String, dynamic>>> getpersondata() async {
@@ -393,7 +328,7 @@ class Dashboardstate extends State<Dashboard> {
 
     }
 
-   // progress?.dismiss();
+  //progress?.dismiss();
     return barchart;
   }
 

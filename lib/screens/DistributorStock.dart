@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:promoterapp/screens/HomeScreen.dart';
-import 'package:promoterapp/util/DistributorProvider.dart';
+import 'package:promoterapp/provider/DistributorProvider.dart';
 import '../config/Common.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/Distributoritem.dart';
@@ -55,7 +55,7 @@ class DistributorStockState extends State<DistributorStock>{
   @override
   void initState() {
     super.initState();
-    cdate   = getcurrentdate();
+    cdate = getcurrentdate();
     furturedist = getdistributor();
     futureitem = getdistributoritem();
     fetchLocation();
@@ -113,6 +113,7 @@ class DistributorStockState extends State<DistributorStock>{
 
   @override
   Widget build(BuildContext context) {
+
     final dropdownOptionsProvider = Provider.of<DistributorProvider>(context);
     return Scaffold(
       appBar: AppBar(
@@ -168,7 +169,7 @@ class DistributorStockState extends State<DistributorStock>{
                         return Container(
                           width:double.infinity,
                           height: 50,
-                          padding:EdgeInsets.all(7),
+                          padding:const EdgeInsets.all(7),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(Radius.circular(10.0)),
                               border: Border.all(color: Color(0xFFD2C7C7))
@@ -186,6 +187,7 @@ class DistributorStockState extends State<DistributorStock>{
                               ).toList(),
 
                               onChanged:(newVal) {
+
                                 setState(() {
                                   selectedValue = newVal.toString();
                                 });
@@ -196,17 +198,18 @@ class DistributorStockState extends State<DistributorStock>{
 
                                     distid = distIdlist[i];
 
-                                   }
-                                }
+                                  }
+                               }
 
-                              }
+                             }
+
                           ),
                         );
                       } else if (snapshot.hasError) {
                         return Container();
                       }
                       return const CircularProgressIndicator();
-                    }
+                   }
                 ),
 
                 FutureBuilder<List>(
@@ -232,14 +235,14 @@ class DistributorStockState extends State<DistributorStock>{
                                           child: TextFormField(
                                             decoration: const InputDecoration(
                                                 hintText:'Boxes'
-                                            ),
+                                             ),
                                             onChanged: (value) {
 
                                               dropdownOptionsProvider.setSelectedItemValue(index, int.parse(value),int.parse(itemidlist[index]));
 
-                                             },
-                                           ),
-                                         ),
+                                            },
+                                          ),
+                                        ),
 
                                       ],
                                     ),
@@ -249,9 +252,9 @@ class DistributorStockState extends State<DistributorStock>{
                         );
                       }else{
 
-                      }
+                       }
                       return const CircularProgressIndicator();
-                    }
+                  }
                 ),
 
                 Align(
@@ -451,27 +454,27 @@ class DistributorStockState extends State<DistributorStock>{
   }
 
   void storevalue(int index,int value){
+
     if(itemid.isNotEmpty){
 
       for(int i=0;i<itemid.length;i++){
         if(itemidlist[index]==itemid[i]){
 
-
           itemid[index]=int.parse(itemidlist[index]);
           boxes[index]=value;
 
         }else{
-          print("does not exist ${itemidlist[index]} $value");
-          print("${itemidlist[index]} $value");
+
           itemid.add(int.parse(itemidlist[index]));
           boxes.add(value);
         }
 
       }
     }else{
-      print("no exist");
+
       itemid.add(int.parse(itemidlist[index]));
       boxes.add(value);
+
     }
 
     print("does not exist ${itemidlist[index]} $value");
@@ -524,8 +527,6 @@ class DistributorStockState extends State<DistributorStock>{
 
     var body = json.encode(salesentry);
 
-    print("body$body");
-
     Map<String, String> headers = {
       'Content-Type': 'application/json'};
 
@@ -569,8 +570,6 @@ class DistributorStockState extends State<DistributorStock>{
   void submit() async{
 
     // dynamicList.forEach((widget) => boxes.add(widget.boxescontroller.text));
-
-
 
     // var salesentry=[{},{
     //   "distId":distid,

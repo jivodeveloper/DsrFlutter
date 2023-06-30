@@ -8,4 +8,6 @@ class Distributoritem {
     'itemId': itemid,
     'totalPieces': boxes,
   };
+
+  
 }

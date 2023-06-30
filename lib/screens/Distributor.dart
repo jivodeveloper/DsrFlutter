@@ -44,7 +44,7 @@ class DistributorState extends State<Distributor>{
                     ),
                     child: Column(
                       children: [
-                        Text("Count : $count"),
+                        Text("Total Distributor : $count"),
                         Expanded(child:ListView.builder(
                             itemCount: snapshot.data?.length,
                             itemBuilder: (context, index) {

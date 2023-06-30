@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:promoterapp/util/DropdownProvider.dart';
+import 'package:promoterapp/models/SalesItem.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/Common.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -13,29 +13,21 @@ import '../models/Categorylist.dart';
 import 'package:provider/provider.dart';
 import 'package:battery_plus/battery_plus.dart';
 import '../models/Item.dart';
-import '../models/Items.dart';
+import '../provider/DropdownProvider.dart';
 import '../util/Helper.dart';
 import 'package:location/location.dart';
-import 'package:geolocator/geolocator.dart';
-
-class Selected{
-  int is_selected=0;
-
-
-  Selected({
-    required this.is_selected});
-
-}
-
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 class SalesItemScreen extends StatefulWidget{
 
   String retailerName="",retailerId="",address="",date="",status="";
-  double? retlat,retlon;
-  String? dist,distId;
-  int userid=0;
+  double? retlat,retlon,distance;
+  String? dist,distId,isdistanceallowed,deliveryDate;
+  int userid=0,idx=0;
+  String? elapsedTime;
+  String? cameraFile;
 
-  SalesItemScreen({required this.retailerName,required this.retailerId, required this.dist,required this.distId, required this.address,required this.date, required this.status,required this.retlat,required this.retlon});
+  SalesItemScreen({required this.retailerName,required this.retailerId, required this.dist,required this.distId, required this.address,required this.date, required this.status,required this.retlat,required this.retlon, required this.distance, required this.isdistanceallowed, required this.deliveryDate,required this.elapsedTime, required this.cameraFile});
 
   @override
   State<StatefulWidget> createState() {
@@ -48,38 +40,98 @@ class SalesItemScreen extends StatefulWidget{
 
 class SalesItemState extends State<SalesItemScreen>{
 
-  List<Selected> selected_list = [];
+  TextEditingController boxes = new TextEditingController();
+  TextEditingController stock = new TextEditingController();
+  late Timer _timer;
   String? cdate;
   Future<List>? furturecategoryitem,furturecategory ;
   String? dropdowncategory,dropdownitem,shoptype="old",isdistanceallowed;
-  List<String>? selectedvalues,selectedvaluesitem,schemevalueitem;
-  List<String> schemevalue=[],dropdownOptions= [];
+  List<String>? selectedvalues,selectedvaluesitem,schemevalueitem,schemevalue=[],dropdownOptions= [];
   List<num>? quantity =[];
-  List catenamlist = [], cateidlist = [], itemid = [],categorylistscheme=[],categoryidscheme = [],itemlistscheme=[],itemidscheme = [];
+  List catenamlist = [], cateidlist = [],itemlist= [], itemid = [],
+      categorylistscheme=[],categoryidscheme = [],itemlistscheme=[],itemidscheme = [];
   int numElements = 1,userid=0;
-  List<List<Item>> itemlist = [];
   List<Object> itemobjectlist = [];
   double distanceInMeters=0.0;
   List dynamicList = [];
   var pwdWidgets = <Widget>[];
-  bool _isLoading = false, quantity_layout =false,isturnedon=false;
+  bool quantity_layout =false,isturnedon=false;
   int _batteryLevel = 0,lisindex=0;
   Future<dynamic>? best;
   LocationData? _currentPosition;
-  String? _address;
   Location location = new Location();
   int idx=0;
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer();
+  Stopwatch _stopwatch = Stopwatch();
+
 
   @override
   void initState() {
     super.initState();
-
+    _startStopwatch();
     getBatteryLevel();
     furturecategory = loadcategory();
-    // furturecategoryitem = loadcategoryitem(0, "", "");
-
     fetchLocation();
 
+  }
+
+  void dispose() async {
+    super.dispose();
+    await _stopWatchTimer.dispose();  // Need to call dispose function.
+  }
+
+  void _startStopwatch() {
+    _stopwatch.start();
+    _timer = Timer.periodic(Duration(milliseconds: 1), (timer) {
+      setState(() {
+        widget.elapsedTime = _stopwatch.elapsed.toString().substring(0, 8);
+      });
+    });
+  }
+
+  fetchLocation() async {
+
+    try{
+      bool _serviceEnabled;
+      PermissionStatus _permissionGranted;
+
+      _serviceEnabled = await location.serviceEnabled();
+      if (!_serviceEnabled) {
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          return;
+        }
+      }
+
+      _permissionGranted = await location.hasPermission();
+      if (_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await location.requestPermission();
+        if (_permissionGranted != PermissionStatus.granted) {
+          return;
+        }
+      }
+
+      _currentPosition = await location.getLocation();
+      bool ison = await location.serviceEnabled();
+      if (!ison) {
+        isturnedon = await location.requestService();
+      }
+
+      // location.onLocationChanged.listen((LocationData currentLocation) {
+      //   setState(() {
+      //     _currentPosition = currentLocation;
+      //    // getAddress(_currentPosition.latitude, _currentPosition.longitude)
+      //         .then((value) {
+      //       setState(() {
+      //         _address = "＄{value.first.addressLine}";
+      //       });
+      //     });
+      //   });
+      // });
+    }catch(e){
+      print("$e");
+    }
+    return _currentPosition;
   }
 
   getBatteryLevel() async {
@@ -94,7 +146,6 @@ class SalesItemState extends State<SalesItemScreen>{
 
   @override
   Widget build(BuildContext context) {
-
     final dropdownOptionsProvider = Provider.of<DropdownProvider>(context);
 
     return Scaffold(
@@ -108,13 +159,17 @@ class SalesItemState extends State<SalesItemScreen>{
           ),
           actions: [
 
+            Center(
+              child: Text("${widget.elapsedTime}",style: TextStyle(color:Color(0xFF063A06),fontSize: 19)),
+            ),
+
             IconButton(
 
                 onPressed: (){
 
                   setState((){
                     addwidget();
-                    //  dropdownOptionsProvider.addDropdownOptions(newOption);
+
                   });
 
                 },
@@ -200,372 +255,42 @@ class SalesItemState extends State<SalesItemScreen>{
                 ),
 
                 SizedBox(
-                  height: 400,
                   child: ListView.builder(
+                    shrinkWrap: true,
                     itemCount: dynamicList.length,
                     itemBuilder: (_, index) =>
+                        dynamicList[index]
+                  ),
+                ),
 
-                        Container(
-                            width: double.infinity,
-                            margin: const EdgeInsets.only(right: 5),
-                            padding: const EdgeInsets.only(left: 5, right: 5),
-                            decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(10.0)),
-                                border: Border.all(color: const Color(0xFF063A06))
-                            ),
-                            child: Column(
-                              children: [
+                Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: GestureDetector(
 
-                                Container(
-                                  padding: EdgeInsets.only(left:5,top: 10,bottom: 5),
-                                  child:Align(
-                                    alignment: Alignment.centerLeft,
-                                    child:  Text("Items",style: TextStyle(fontSize: 16,color: Colors.green)),
-                                  ),
-                                ),
+                    onTap: (){
+                      submitsales();
+                    },
 
-                                FutureBuilder(
-                                  future: furturecategory,
-                                  builder: (context,snapshot){
-                                    if(snapshot.hasData){
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      width: double.infinity,
+                      height: 55,
+                      decoration: BoxDecoration(
+                          color: Color(0xFF063A06),
+                          borderRadius: BorderRadius.all(Radius.circular(15.0))
+                      ),
 
-                                      for (int i = 0; i < dynamicList.length; i++) {
-                                        dropdownOptionsProvider.selectedcategory.add("CANOLA");
-                                      }
-
-                                      return DropdownButton<String>(
-                                        isExpanded: true,
-                                        value:dropdownOptionsProvider.selectedcategory[index],
-                                        //  hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
-                                        onChanged: (String? newValue) {
-                                          idx=index;
-                                          dropdownOptionsProvider.addDropdownOptions(index,newValue.toString());
-                                          furturecategoryitem=loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString(),idx);
-
-                                        },
-                                        items: catenamlist.map((e) =>
-                                            DropdownMenuItem<String>(
-                                              value: e,
-                                              child: Text(e),
-                                            )
-                                        ).toList(),
-                                      );
-
-                                    }
-                                    return const CircularProgressIndicator();
-                                  },
-                                ),
-
-                                FutureBuilder(
-                                  future: furturecategoryitem,
-                                  builder: (context,snapshot){
-                                    if(idx==index){
-                                      if(snapshot.hasData) {
-                                        return DropdownButton<String>(
-                                            isExpanded: true,
-                                            // value:selected_list[index].is_selected == 1?dropdownOptionsProvider.selecteditem[index]:"No item",
-                                            hint: const Text("Select item", style: TextStyle(fontWeight: FontWeight.w300),),
-                                            onChanged: (String? newValue) {
-                                              dropdownOptionsProvider.additemdropdown(index, newValue.toString());
-                                              // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
-                                            },
-                                            items: itemlist[idx].map((e) =>
-                                                DropdownMenuItem<String>(
-                                                  value: e.itemName,
-                                                  child: Text("${e.itemName}"),
-                                                )
-                                            ).toList()
-                                        );
-
-                                      }
-                                    }else{
-                                      if(snapshot.hasData) {
-                                        return DropdownButton<String>(
-                                            isExpanded: true,
-                                            // value:selected_list[index].is_selected == 1?dropdownOptionsProvider.selecteditem[index]:"No item",
-                                            hint: const Text("Select item", style: TextStyle(fontWeight: FontWeight.w300),),
-                                            onChanged: (String? newValue) {
-                                              dropdownOptionsProvider.additemdropdown(index, newValue.toString());
-                                              // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
-                                            },
-                                            items: itemlist[index].map((e) =>
-                                                DropdownMenuItem<String>(
-                                                  value: e.itemName,
-                                                  child: Text("${e.itemName}"),
-                                                )
-                                            ).toList()
-                                        );
-
-                                      }
-                                    }
-
-                                    return const CircularProgressIndicator();
-                                  },
-                                ),
-
-                                // FutureBuilder(
-                                //   future: furturecategoryitem,
-                                //   builder: (context,snapshot){
-                                //     if(selected_list.isNotEmpty){
-                                //
-                                //       if(snapshot.hasData && selected_list[index].is_selected == 1) {
-                                //         return DropdownButton<String>(
-                                //           isExpanded: true,
-                                //           value:dropdownOptionsProvider.selecteditem[index].isEmpty?"No item":dropdownOptionsProvider.selecteditem[index],
-                                //           hint: const Text("Select item",
-                                //             style: TextStyle(
-                                //                 fontWeight: FontWeight.w300),),
-                                //           onChanged: (String? newValue) {
-                                //             dropdownOptionsProvider
-                                //                 .additemdropdown(
-                                //                 index, newValue.toString());
-                                //             // dropdownOptionsProvider.setSelectedItemValue(index, newValue.toString());
-                                //           },
-                                //           items: dropdownOptionsProvider
-                                //               .selectedcategory[index]
-                                //               .isNotEmpty ? itemlist.map((e) =>
-                                //               DropdownMenuItem<String>(
-                                //                 value: e,
-                                //                 child: Text(e),
-                                //               )
-                                //           ).toList() : itemlist.map((e) =>
-                                //               DropdownMenuItem<String>(
-                                //                   value: e,
-                                //                   child: Text("No item")
-                                //               )
-                                //           ).toList(),
-                                //         );
-                                //       }
-                                //
-                                //     }
-                                //
-                                //     return const CircularProgressIndicator();
-                                //   },
-                                // ),
-
-                                Container(
-                                  margin: EdgeInsets.all(5),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                          flex: 1,
-                                          child: SizedBox(
-                                            width: double.infinity,
-                                            child: Align(
-                                              alignment: Alignment.center,
-                                              child: Container(
-                                                width: 100,
-                                                height: 30,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 1.0,
-                                                        color: Colors.grey
-                                                    ),
-                                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
-                                                ),
-                                                child: TextFormField(
-                                                  decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                      ),
-
-                                      Expanded(
-                                          flex: 1,
-                                          child: SizedBox(
-                                            width: double.infinity,
-                                            child: Align(
-                                              alignment: Alignment.center,
-                                              child: Container(
-                                                width: 100,
-                                                height: 30,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 1.0,
-                                                        color: Colors.grey
-                                                    ),
-                                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
-                                                ),
-                                                child: TextFormField(
-                                                  decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                      ),
-
-
-                                    ],
-                                  ),
-                                ),
-
-                                Container(
-                                    padding: EdgeInsets.only(left:5,top: 10,bottom: 5),
-                                    child:Align(
-                                      alignment: Alignment.centerLeft,
-                                      child:  const Text("Select Scheme",style: TextStyle(fontSize: 16,color: Colors.green)),
-                                    )
-                                ),
-
-                                FutureBuilder(
-                                  future: furturecategory,
-                                  builder: (context,snapshot){
-                                    if(snapshot.hasData){
-                                      for (int i = 0; i < dynamicList.length; i++) {
-                                        schemevalue.add("CANOLA");
-                                      }
-                                      return DropdownButton<String>(
-                                        isExpanded: true,
-                                        value:schemevalue[index].toString(),
-                                        //  hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
-                                        onChanged: (String? newValue) {
-                                          schemevalue[index] = newValue.toString();
-                                          setState(() {});
-                                          //  schemevalue?.insert(index, newValue.toString());
-                                          //  loadcategoryitem(catenamlist.indexOf(newValue),newValue.toString());
-                                        },
-                                        items: categorylistscheme.map((e) =>
-                                            DropdownMenuItem<String>(
-                                              value: e,
-                                              child: Text(e),
-                                            )
-                                        ).toList(),
-                                      );
-                                    }
-                                    return const CircularProgressIndicator();
-                                  },
-                                ),
-
-                                DropdownButton<String>(
-                                  isExpanded: true,
-                                  value: schemevalueitem?[index],
-                                  hint: const Text("Select item",style: TextStyle(fontWeight: FontWeight.w300),),
-                                  onChanged: (String? newValue) {
-                                    schemevalueitem?.insert(index, newValue.toString());
-                                    // setSelectedValueitem(index, newValue.toString());
-                                  },
-                                  items: itemlistscheme.map((e) =>
-                                      DropdownMenuItem<String>(
-                                        value: e,
-                                        child: Text(e),
-                                      )
-                                  ).toList(),
-                                ),
-
-                                Container(
-                                  margin: EdgeInsets.all(5),
-                                  child: Row(
-                                    children: [
-
-                                      // Expanded(
-                                      //     flex: 2,
-                                      //     child:Row(
-                                      //       children: [
-                                      //
-                                      //         Expanded(
-                                      //             flex: 1,
-                                      //             child: Container(
-                                      //               width: 50,
-                                      //               height: 25,
-                                      //               margin: EdgeInsets.only(right: 15),
-                                      //               decoration: BoxDecoration(
-                                      //                   border: Border.all(width: 1.0,color:Colors.grey),
-                                      //                   borderRadius: BorderRadius.all(Radius.circular(10.0))
-                                      //               ),
-                                      //               child: Center(
-                                      //                 child: Text("RS 2500"),
-                                      //               ),
-                                      //             )
-                                      //         ),
-                                      //
-                                      //         Expanded(
-                                      //             flex: 1,
-                                      //             child: Container(
-                                      //               width: 50,
-                                      //               height: 25,
-                                      //               margin: EdgeInsets.only(right: 15),
-                                      //               decoration: BoxDecoration(
-                                      //                   border: Border.all(width: 1.0,color:Colors.grey),
-                                      //                   borderRadius: BorderRadius.all(Radius.circular(10.0))
-                                      //               ),
-                                      //               child: Center(
-                                      //                 child: Text("RS 2500"),
-                                      //               ),
-                                      //             )
-                                      //         ),
-                                      //
-                                      //       ],
-                                      //     )
-                                      // ),
-
-                                      Expanded(
-                                          flex: 1,
-                                          child: SizedBox(
-                                            width: double.infinity,
-                                            child: Align(
-                                              alignment: Alignment.center,
-                                              child: Container(
-                                                width: 100,
-                                                height: 30,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 1.0,
-                                                        color: Colors.grey
-                                                    ),
-                                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
-                                                ),
-                                                child: TextFormField(
-                                                  decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                      ),
-
-                                      Expanded(
-                                          flex: 1,
-                                          child: SizedBox(
-                                            width: double.infinity,
-                                            child: Align(
-                                              alignment: Alignment.center,
-                                              child: Container(
-                                                width: 100,
-                                                height: 30,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 1.0,
-                                                        color: Colors.grey
-                                                    ),
-                                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
-                                                ),
-                                                child: TextFormField(
-                                                  decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                      ),
-
-                                    ],
-                                  ),
-                                ),
-
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10,right: 10),
-                                  child:  Divider(
-                                      thickness: 0.1,
-                                      color: Color(0xFF063A06)
-                                  ),
-                                ),
-
-                              ],
-                            )
+                      child: Center(
+                        child: Text(
+                          "SUBMIT",
+                          style: TextStyle(color: Colors.white),
                         ),
+                      ),
+                    ),
 
                   ),
                 ),
+
               ]
           ),
         )
@@ -576,10 +301,9 @@ class SalesItemState extends State<SalesItemScreen>{
   void addwidget(){
 
     setState(() {
-      dynamicList.add(MyWidget());
+      dynamicList.add(MyWidget(catenamlist,cateidlist,idx,itemlist,itemid,boxes,stock));
     });
-    submitsales();
-    print("${_currentPosition?.latitude}");
+    idx++;
 
   }
 
@@ -631,11 +355,6 @@ class SalesItemState extends State<SalesItemScreen>{
         }
 
         itemlist.add(itemlistt);
-
-        itemlist[idx].map((e) =>
-
-            print("itemname${e.itemName}")
-        ).toList();
 
         // if(opt=="item"){
         //
@@ -750,10 +469,16 @@ class SalesItemState extends State<SalesItemScreen>{
 
   Future<List> submitsales() async {
 
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
-    cdate = getcurrentdate();
-    // checkdistancecondition();
+    cdate = getcurrentdatewithtime();
+
+    List<SalesItem> items = [];
+
+    for(int i=0;i<itemid.length;i++){
+      items.add(SalesItem(int.parse(itemid[i].toString()),20,10,10));
+    }
 
     var salesentry=[{
       "personId":userid,
@@ -770,267 +495,46 @@ class SalesItemState extends State<SalesItemScreen>{
       "altitude":_currentPosition?.altitude,
       "shopType":shoptype,
       "salesType":"secondary",
-      "timeDuration":"",
+      "timeDuration":"0.0",
       "startLatitude":widget.retlat,
       "startLongitude":widget.retlon,
-      "distId":widget.distId,
-      "distance":widget.distId,
-      "deliveryDate":widget.distId,
-      "allowed":isdistanceallowed}];
+      "distId":"16879",
+      "distance":widget.distance,
+      "deliveryDate":widget.deliveryDate,
+      "allowed":widget.isdistanceallowed,
+      "items":items
+    }];
 
-    // Map<String, String> headers = {
-    //   'Content-Type': 'application/json',
-    // };
-    //
-    // var response = await http.get(Uri.parse('${Common.IP_URL}SaveSalesWithImgAndGetId2?userid=$userid'), headers: headers);
-    //
-    // if(response.statusCode == 200){
-    //
-    //   try{
-    //
-    //     final list = jsonDecode(response.body);
-    //
-    //     List<Categorylist> categorydata = [];
-    //     categorydata = list.map<Categorylist>((m) => Categorylist.fromJson(Map<String, dynamic>.from(m))).toList();
-    //
-    //     for(int i=0 ;i<categorydata.length;i++){
-    //       catenamlist.add(categorydata[i].typeName.toString());
-    //       cateidlist.add(categorydata[i].id);
-    //     }
-    //
-    //   }catch(e){
-    //
-    //     Fluttertoast.showToast(msg: "Please contact admin!!",
-    //         toastLength: Toast.LENGTH_SHORT,
-    //         gravity: ToastGravity.BOTTOM,
-    //         timeInSecForIosWeb: 1,
-    //         backgroundColor: Colors.black,
-    //         textColor: Colors.white,
-    //         fontSize: 16.0);
-    //
-    //   }
-    //
-    // }else{
-    //
-    //   Fluttertoast.showToast(msg: "Something went wrong!",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       timeInSecForIosWeb: 1,
-    //       backgroundColor: Colors.black,
-    //       textColor: Colors.white,
-    //       fontSize: 16.0);
-    //
-    // }
-
-    return catenamlist;
-  }
-
-  Future<void> checkdistancecondition() async {
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    int distanceallowed = prefs.getInt(Common.DISTANCE_ALLOWED)!;
-    distanceInMeters = await Geolocator.distanceBetween(_currentPosition!.latitude!.toDouble(),_currentPosition!.longitude!.toDouble(),widget.retlat as double,widget.retlon as double);
-
-    if(distanceInMeters>distanceallowed){
-      isdistanceallowed = "0";
-      showdistanceallowedmessage();
-    }else{
-      isdistanceallowed = "1";
-    }
-
-  }
-
-  Future<void> showdistanceallowedmessage(){
-    return showDialog(
-        context: context,
-        builder:(BuildContext context) {
-          return AlertDialog(
-
-            content:Wrap(
-              children: [
-                Image.asset('assets/Images/complain.png',width: 40,height: 40,),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child:Text("Please check your location, this location doesn\'t match with the older one."),
-                )
-
-              ],
-            ),
-            actions: <Widget>[
-
-              TextButton(
-                onPressed: () => Navigator.pop(context, 'Cancel'),
-                child: const Text('Cancel'),
-              ),
-
-              TextButton(
-                onPressed: () =>
-                    Navigator.pop(context, 'Cancel'),
-                child: const Text('Ok'),
-              ),
-
-            ],
-          );
-        }
-    );
-  }
-
-  fetchLocation() async {
-
-    try{
-      bool _serviceEnabled;
-      PermissionStatus _permissionGranted;
-
-      _serviceEnabled = await location.serviceEnabled();
-      if (!_serviceEnabled) {
-        _serviceEnabled = await location.requestService();
-        if (!_serviceEnabled) {
-          return;
-        }
-      }
-
-      _permissionGranted = await location.hasPermission();
-      if (_permissionGranted == PermissionStatus.denied) {
-        _permissionGranted = await location.requestPermission();
-        if (_permissionGranted != PermissionStatus.granted) {
-          return;
-        }
-      }
-
-      _currentPosition = await location.getLocation();
-      bool ison = await location.serviceEnabled();
-      if (!ison) {
-        isturnedon = await location.requestService();
-      }
-      print("currentloction${_currentPosition?.latitude}");
-      // location.onLocationChanged.listen((LocationData currentLocation) {
-      //   setState(() {
-      //     _currentPosition = currentLocation;
-      //    // getAddress(_currentPosition.latitude, _currentPosition.longitude)
-      //         .then((value) {
-      //       setState(() {
-      //         _address = "＄{value.first.addressLine}";
-      //       });
-      //     });
-      //   });
-      // });
-    }catch(e){
-      print("$e");
-    }
-
-  }
-
-// Future<List<Address>> getAddress(double lat, double lang) async {
-//  final coordinates = new Coordinates(latitude, longitude);
-//  List<Address> address =
-//  await Geocoder.local.findAddressesFromCoordinates(coordinates);
-//  return address;
-// }
-
-// }
-
-}
-
-class MyWidget extends StatelessWidget {
-
-  List catenamlist = [], cateidlist = [],itemlist = [], itemid = [];
-  int userid=0;
-
-  @override
-  Widget build(BuildContext context) {
-
-    final dropdownOptionsProvider = Provider.of<DropdownProvider>(context);
-    Future<List>? futuree = loadcategory();
-
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-          itemCount: dropdownOptionsProvider.selectedcategory.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-                title: FutureBuilder<List>(
-
-                    future: futuree,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(right: 5),
-                          height: 50,
-                          color: Colors.blue,
-                          padding: const EdgeInsets.only(left: 5, right: 5),
-                          decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(10.0)),
-                              border: Border.all(color: const Color(0xFF063A06))
-                          ),
-                          child: DropdownButton<String>(
-                            value: dropdownOptionsProvider
-                                .selectedcategory[index],
-                            onChanged: (String? newValue) {
-                              // dropdownOptionsProvider.selecteditem(index, newValue.toString());
-                            },
-                            items: dropdownOptionsProvider.selectedcategory
-                                .map<DropdownMenuItem<String>>(
-                                  (String option) =>
-                                  DropdownMenuItem<String>(
-                                    value: option,
-                                    child: Text(option),
-                                  ),
-                            ).toList(),
-                          ),
-                        );
-                      }
-                      return Container();
-                    }
-                ));
-          }),
-    );
-
-  }
-
-  Future<List> loadcategory() async {
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    userid = prefs.getInt(Common.USER_ID)!;
+    var body = json.encode(salesentry);
+    print("item value $salesentry");
 
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse('${Common.IP_URL}GetCatgories?userid=768'), headers: headers);
+    var request = await http.MultipartRequest('POST', Uri.parse('${Common.IP_URL}SaveSalesWithImgAndGetId2'));
+    request.fields['salesEntry']= body.toString();
+    request.files.add(await http.MultipartFile.fromPath('image', widget.cameraFile.toString()));
 
-    if(response.statusCode == 200){
+    var response = await request.send();
+    var responsed = await http.Response.fromStream(response);
+    final responsedData = json.decode(responsed.body);
 
-      try{
+    if(responsedData.contains("DONE")){
 
-        final list = jsonDecode(response.body);
+      Fluttertoast.showToast(msg: "Sales Saved",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
 
-        List<Categorylist> categorydata = [];
-        categorydata = list.map<Categorylist>((m) => Categorylist.fromJson(Map<String, dynamic>.from(m))).toList();
-
-        for(int i=0 ;i<categorydata.length;i++){
-          catenamlist.add(categorydata[i].typeName.toString());
-          cateidlist.add(categorydata[i].id);
-        }
-
-
-      }catch(e){
-
-        Fluttertoast.showToast(msg: "Please contact admin!!",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.black,
-            textColor: Colors.white,
-            fontSize: 16.0);
-
-      }
+      Navigator.of(context).pop();
 
     }else{
 
-      Fluttertoast.showToast(msg: "Something went wrong!",
+      Fluttertoast.showToast(msg: "Something went wrong!Please try again!",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
@@ -1043,9 +547,264 @@ class MyWidget extends StatelessWidget {
     return catenamlist;
   }
 
+}
+
+class MyWidget extends StatelessWidget {
+
+  List catenamlist = [], cateidlist = [],itemid = [], itemlist=[];
+  int idx=0;
+  Future<List>? furturecategoryitem;
+  TextEditingController boxes = new TextEditingController();
+  TextEditingController stock = new TextEditingController();
+
+  MyWidget(this.catenamlist, this.cateidlist,this.idx,this.itemlist,this.itemid,this.boxes,this.stock);
+
+  @override
+  Widget build(BuildContext context) {
+
+    final dropdownOptionsProvider = Provider.of<DropdownProvider>(context);
+    dropdownOptionsProvider.selectedcategory.add("CANOLA");
+
+    return Container(
+        height: 200,
+        width: double.infinity,
+        margin: EdgeInsets.only(right: 5),
+        padding: EdgeInsets.only(left: 5, right: 5),
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(
+                Radius.circular(10.0)
+            ),
+            border: Border.all(color: Color(0xFF063A06))
+        ),
+        child: Column(
+            children: [
+
+              Container(
+                padding: EdgeInsets.only(left:5,top: 10,bottom: 5),
+                child:Align(
+                  alignment: Alignment.centerLeft,
+                  child:  Text("Items",style: TextStyle(fontSize: 16,color: Colors.green)),
+                ),
+              ),
+
+              DropdownButton<String>(
+                isExpanded: true,
+                value:dropdownOptionsProvider.selectedcategory[idx],
+                // hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
+                onChanged: (String? newValue) {
+                  int cateid=0;
+
+                  for(int i=0;i<catenamlist.length;i++){
+
+                    if(catenamlist.indexOf(newValue)==i){
+                      cateid = cateidlist[i];
+                    }
+
+                  }
+                  dropdownOptionsProvider.addDropdownOptions(idx,newValue.toString());
+                  furturecategoryitem = loadcategoryitem(cateid,itemlist,itemid);
+
+                },
+                items: catenamlist.map((e) =>
+                    DropdownMenuItem<String>(
+                      value: e,
+                      child: Text(e),
+                    )
+                ).toList(),
+              ),
+
+              FutureBuilder(
+                future: furturecategoryitem,
+                builder: (context,snapshot){
+                  if(snapshot.hasData){
+                   // dropdownOptionsProvider.selecteditem.add(itemlist[0]);
+                    return  DropdownButton<String>(
+                      isExpanded: true,
+                    //value: dropdownOptionsProvider.selecteditem[idx],
+                      hint: const Text("Select Item",style: TextStyle(fontWeight: FontWeight.w300)),
+                      onChanged: (String? newValue) {
+                        dropdownOptionsProvider.additemdropdown(idx, newValue.toString());
+                      },
+                      items: itemlist.map((e) =>
+                          DropdownMenuItem<String>(
+                            value: e,
+                            child: Text(e),
+                          )
+                      ).toList(),
+                    );
+                  }
+                  return Container();
+                },
+              ),
+
+              Container(
+                  margin: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+
+                      Expanded(
+                          flex: 1,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                margin: EdgeInsets.only(right: 5),
+                                height: 40,
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        width: 1.0,
+                                        color: Colors.grey
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
+                                ),
+                                child: TextFormField(
+                                  controller: boxes,
+                                  decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
+                                ),
+                              ),
+                            ),
+                          )
+                      ),
+
+                      Expanded(
+                          flex: 1,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              margin: EdgeInsets.only(left: 5),
+                              height: 40,
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      width: 1.0,
+                                      color: Colors.grey
+                                  ),
+                                  borderRadius: BorderRadius.all(Radius.circular(2.0))
+                              ),
+                              child: TextFormField(
+                                controller: stock,
+                                decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
+                              ),
+                            ),
+                          ),
+                      ),
+
+                    ],
+                 )
+              ),
+
+            ]
+        )
+    );
+
+  }
+
+  //
+  // Future<List> loadcategory() async {
+  //
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   userid = prefs.getInt(Common.USER_ID)!;
+  //
+  //   Map<String, String> headers = {
+  //     'Content-Type': 'application/json',
+  //   };
+  //
+  //   var response = await http.get(Uri.parse('${Common.IP_URL}GetCatgories?userid=768'), headers: headers);
+  //
+  //   if(response.statusCode == 200){
+  //
+  //     try{
+  //
+  //       final list = jsonDecode(response.body);
+  //
+  //       List<Categorylist> categorydata = [];
+  //       categorydata = list.map<Categorylist>((m) => Categorylist.fromJson(Map<String, dynamic>.from(m))).toList();
+  //
+  //       for(int i=0 ;i<categorydata.length;i++){
+  //         catenamlist.add(categorydata[i].typeName.toString());
+  //         cateidlist.add(categorydata[i].id);
+  //       }
+  //
+  //
+  //     }catch(e){
+  //
+  //       Fluttertoast.showToast(msg: "Please contact admin!!",
+  //           toastLength: Toast.LENGTH_SHORT,
+  //           gravity: ToastGravity.BOTTOM,
+  //           timeInSecForIosWeb: 1,
+  //           backgroundColor: Colors.black,
+  //           textColor: Colors.white,
+  //           fontSize: 16.0);
+  //
+  //     }
+  //
+  //   }else{
+  //
+  //     Fluttertoast.showToast(msg: "Something went wrong!",
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.BOTTOM,
+  //         timeInSecForIosWeb: 1,
+  //         backgroundColor: Colors.black,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0);
+  //
+  //   }
+  //
+  //   return catenamlist;
+  // }
+  //
 
 }
 
+Future<List> loadcategoryitem(int cid, List itemlistt,List itemid) async {
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json',
+  };
+
+  var response = await http.get(Uri.parse('${Common.IP_URL}Getitem?itemType=$cid'), headers: headers);
+
+  if(response.statusCode == 200){
+
+    try{
+
+      final list = jsonDecode(response.body);
+
+      List<Item> categryitem = [];
+      categryitem = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
+      itemlistt.clear();
+      for(int i=0 ;i<categryitem.length;i++) {
+
+        itemlistt.add(categryitem[i].itemName);
+        itemid.add(categryitem[i].itemID);
+      }
+
+    }catch(e){
+
+      Fluttertoast.showToast(msg: "Please contact adminn!!$e",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }
+
+  }else{
+
+    Fluttertoast.showToast(msg: "Something went wrong!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
+
+  }
+
+  return itemlistt;
+}
 
 
 
