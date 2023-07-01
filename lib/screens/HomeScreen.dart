@@ -59,7 +59,7 @@ class HomeScreenState extends State<HomeScreen>{
 
                   Expanded(
                     flex: 3,
-                    child: Text("Welcome ${widget.personName}",style: TextStyle(fontSize: 20,color: Colors.white,fontFamily: 'OpenSans',fontWeight: FontWeight.w900)),)
+                    child: Text("Welcome",style: TextStyle(fontSize: 20,color: Colors.white,fontFamily: 'OpenSans',fontWeight: FontWeight.w900)),)
 
                 ],
 

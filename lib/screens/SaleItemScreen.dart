@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:promoterapp/models/SalesItem.dart';
+import 'package:promoterapp/screens/Dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/Common.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -195,7 +196,7 @@ class SalesItemState extends State<SalesItemScreen>{
               children: [
 
                 Container(
-                    height: 90,
+
                     margin: EdgeInsets.all(10),
                     padding: EdgeInsets.all(10),
                     decoration: const BoxDecoration(
@@ -530,7 +531,12 @@ class SalesItemState extends State<SalesItemScreen>{
           textColor: Colors.white,
           fontSize: 16.0);
 
-      Navigator.of(context).pop();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Dashboard(),
+        ),
+      );
 
     }else{
 

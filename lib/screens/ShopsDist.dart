@@ -5,8 +5,8 @@ import 'package:promoterapp/screens/BeatShops.dart';
 import 'package:promoterapp/screens/Distributor.dart';
 import 'package:promoterapp/screens/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import '../config/Common.dart';
+import 'SearchScreen.dart';
 
 
 class ShopsDist extends StatefulWidget{
@@ -24,47 +24,13 @@ class ShopsDistState extends State<ShopsDist> with TickerProviderStateMixin {
   int beatId =0;
   String beatname="";
   final TextEditingController _searchQuery = new TextEditingController();
-  bool? _IsSearching;
-  String _searchText = "";
-  Icon actionIcon = new Icon(Icons.search, color: Colors.white,);
+  Icon actionIcon = new Icon(Icons.search, color: Colors.green[500],);
 
   @override
   void initState() {
     super.initState();
     _controller = TabController(length: 5, vsync: this);
     getbeatname();
-  }
-
-  _SearchListState() {
-    _searchQuery.addListener(() {
-      if (_searchQuery.text.isEmpty) {
-        setState(() {
-          _IsSearching = false;
-          _searchText = "";
-        });
-      }
-      else {
-        setState(() {
-          _IsSearching = true;
-          _searchText = _searchQuery.text;
-        });
-      }
-    });
-  }
-
-  void _handleSearchStart() {
-    setState(() {
-      _IsSearching = true;
-    });
-  }
-
-  void _handleSearchEnd() {
-    setState(() {
-      this.actionIcon = new Icon(Icons.search, color: Colors.white,);
-
-      _IsSearching = false;
-      _searchQuery.clear();
-    });
   }
 
   @override
@@ -76,22 +42,22 @@ class ShopsDistState extends State<ShopsDist> with TickerProviderStateMixin {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.white,
-              actions: <Widget>[
-
-                 IconButton(icon: actionIcon, onPressed: () {
+            actions: <Widget>[
+              IconButton(
+                icon: actionIcon,
+                onPressed: () {
                   setState(() {
-                    if (this.actionIcon.icon == Icons.search) {
-                      this.actionIcon = Icon(Icons.close, color: Colors.black,);
-
-                      _handleSearchStart();
-                    }
-                    else {
-                      _handleSearchEnd();
-                    }
+                    // Navigate to the SearchScreen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchScreen(),
+                      ),
+                    );
                   });
-                },),
-
-              ],
+                },
+              ),
+            ],
               leading: GestureDetector(
               onTap: (){
 

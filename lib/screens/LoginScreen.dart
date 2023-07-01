@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../config/Common.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-
 class LoginScreen extends StatefulWidget{
 
   @override
@@ -35,7 +34,7 @@ class LoginScreenState extends State<LoginScreen>{
         child:Scaffold(
           body: ProgressHUD(
               child:Builder(
-                builder: (context) => Scaffold(
+                builder: (ctx) => Scaffold(
                     body:Container(
                       color: Colors.white,
                       child:Column(
@@ -145,10 +144,8 @@ class LoginScreenState extends State<LoginScreen>{
                           GestureDetector(
 
                             onTap: (){
-                              final progress  = ProgressHUD.of(context);
-                              progress?.show();
 
-                              login(progress);
+                              login(ctx);
                               //
                               // progress?.dismiss();
                             },
@@ -220,100 +217,90 @@ class LoginScreenState extends State<LoginScreen>{
     );
   }
 
-  Future<logindetails> login(progress) async{
+  Future<logindetails> login(context) async {
+    final progress  = ProgressHUD.of(context);
+    progress?.show();
 
     logindetails details;
-    SharedPreferences prefs= await SharedPreferences.getInstance();
-    Map<String,String> headers={
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
 
-    var response = await http.post(Uri.parse('${Common.IP_URL}LoginSalesPerson?user=${usercontroller.text}&password=${passcontroller.text}'), headers: headers);
+    var response = await http.post(Uri.parse(
+        '${Common.IP_URL}LoginSalesPerson?user=${usercontroller.text}&password=${passcontroller.text}'),
+        headers: headers);
     details = logindetails.fromJson(json.decode(response.body));
 
     try {
 
       if (response.statusCode == 200) {
 
-        details = logindetails.fromJson(json.decode(response.body));
-
-        if(details.personId!=0){
-
-          try{
-
+        if (details.personId != 0) {
+          try {
             prefs.setInt(Common.USER_ID, details.personId);
-            prefs.setString(Common.PERSON_TYPE, details.personType);
-            prefs.setString(Common.PERSON_NAME, details.personName);
-            prefs.setString(Common.GROUP, details.group);
-
-          }catch (e){
-
+            prefs.setString(Common.PERSON_TYPE, details.personType.toString());
+            prefs.setString(Common.PERSON_NAME, details.personName.toString());
+            prefs.setString(Common.GROUP, details.group.toString());
+          } catch (e) {
             print("distanceallowed$e");
-
           }
 
-          Fluttertoast.showToast(msg: "Successfully login ${details.personName}",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.black,
-              textColor: Colors.white,
-              fontSize: 16.0);
-
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      HomeScreen(personName: details.personName)));
-
-        }else{
-
-          Fluttertoast.showToast(msg: "Please check your userid and password",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.black,
-              textColor: Colors.white,
-              fontSize: 16.0);
-
-        }
-
-      }else{
-
-        Fluttertoast.showToast(msg: "Please check your credentials",
+          Fluttertoast.showToast(
+            msg: "Successfully logged in ${details.personName}",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.black,
             textColor: Colors.white,
-            fontSize: 16.0);
+            fontSize: 16.0,
+          );
 
-      }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(personName: details.personName.toString()),
+            ),
+          );
+        } else {
 
-    } catch (e) {
+          Fluttertoast.showToast(
+            msg: "Please check your userid and password",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
 
-      Fluttertoast.showToast(msg: "$e",
+
+        }
+      } else {
+        Fluttertoast.showToast(
+          msg: "Please check your credentials",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.black,
           textColor: Colors.white,
-          fontSize: 16.0);
-    }
-
-    Fluttertoast.showToast(msg: "valueofdata",
+          fontSize: 16.0,
+        );
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "$e",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.black,
         textColor: Colors.white,
-        fontSize: 16.0);
+        fontSize: 16.0,
+      );
+    }
 
     progress?.dismiss();
-
     return details;
   }
-
-
 
 }

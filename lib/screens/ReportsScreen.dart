@@ -28,10 +28,12 @@ class ReportsScreenState extends State<ReportsScreen>{
   List<SalesReport> salesreport = [];
   List<Items> itemsreport = [];
   List<Items> stockreport=[];
-  int totalPcs=0,totalLtr=0, count=0;
+  int totalPcs=0, count=0;
+  double totalLtr=0.0;
 
   @override
   void initState() {
+
     super.initState();
   }
 
@@ -41,7 +43,7 @@ class ReportsScreenState extends State<ReportsScreen>{
     return Scaffold(
 
         appBar: AppBar(
-          title: const Text("Sales Reports",
+          title: const Text("My Sales Reports",
               style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
           ),
           backgroundColor: Colors.white,
@@ -97,7 +99,7 @@ class ReportsScreenState extends State<ReportsScreen>{
                                   child:Container(
                                       margin: EdgeInsets.all(10),
                                       child: Center(
-                                        child:Text("Total Ltr : $totalLtr"),
+                                        child: Text("Total Ltr : ${totalLtr.toStringAsFixed(2)}"),
                                       )
                                   ),
                                 ),
@@ -319,20 +321,20 @@ class ReportsScreenState extends State<ReportsScreen>{
     if(response.statusCode == 200){
 
       try{
-        int pcs =0, ltr=0;
+        int pcs =0;
+        double ltr=0.0;
         final list = jsonDecode(response.body);
-
         salesreport = list["salesReport"].map<SalesReport>((m) => SalesReport.fromJson(Map<String, dynamic>.from(m))).toList();
 
         for(int i=0;i<salesreport.length;i++){
           pcs += int.parse(salesreport[i].pieces.toString());
-          //ltr += int.parse(salesreport[i].totalQuantity.toString());
+          ltr += double.parse(salesreport[i].totalQuantity.toString());
         }
 
         setState(() {
           count = salesreport.length;
           totalPcs = pcs;
-          //  totalLtr = ltr;
+          totalLtr =ltr;
         });
 
       }catch(e){
@@ -382,10 +384,6 @@ class ReportsScreenState extends State<ReportsScreen>{
         itemsreport = list["itemList"].map<Items>((m) => Items.fromJson(Map<String, dynamic>.from(m))).toList();
         stockreport = list["stockList"].map<Items>((m) => Items.fromJson(Map<String, dynamic>.from(m))).toList();
 
-        setState(() {
-          count = itemsreport.length;
-        });
-
         showitemlist(context);
 
       }catch(e){
@@ -416,117 +414,172 @@ class ReportsScreenState extends State<ReportsScreen>{
 
   }
 
-  Future<void> showitemlist(BuildContext contextt) async{
-
+  Future<void> showitemlist(BuildContext contextt) async {
     return showDialog<void>(
-      context: context,
+      context: contextt,
       barrierDismissible: false,
       builder: (BuildContext context) {
         contextt = context;
         return AlertDialog(
-          title: const Text('Items'),
-          content:Container(
+          title: Center(
+            child: Text('Items'),
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5, // Adjust the width as needed
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: Text("Orders",style: TextStyle(fontWeight: FontWeight.bold),),
+                Text(
+                  'Orders:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-
                 ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: itemsreport.length,
-                    itemBuilder: (context,i){
-                      return GestureDetector(
-                          onTap: (){
-                            //markattendance(status,beatnamelist[i].toString(),contextt);
-                          },
-
-                          child: Container(
-                              margin: EdgeInsets.only(top:10),
-                              child:Column(
+                  shrinkWrap: true,
+                  itemCount: itemsreport.length,
+                  itemBuilder: (context, i) {
+                    return GestureDetector(
+                      onTap: () {
+                        //markattendance(status,beatnamelist[i].toString(),contextt);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    child:Text("${itemsreport[i].itemName}"),
+                                  Text(
+                                    "${itemsreport[i].itemName}",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-
+                                  SizedBox(height: 4),
                                   Row(
                                     children: [
-
                                       Expanded(
                                         flex: 1,
-                                        child: Text("PCS : ${itemsreport[i].pieces}"),),
-
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              "Order:",
+                                              style: TextStyle(fontSize: 16, color: Colors.black54),
+                                            ),
+                                            Text(
+                                              "${itemsreport[i].pieces}",
+                                              style: TextStyle(fontSize: 16, color: Colors.green[500]),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                       Expanded(
                                         flex: 1,
-                                        child: Text("QTY : ${itemsreport[i].quantity}"),),
-
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              "Ltrs:",
+                                              style: TextStyle(fontSize: 16, color: Colors.black54),
+                                            ),
+                                            Text(
+                                              "${itemsreport[i].quantity}",
+                                              style: TextStyle(fontSize: 16, color: Colors.green[500]),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
-
                                 ],
-                              )
-
-                          )
-                      );
-                   }
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-
-                SizedBox(height: 4,),
-
-                Container(
-                  margin: EdgeInsets.only(top:10),
-                  alignment: Alignment.centerLeft,
-                  child: Text("Items",style: TextStyle(fontWeight: FontWeight.bold),),
+                SizedBox(height: 16),
+                Text(
+                  'Stock:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-
                 ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: itemsreport.length,
-                    itemBuilder: (context,i){
-                      return GestureDetector(
-                          onTap: (){
-                            //markattendance(status,beatnamelist[i].toString(),contextt);
-                          },
-
-                          child: Container(
-                              margin: EdgeInsets.only(top:10),
-                              child:Column(
+                  shrinkWrap: true,
+                  itemCount: itemsreport.length,
+                  itemBuilder: (context, i) {
+                    return GestureDetector(
+                      onTap: () {
+                        //markattendance(status,beatnamelist[i].toString(),contextt);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    child:Text("${itemsreport[i].itemName}"),
+                                  Text(
+                                    "${itemsreport[i].itemName}",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-
+                                  SizedBox(height: 4),
                                   Row(
                                     children: [
-
                                       Expanded(
                                         flex: 1,
-                                        child: Text("PCS : ${itemsreport[i].pieces}"),),
-
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              "Stock:",
+                                              style: TextStyle(fontSize: 16, color: Colors.black54),
+                                            ),
+                                            Text(
+                                              "${itemsreport[i].pieces}",
+                                              style: TextStyle(fontSize: 16, color: Colors.green[500]),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                       Expanded(
                                         flex: 1,
-                                        child: Text("QTY : ${itemsreport[i].quantity}"),),
-
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              "Ltrs:",
+                                              style: TextStyle(fontSize: 16, color: Colors.black54),
+                                            ),
+                                            Text(
+                                              "${itemsreport[i].quantity}",
+                                              style: TextStyle(fontSize: 16, color: Colors.green[500]),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
-
                                 ],
-                              )
-
-                          )
-                      );
-                    }
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-
               ],
             ),
-          )
+          ),
+          actions: <Widget>[
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+          ),
+        ],
         );
       },
     );

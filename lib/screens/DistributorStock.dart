@@ -120,7 +120,7 @@ class DistributorStockState extends State<DistributorStock>{
         leading: BackButton(
             onPressed:() => backbutton(dropdownOptionsProvider)
         ),
-        title: const Text("Distributor Stock",
+        title: const Text("My Distributor Stock",
             style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
         ),
         backgroundColor: Colors.white,
@@ -541,7 +541,7 @@ class DistributorStockState extends State<DistributorStock>{
 
     if(responsedData.contains("DONE")){
 
-      Fluttertoast.showToast(msg: "Sales Saved",
+      Fluttertoast.showToast(msg: "Stock Saved",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,

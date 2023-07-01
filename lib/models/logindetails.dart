@@ -13,17 +13,17 @@ class logindetails {
   });
 
   int personId=0;
-  String personType="";
-  String personName="";
-  String userName="";
-  String group="";
-  int target=0;
-  int targetBoxes=0;
-  int? assignedshops=0;
-  int coveredshops=0;
-  int productiveshops=0;
-  int distanceAllowed=0;
-  String attStatus="";
+  String? personType;
+  String? personName;
+  String? userName;
+  String? group;
+  int? target;
+  int? targetBoxes;
+  int? assignedshops;
+  int? coveredshops;
+  int? productiveshops;
+  int? distanceAllowed;
+  String? attStatus;
 
   logindetails.fromJson(Map<String, dynamic> json) {
     personId = json['personID'];

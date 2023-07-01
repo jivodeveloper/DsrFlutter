@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/Common.dart';
 import '../models/logindetails.dart';
 import '../util/Helper.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 
 class Dashboard extends StatefulWidget{
 
@@ -23,6 +24,7 @@ class Dashboard extends StatefulWidget{
 class Dashboardstate extends State<Dashboard> {
 
   late Future<List<Map<String, dynamic>>> futurelist;
+ // late Future<List<Map<String, dynamic>>> futurepielist;
 
   int target = 0,
       targetboxes = 0,
@@ -34,9 +36,10 @@ class Dashboardstate extends State<Dashboard> {
       shopsproductive = 0,
       ltrs=0,
       achiveved = 0;
-
+  bool _isLoading = false;
   num total=0;
   String? cdate,group,targettype,attStatus;
+  String personName="";
 
   List<Color> colorList = [
     const Color(0xffD95AF3),
@@ -79,11 +82,11 @@ class Dashboardstate extends State<Dashboard> {
     futurelist = getpersondata();
 
     final d1 = DateTime.now();
-
-    final date = DateTime(now.year, now.month + 1, 0);
+    final date = new DateTime(now.year, now.month + 1, 0);
     setState(() {
-      difference = date.difference(d1).inDays+2;
+      difference = date.difference(d1).inDays;
     });
+
 
   }
 
@@ -93,7 +96,7 @@ class Dashboardstate extends State<Dashboard> {
     return Scaffold(
         appBar: AppBar(
             backgroundColor: Colors.white,
-            title: const Text("Dashboard",
+            title: Text("My Dashboard",
                 style: TextStyle(color: Color(0xFF095909),
                     fontFamily: 'OpenSans',
                     fontWeight: FontWeight.w300)),
@@ -105,17 +108,23 @@ class Dashboardstate extends State<Dashboard> {
                 'assets/Icons/nav_menu.png', width: 104.0, height: 104.0,),
             )
         ),
-        body:SingleChildScrollView(
+        body:_isLoading?Center(
+            child:CircularProgressIndicator()
+        ):SingleChildScrollView(
             child: Column(
               children: [
-
+                Container(
+                  margin: EdgeInsets.all(10),
+                  child: Text("Welcome $personName",
+                    style: TextStyle(fontSize: 20),),
+                ),
                 Container(
                   margin: EdgeInsets.all(10),
                   child: Text("Target : $target ",
-                    style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                    style: TextStyle(fontSize: 20),),
                 ),
 
-                SizedBox(
+                Container(
                   height: 200,
                   child: FutureBuilder<List>(
                       future: futurelist,
@@ -165,9 +174,9 @@ class Dashboardstate extends State<Dashboard> {
                 ),
 
                 Container(
-                  margin: const EdgeInsets.only(top: 30,bottom: 20),
-                  child: Text("Per day goal : ${pending/difference}",
-                    style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                  margin: EdgeInsets.all(10),
+                  child: Text("Per day goal :  ${(pending / difference!).toStringAsFixed(2)}",
+                    style: TextStyle(fontSize: 20),),
                 ),
 
                 PieChart(
@@ -180,16 +189,16 @@ class Dashboardstate extends State<Dashboard> {
                       .of(context)
                       .size
                       .width / 3,
-                  centerText: "Budget",
+                  centerText: "Target",
                   ringStrokeWidth: 24,
                   animationDuration: Duration(seconds: 3),
-                  chartValuesOptions: const ChartValuesOptions(
+                  chartValuesOptions: ChartValuesOptions(
                       showChartValues: true,
                       showChartValuesOutside: true,
                       showChartValuesInPercentage: false,
                       showChartValueBackground: false),
 
-                  legendOptions: const LegendOptions(
+                  legendOptions: LegendOptions(
                       showLegends: true,
                       legendShape: BoxShape.rectangle,
                       legendTextStyle: TextStyle(fontSize: 15),
@@ -198,15 +207,78 @@ class Dashboardstate extends State<Dashboard> {
                   gradientList: gradientList,
                 )
 
+                // FutureBuilder(
+                //     future: futurepielist,
+                //     builder: (context,snapshot){
+                //       if(snapshot.hasData){
+                //         return PieChart(
+                //           dataMap: {
+                //             "Achieved": total.toDouble(),
+                //             "Pending":  pending.toDouble(),
+                //           },
+                //           colorList: colorList,
+                //           chartRadius: MediaQuery
+                //               .of(context)
+                //               .size
+                //               .width / 3,
+                //           centerText: "Budget",
+                //           ringStrokeWidth: 24,
+                //           animationDuration: Duration(seconds: 3),
+                //           chartValuesOptions: ChartValuesOptions(
+                //               showChartValues: true,
+                //               showChartValuesOutside: true,
+                //               showChartValuesInPercentage: false,
+                //               showChartValueBackground: false),
+                //
+                //           legendOptions: LegendOptions(
+                //               showLegends: true,
+                //               legendShape: BoxShape.rectangle,
+                //               legendTextStyle: TextStyle(fontSize: 15),
+                //               legendPosition: LegendPosition.bottom,
+                //               showLegendsInRow: true),
+                //           gradientList: gradientList,
+                //         );
+                //       }
+                //       return Container();
+                //     }),
+
+                // Padding(
+                //   padding: EdgeInsets.only(left:10,top: 60,right:10),
+                //   child: AspectRatio(
+                //     aspectRatio: 16 / 9,
+                //     child: DChartBar(
+                //       data: [
+                //         {
+                //           'id': 'Bar',
+                //           'data': [
+                //             {'domain': 'Productive', 'measure': assignedshops},
+                //             {'domain': 'Unprod', 'measure': 500},
+                //             {'domain': 'Covered', 'measure': 1500},
+                //             {'domain': 'Uncovered', 'measure': 500},
+                //           ],
+                //         },
+                //       ],
+                //     //  data: barchart,
+                //       domainLabelPaddingToAxisLine: 16,
+                //       axisLineTick: 2,
+                //       axisLinePointTick: 2,
+                //       axisLinePointWidth: 10,
+                //       axisLineColor: Colors.green,
+                //       measureLabelPaddingToAxisLine: 16,
+                //       barColor: (barData, index, id) => Colors.green,
+                //       showBarValue: true,
+                //     ),
+                //   ),
+                // ),
+
               ],
             )
         )
     );
-
   }
 
   Future<List<Map<String, dynamic>>> getpersondata() async {
-
+    _isLoading = true;
     logindetails details;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
@@ -224,13 +296,13 @@ class Dashboardstate extends State<Dashboard> {
       try {
 
         details = logindetails.fromJson(json.decode(response.body));
-        prefs.setString(Common.ATT_STATUS,details.attStatus);
-
+        prefs.setString(Common.ATT_STATUS,details.attStatus.toString());
+        personName=details.personName!;
         if (details.personId != 0) {
           if (details.group == "GT") {
 
             setState(() {
-              target = details.target;
+              target = details.target!.toInt();
               targettype = "Ltrs";
             });
 
@@ -239,7 +311,7 @@ class Dashboardstate extends State<Dashboard> {
           } else {
 
             setState(() {
-              target = details.targetBoxes;
+              target = details.targetBoxes!.toInt();
               targettype = "Boxes";
 
             });
@@ -247,11 +319,11 @@ class Dashboardstate extends State<Dashboard> {
             print("Boxes${details.group }");
 
           }
-          prefs.setInt(Common.DISTANCE_ALLOWED,details.distanceAllowed);
+          prefs.setInt(Common.DISTANCE_ALLOWED,details.distanceAllowed!.toInt());
 
           assignedshops = details.assignedshops!;
-          shopscoverd = details.coveredshops;
-          shopsproductive = details.productiveshops;
+          shopscoverd = details.coveredshops!.toInt();
+          shopsproductive = details.productiveshops!.toInt();
 
           barchart.add(dataMap);
 
@@ -272,6 +344,7 @@ class Dashboardstate extends State<Dashboard> {
 
     }
     gettargetdata();
+    _isLoading = false;
     return barchart;
   }
 
@@ -328,7 +401,7 @@ class Dashboardstate extends State<Dashboard> {
 
     }
 
-  //progress?.dismiss();
+   // progress?.dismiss();
     return barchart;
   }
 

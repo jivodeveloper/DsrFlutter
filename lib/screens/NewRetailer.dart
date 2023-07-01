@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:promoterapp/models/StateByPerson.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location/location.dart';
@@ -223,20 +224,29 @@ class NewRetailerState extends State<NewRetailer>{
                     Padding(
                       padding: EdgeInsets.all(10),
                       child: TextFormField(
-                        maxLength: 6,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(6),
+                          FilteringTextInputFormatter.allow(RegExp(r'^\d{0,6}$')),
+                        ],
                         controller: pincode,
                         keyboardType: TextInputType.number,
                         validator: (pincode) {
-                          if (pincode==""){
-                            return 'Please enter pin code';
+                          if (pincode!.isEmpty) {
+                            return 'Please enter a 6-digit pin code';
+                          } else if (pincode.length < 6) {
+                            return 'Pin code must be 6 digits';
                           }
+                          return null;
                         },
                         decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.pin,
-                              color: Color(0xFF063A06),),
-                            hintText:'Pin Code'
+                          prefixIcon: Icon(
+                            Icons.pin,
+                            color: Color(0xFF063A06),
+                          ),
+                          hintText: 'Pin Code',
                         ),
-                      ),),
+                      ),
+                    ),
 
                     Padding(
                       padding: EdgeInsets.all(10),
@@ -255,37 +265,40 @@ class NewRetailerState extends State<NewRetailer>{
                       ),
                     ),
 
-                    Padding(
-                      padding: EdgeInsets.all(10),
-                      child:TextFormField(
-                        maxLength: 10,
-                        controller:mobile,
-                        keyboardType: TextInputType.phone,
-                        validator: (mobile) {
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextFormField(
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(10),
+                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,10}$')),
+              ],
+              controller: mobile,
+              keyboardType: TextInputType.phone,
+              validator: (mobile) {
+                if (mobile!.isEmpty) {
+                  return 'Please enter a mobile number';
+                } else if (mobile.length < 10) {
+                  return 'Mobile number must be 10 digits';
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                prefixIcon: Icon(
+                  Icons.mobile_screen_share,
+                  color: Color(0xFF063A06),
+                ),
+                hintText: 'Mobile',
+              ),
+              onChanged: (value) {
+                if (value.length > 0) {
+                  // Perform any additional logic here
+                }
+              },
+            ),
+          ),
 
-                          if(mobile!.isEmpty){
-                            return "Please Enter a Phone Number";
-                          }else if(!RegExp(r'^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$').hasMatch(mobile)){
-                            return "Please Enter a Valid Phone Number";
-                          }
-                        },
 
-                        decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.mobile_screen_share,
-                                color: Color(0xFF063A06)),
-                            hintText:'mobile'
-                        ),
-
-                        onChanged: (value){
-                          if(value.length>0){
-
-                          }
-                        },
-
-                      ),
-                    ),
-
-                  ],
+          ],
                 ),
               ),
 

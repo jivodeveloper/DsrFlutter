@@ -29,11 +29,13 @@ class AttendanceState extends State<Attendance>{
   int userid=0,beatId=0;
   String attStatus="";
   bool present = false, hd = false, wo=false,eod =false;
+  bool _isLoading = false;
+  get progress => null;
 
   @override
   void initState() {
     super.initState();
-    _handleLocationPermission();
+    _handleLocationPermission(progress);
     getAttendanceStatus();
     getallshops();
   }
@@ -46,23 +48,22 @@ class AttendanceState extends State<Attendance>{
             backgroundColor: Colors.white,
             leading: GestureDetector(
             onTap: (){
-
             Navigator.push(
             context,
               MaterialPageRoute(
               builder: (context) =>
-                  HomeScreen(personName: "")));
-
+                  HomeScreen(personName:"")));
               },
-
               child: Icon(Icons.arrow_back,color:Color(0xFF063A06)),
             ),
-
-            title: const Text("Attendance",
+            title: const Text("My Attendance",
                 style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
            )
         ),
-        body:ProgressHUD(
+        body:_isLoading?Center(
+            child:CircularProgressIndicator()
+        ):
+        ProgressHUD(
             child:Builder(
             builder: (context) => Scaffold(
              body: SizedBox(
@@ -76,13 +77,10 @@ class AttendanceState extends State<Attendance>{
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children:[
-
                 GestureDetector(
-
                   onTap: (){
                     showdilaog("P");
                   },
-
                   child:Container(
                     height: 100,
                     width: 100,
@@ -99,9 +97,7 @@ class AttendanceState extends State<Attendance>{
                         )
                     ),
                   ),
-
                 ),
-
                 GestureDetector(
                   onTap: (){
                     showdilaog("EOD");
@@ -122,15 +118,12 @@ class AttendanceState extends State<Attendance>{
                     ),
                   ),
                 ),
-
               ],
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children:[
-
                 GestureDetector(
                   onTap: (){
                     showdilaog("HD");
@@ -151,13 +144,10 @@ class AttendanceState extends State<Attendance>{
                     ),
                   ),
                 ),
-
                 GestureDetector(
-
                   onTap: (){
                     showdilaog("WO");
                   },
-
                   child:Container(
                     height: 100,
                     width: 100,
@@ -174,7 +164,6 @@ class AttendanceState extends State<Attendance>{
                     ),
                   ),
                 )
-
                 ],
               ),
              ]
@@ -184,18 +173,14 @@ class AttendanceState extends State<Attendance>{
           )
         )
     );
-
   }
 
   void getAttendanceStatus() async {
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     attStatus = prefs.getString(Common.ATT_STATUS).toString();
-
     if(attStatus=="P"){
         present = true;
         wo = true;
-
     }else if(attStatus=="EOD"){
       present = true;
       eod = true;
@@ -207,46 +192,35 @@ class AttendanceState extends State<Attendance>{
       wo = true;
       hd = true;
     }else if(attStatus=="EOD"){
-
       present = true;
       eod = true;
       wo = true;
       hd = true;
-
     }
-
   }
 
-  Future<bool> _handleLocationPermission() async {
+  Future<bool> _handleLocationPermission(progress) async {
     bool serviceEnabled;
     LocationPermission permission;
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
     if (!serviceEnabled) {
-
       return false;
     }
-
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-
         return false;
       }
     }
-
     if (permission == LocationPermission.deniedForever) {
-
       return false;
     }
-
+    progress?.dismiss();
     return true;
-
   }
 
   Future<void> showdilaog(String status) async {
-
     return showDialog(
         context: context,
         builder:(BuildContext context) {
@@ -254,18 +228,15 @@ class AttendanceState extends State<Attendance>{
         title: const Text('Attendance'),
         content: const Text('Are you really present?'),
         actions: <Widget>[
-
           TextButton(
             onPressed: () => Navigator.pop(context, 'Cancel'),
             child: const Text('No'),
           ),
-
           TextButton(
             onPressed: () =>
              showbeat(status,context),
             child: const Text('Yes'),
           ),
-
          ],
        );
       }
@@ -273,9 +244,7 @@ class AttendanceState extends State<Attendance>{
   }
 
   Future<void> showbeat(String status,BuildContext contextt) async {
-
     if(beatnamelist.length == 0){
-
       Navigator.pop(contextt);
       Fluttertoast.showToast(msg: "You don't have any beat! \n Please contact admin",
           toastLength: Toast.LENGTH_SHORT,
@@ -284,11 +253,8 @@ class AttendanceState extends State<Attendance>{
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
-
     }else{
-
       Navigator.pop(contextt);
-
       return showDialog<void>(
         context: context,
         barrierDismissible: false,
@@ -304,9 +270,8 @@ class AttendanceState extends State<Attendance>{
                       onTap: (){
                         markattendance(status,beatnamelist[i].toString(),contextt);
                       },
-
                       child: Container(
-                        height: 30,
+                        padding:EdgeInsets.all(10),
                         child: Text("${beatnamelist[i]}"),
                       )
                   );
@@ -315,25 +280,20 @@ class AttendanceState extends State<Attendance>{
           );
         },
       );
-
     }
   }
 
   void getallshops() async{
-
+    _isLoading = true;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
-
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
 
     var response = await http.post(Uri.parse(Common.IP_URL+'syncAllData?id=$userid'), headers: headers);
-
     if(response.statusCode == 200){
-
       try{
-
         final list = jsonDecode(response.body)[0];
 
         //  debugPrint("Successfully login ${jsonDecode(response.body)[0]}");
@@ -344,32 +304,19 @@ class AttendanceState extends State<Attendance>{
 
         List<Shops> retailerdata = [];
         retailerdata = list.map<Shops>((m) => Shops.fromJson(Map<String, dynamic>.from(m))).toList();
-
         for(int i=0 ;i<retailerdata.length;i++){
            if(retailerdata[i].beatName != ""){
-
                setState(() {
                  beatnamelist.add(retailerdata[i].beatName.toString());
                  beatIdlist.add(retailerdata[i].beatId!.toInt());
                });
-
            }
         }
 
         beatnamelist = LinkedHashSet<String>.from(beatnamelist).toList();
         beatIdlist = LinkedHashSet<int>.from(beatIdlist).toList();
 
-
-    Fluttertoast.showToast(msg: "Successfully login ${beatnamelist.length}",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-        fontSize: 16.0);
-
       }catch(e){
-
         Fluttertoast.showToast(msg: "Successfully login ${e}",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
@@ -377,11 +324,8 @@ class AttendanceState extends State<Attendance>{
             backgroundColor: Colors.black,
             textColor: Colors.white,
             fontSize: 16.0);
-
       }
-
     }else{
-
       Fluttertoast.showToast(msg: " ${response.body}",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
@@ -389,29 +333,22 @@ class AttendanceState extends State<Attendance>{
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
-
     }
-
+    _isLoading = false;
   }
 
   Future<void> markattendance(String status, String beatname,BuildContext context) async {
-
     for(int i=0;i<beatnamelist.length;i++){
-
       if(beatname == beatnamelist[i]){
           beatId = beatIdlist[i];
       }
-
     }
-
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
 
     var response = await http.post(Uri.parse('${Common.IP_URL}AddSalesPersonAttendanceV3?personId=$userid&status=$status&latitude=$lat&longitude=$lng&beatId=$beatId'), headers: headers);
-
     if(response.statusCode == 200){
-
       Navigator.pop(context);
       Fluttertoast.showToast(msg: response.body.toString(),
           toastLength: Toast.LENGTH_SHORT,
@@ -420,9 +357,7 @@ class AttendanceState extends State<Attendance>{
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
-
     }else{
-
       Navigator.pop(context);
       Fluttertoast.showToast(msg: "Please contact admin!!",
           toastLength: Toast.LENGTH_SHORT,
@@ -431,9 +366,6 @@ class AttendanceState extends State<Attendance>{
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
-
     }
-
   }
-
 }
