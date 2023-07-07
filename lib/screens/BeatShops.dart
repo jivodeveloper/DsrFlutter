@@ -34,9 +34,10 @@ class BeatShopsState extends State<BeatShops>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body:_isLoading?Center(
+        body:_isLoading?const Center(
             child:CircularProgressIndicator()
         ): Container(
+            color: Color(0xFFE8E4E4),
             height: double.infinity,
             child: FutureBuilder<List<Shops>>(
                 future: furturedist,
@@ -72,43 +73,20 @@ class BeatShopsState extends State<BeatShops>{
                                     padding: const EdgeInsets.all(12.0),
                                     margin:const EdgeInsets.all(5),
                                     decoration:BoxDecoration(
-                                      color: Colors.grey[300],
-                                      border: Border.all(color: Colors.green,width: 2, style: BorderStyle.solid,),
+                                      color: Colors.grey[100],
+                                      border: Border.all(color: Colors.green,width: 1, style: BorderStyle.solid,),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     width: double.infinity,
                                     child:  Column(
                                       children: [
 
-                                        // Padding(
-                                        //   padding: EdgeInsets.only(left: 30.0,top: 5),
-                                        //   child:  Row(
-                                        //     children: [
-                                        //
-                                        //       Container(
-                                        //         height: 10.0,
-                                        //         width: 10.0,
-                                        //         decoration: BoxDecoration(
-                                        //             color: Colors.green,
-                                        //             shape: BoxShape.circle
-                                        //         ),
-                                        //       ),
-                                        //
-                                        //       Align(
-                                        //         child: Text(' Visited',style: TextStyle(color: Colors.green),),
-                                        //         alignment: Alignment.centerLeft,
-                                        //       ),
-                                        //
-                                        //     ],
-                                        //   ),
-                                        // ),
-
                                         Row(
                                           children: [
                                             Padding(
                                               padding: EdgeInsets.only(top: 5),
                                               child: Align(
-                                                child: Image.asset('assets/Images/store.png',width: 30,),
+                                                child: Image.asset('assets/Images/store.png',width: 25,),
                                                 alignment: Alignment.centerLeft,
                                               ),
                                             ),
@@ -116,7 +94,7 @@ class BeatShopsState extends State<BeatShops>{
                                             Padding(
                                               padding: EdgeInsets.only(top: 5),
                                               child: Align(
-                                                child: Text(' ${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                                child: Text(' ${snapshot.data![index].retailerID}',style :TextStyle(fontWeight: FontWeight.w300,fontSize: 16,color: Color(0xFF817373))),
                                                 alignment: Alignment.centerLeft,
                                               ),
                                             ),
@@ -126,17 +104,17 @@ class BeatShopsState extends State<BeatShops>{
                                         ),
 
                                         Align(
-                                          child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18)),
+                                          child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18,fontWeight: FontWeight.w400)),
                                           alignment: Alignment.centerLeft,
                                         ),
 
                                         Align(
-                                          child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                          child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373),fontWeight: FontWeight.w300,)),
                                           alignment: Alignment.centerLeft,
                                         ),
 
                                         Align(
-                                          child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                          child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373),fontWeight: FontWeight.w300)),
                                           alignment: Alignment.centerLeft,
                                         ),
                                       ],

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../config/Common.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 class LoginScreen extends StatefulWidget{
 
   @override
@@ -26,6 +30,7 @@ class LoginScreenState extends State<LoginScreen>{
   @override
   void initState() {
     super.initState();
+    askpermission();
   }
 
   @override
@@ -55,6 +60,7 @@ class LoginScreenState extends State<LoginScreen>{
                             margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
                             child: Column(
                               children: [
+
                                 Container(
                                   margin: EdgeInsets.only(bottom: 10),
                                   child:Align(
@@ -79,6 +85,7 @@ class LoginScreenState extends State<LoginScreen>{
                                     ),
                                     )
                                 )
+
                               ],
                             ),
 
@@ -144,6 +151,15 @@ class LoginScreenState extends State<LoginScreen>{
                           GestureDetector(
 
                             onTap: (){
+
+                              // Workmanager().registerPeriodicTask('uniqueName', 'taskName',
+                              //     frequency: Duration(seconds: 10));
+
+                              // Timer timer;
+                              // const duration = Duration(seconds: 10);
+                              // timer = Timer.periodic(duration, (Timer t) {
+                              //   fetchLocation();
+                              // });
 
                               login(ctx);
                               //
@@ -247,7 +263,7 @@ class LoginScreenState extends State<LoginScreen>{
           }
 
           Fluttertoast.showToast(
-            msg: "Successfully logged in ${details.personName}",
+            msg: "Successfully logged in",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -301,6 +317,55 @@ class LoginScreenState extends State<LoginScreen>{
 
     progress?.dismiss();
     return details;
+  }
+
+  Future<void> askpermission() async {
+
+    var camerastatus = await Permission.camera.status;
+    var locationstatus = await Permission.camera.status;
+    if(camerastatus.isGranted == true && locationstatus.isGranted ==true){
+
+      Fluttertoast.showToast(msg: "1",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }else if(camerastatus.isGranted == false && locationstatus.isGranted ==false){
+
+      Fluttertoast.showToast(msg: "2",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+      Map<Permission, PermissionStatus> statuses = await [Permission.location,Permission.camera].request();
+
+      if(statuses[Permission.location]!.isDenied || statuses[Permission.camera]!.isDenied){
+
+        SystemNavigator.pop();
+
+        Fluttertoast.showToast(msg: "3",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        openAppSettings();
+
+      }else{
+
+
+      }
+
+    }
+
+
   }
 
 }

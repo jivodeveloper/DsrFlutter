@@ -8,9 +8,9 @@ import 'package:pie_chart/pie_chart.dart';
 import 'package:d_chart/d_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/Common.dart';
+import '../models/TodayBeat.dart';
 import '../models/logindetails.dart';
 import '../util/Helper.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 
 class Dashboard extends StatefulWidget{
 
@@ -24,7 +24,6 @@ class Dashboard extends StatefulWidget{
 class Dashboardstate extends State<Dashboard> {
 
   late Future<List<Map<String, dynamic>>> futurelist;
- // late Future<List<Map<String, dynamic>>> futurepielist;
 
   int target = 0,
       targetboxes = 0,
@@ -76,18 +75,19 @@ class Dashboardstate extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
-    DateTime now = DateTime.now(); // March 2022
+
+    DateTime now = DateTime.now();
 
     cdate = getcurrentdate();
     futurelist = getpersondata();
 
     final d1 = DateTime.now();
     final date = new DateTime(now.year, now.month + 1, 0);
+
     setState(() {
       difference = date.difference(d1).inDays;
     });
-
-
+    gettodaybeat();
   }
 
   @override
@@ -98,8 +98,7 @@ class Dashboardstate extends State<Dashboard> {
             backgroundColor: Colors.white,
             title: Text("My Dashboard",
                 style: TextStyle(color: Color(0xFF095909),
-                    fontFamily: 'OpenSans',
-                    fontWeight: FontWeight.w300)),
+                    fontWeight: FontWeight.w400)),
             leading: GestureDetector(
               onTap: () {
                 SlideDrawer.of(context)?.toggle();
@@ -113,15 +112,17 @@ class Dashboardstate extends State<Dashboard> {
         ):SingleChildScrollView(
             child: Column(
               children: [
+
                 Container(
                   margin: EdgeInsets.all(10),
                   child: Text("Welcome $personName",
-                    style: TextStyle(fontSize: 20),),
+                    style: TextStyle(fontSize: 20,fontWeight: FontWeight.w300),),
                 ),
+
                 Container(
                   margin: EdgeInsets.all(10),
                   child: Text("Target : $target ",
-                    style: TextStyle(fontSize: 20),),
+                    style: TextStyle(fontSize: 20,fontWeight: FontWeight.w300),),
                 ),
 
                 Container(
@@ -288,7 +289,7 @@ class Dashboardstate extends State<Dashboard> {
 
     try{
       var response = await http.post(
-          Uri.parse('${Common.IP_URL}Userdetails?userId=$userid'),
+            Uri.parse('${Common.IP_URL}Userdetails?userId=$userid'),
           headers: headers);
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -297,6 +298,9 @@ class Dashboardstate extends State<Dashboard> {
 
         details = logindetails.fromJson(json.decode(response.body));
         prefs.setString(Common.ATT_STATUS,details.attStatus.toString());
+        prefs.setInt(Common.DISTANCE_ALLOWED,details.distanceAllowed!.toInt());
+        print(" distancevalue ${details.distanceAllowed!.toInt()}");
+
         personName=details.personName!;
         if (details.personId != 0) {
           if (details.group == "GT") {
@@ -319,7 +323,6 @@ class Dashboardstate extends State<Dashboard> {
             print("Boxes${details.group }");
 
           }
-          prefs.setInt(Common.DISTANCE_ALLOWED,details.distanceAllowed!.toInt());
 
           assignedshops = details.assignedshops!;
           shopscoverd = details.coveredshops!.toInt();
@@ -403,6 +406,37 @@ class Dashboardstate extends State<Dashboard> {
 
    // progress?.dismiss();
     return barchart;
+  }
+
+  Future<void> gettodaybeat() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userid = prefs.getInt(Common.USER_ID)!;
+
+    TodayBeat details;
+    int beatid =0;
+
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(Uri.parse('${Common.IP_URL}checkTodayBeat?personId=$userid'), headers: headers);
+
+    if(response.body.isNotEmpty){
+
+      try{
+
+        details = TodayBeat.fromJson(json.decode(response.body));
+        beatid =  details.beatId == 0 ?-1:details.beatId;
+        prefs.setInt(Common.BEAT_ID,beatid);
+        prefs.setString(Common.BEAT_NAME,details.beatName);
+
+      }catch(e){
+
+      }
+
+    }
+
   }
 
 }

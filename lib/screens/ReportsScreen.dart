@@ -5,6 +5,7 @@ import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:promoterapp/models/SalesReport.dart';
 import 'package:promoterapp/screens/HomeScreen.dart';
+import 'package:promoterapp/util/Helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/Items.dart';
 import '../config/Common.dart';
@@ -30,23 +31,28 @@ class ReportsScreenState extends State<ReportsScreen>{
   List<Items> stockreport=[];
   int totalPcs=0, count=0;
   double totalLtr=0.0;
+  String? cdate;
+  bool _isLoading = false;
 
   @override
   void initState() {
-
     super.initState();
+    cdate = getcurrentdate();
+
+    from = cdate?? "";
+    to = cdate?? "";
+    getreport = getreports();
   }
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-
         appBar: AppBar(
           title: const Text("My Sales Reports",
-              style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
+              style: TextStyle(color:Color(0xFF063A06),fontWeight: FontWeight.w400)
           ),
-          backgroundColor: Colors.white,
+          backgroundColor:Colors.white,
           iconTheme: const IconThemeData(color:Color(0xFF063A06)),
           leading: GestureDetector(
             onTap: (){
@@ -62,253 +68,265 @@ class ReportsScreenState extends State<ReportsScreen>{
           ),
         ),
 
-        body:ProgressHUD(
-            child:Builder(
-                builder: (context) =>SingleChildScrollView(
-                  child:  SizedBox(
-                    height: 900,
-                    child: Column(
-                      children: [
+        body:_isLoading?CircularProgressIndicator():SingleChildScrollView(
+          child:  Container(
+            color: Color(0xFFE8E4E4),
+            height: 900,
+            child: Column(
+              children: [
 
-                        Center(
-                          child:Text("DAILY SALES REPORT",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 25),) ,
-                        ),
+                // Center(
+                //   child:Text("DAILY SALES REPORT",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 25),) ,
+                // ),
 
-                        Container(
-                          alignment: Alignment.centerRight,
-                          margin: EdgeInsets.only(right: 10),
-                          child: Text("$count"),
-                        ),
+                SizedBox(
 
-                        SizedBox(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: GestureDetector(
-                                  child:Container(
-                                      margin: EdgeInsets.all(10),
-                                      child: Center(
-                                        child:Text("Total Pcs:$totalPcs"),
-                                      )
-                                  ),),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: GestureDetector(
-                                  child:Container(
-                                      margin: EdgeInsets.all(10),
-                                      child: Center(
-                                        child: Text("Total Ltr : ${totalLtr.toStringAsFixed(2)}"),
-                                      )
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
+                  child: Row(
+                    children: [
 
-                        SizedBox(
+                      Expanded(
+                        flex: 1,
+                        child:   GestureDetector(
+                          onTap: () async {
+                            var date = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime(2100));
+                            if (date != null) {
 
-                          child: Row(
-                            children: [
+                              setState((){
+                                from = DateFormat('yyyy/MM/dd').format(date);
+                              });
 
-                              Expanded(
-                                flex: 1,
-                                child:   GestureDetector(
-                                  onTap: () async {
-                                    var date = await showDatePicker(
-                                        context: context,
-                                        initialDate: DateTime.now(),
-                                        firstDate: DateTime(1900),
-                                        lastDate: DateTime(2100));
-                                    if (date != null) {
-                                      setState((){
-                                        from = DateFormat('yyyy/MM/dd').format(date);
-                                      });
-
-                                      if(to!=""){
-                                        getreport = getreports(context);
-                                      }
-                                    }
-                                  },
-                                  child:Container(
-                                      margin: EdgeInsets.all(10),
-                                      color: Colors.green,
-                                      height: 40,
-                                      child:Container(
-
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-
-                                          children: [
-                                            Image.asset('assets/Images/Calender.png', width:20,height: 20,alignment: Alignment.center,),
-                                            from==""?Text("FROM",style: TextStyle(color: Colors.white), textAlign: TextAlign.center,):Text("$from",style: TextStyle(color: Colors.white),),
-                                          ],
-                                        ),
-                                      )
-                                  ),
-                                ),
-
-                              ),
-
-                              Expanded(
-                                flex: 1,
-                                child: GestureDetector(
-                                    onTap: ()async {
-                                      var date = await showDatePicker(
-                                          context: context,
-                                          initialDate: DateTime.now(),
-                                          firstDate: DateTime(1900),
-                                          lastDate: DateTime(2100));
-                                      if (date != null) {
-                                        setState((){
-                                          to = DateFormat('yyyy/MM/dd',).format(date);
-
-                                        });
-                                        if(from!=""){
-                                          getreport = getreports(context);
-                                        }else{
-
-                                          Fluttertoast.showToast(msg: "Please select from date",
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              timeInSecForIosWeb: 1,
-                                              backgroundColor: Colors.black,
-                                              textColor: Colors.white,
-                                              fontSize: 16.0);
-
-                                        }
-
-                                      }
-                                    },
-                                    child:Container(
-                                        margin: EdgeInsets.all(10),
-                                        color: Colors.green,
-                                        height: 40,
-                                        child: Center(
-                                          child:Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-
-                                            children: [
-                                              Image.asset('assets/Images/Calender.png', width:20,height: 20),
-                                              to==""?Text("TO",style: TextStyle(color: Colors.white),):Text("$to",style: TextStyle(color: Colors.white),),
-                                            ],
-                                          ),
-                                        )
-                                    )
-                                ),
-
-                              )
-
-                            ],
-
-                          ),
-                        ),
-
-                        FutureBuilder<List<SalesReport>>(
-                            future: getreport,
-                            builder: (context, snapshot) {
-                              if(snapshot.hasData){
-                                return Container(
-
-                                    height: 600,
-                                    child: ListView.builder(
-                                        itemCount: snapshot.data?.length,
-                                        itemBuilder: (context, index) {
-                                          return GestureDetector(
-                                            onTap: (){
-                                              getsinglereport("${salesreport[index].salesId}");
-                                            },
-                                            child: Container(
-                                                padding: EdgeInsets.all(10),
-                                                margin: EdgeInsets.all(10),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                    border: Border.all(color: Color(0xFF063A06))
-                                                ),
-                                                child:  Column(
-                                                    children:[
-
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            flex: 1,
-                                                            child:Text("${salesreport[index].retailerName}",style: TextStyle(fontSize: 16,color: Colors.black),),
-                                                          ),
-
-                                                          Expanded(
-                                                            flex: 1,
-                                                            child:Text("${salesreport[index].date}",style: TextStyle(fontSize: 16,color: Colors.black),),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            flex: 3,
-                                                            child:Text("${salesreport[index].address}",style: TextStyle(fontSize: 16,color: Colors.black),),
-                                                          ),
-                                                          Expanded(
-                                                            flex: 1,
-                                                            child:Text("Boxes:${salesreport[index].boxes}",style: TextStyle(fontSize: 16,color: Colors.black),),
-
-                                                          ),
-
-
-
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            flex:3,
-                                                            child: Text("LTR:${salesreport[index].totalQuantity}",style: TextStyle(fontSize: 16,color: Colors.black),),),
-                                                          Expanded(
-                                                              flex: 1,
-                                                              child:Text("PCS: ${salesreport[index].pieces}",style: TextStyle(fontSize: 16,color: Colors.black),)
-
-                                                          )
-                                                        ],),
-                                                      Padding(
-                                                        padding: EdgeInsets.only(left: 10,right: 10),
-                                                        child:  Divider(
-                                                            thickness: 1.0,
-                                                            color: Color(0xFF063A06)
-                                                        ),
-                                                      ),
-                                                      Text(salesreport[index].allowed?"Status: Allowed":"Status: Not Allowed",style: TextStyle(fontSize: 16,color: Colors.black),),
-
-                                                    ]
-                                                )
-                                            ),
-                                          );
-
-                                        }
-                                    )
-
-                                );
+                              if(to!=""){
+                                getreport = getreports();
                               }
-                              return Container();
-                            }),
 
-                      ],
-                    ),
+                            }
+                          },
+                          child:Container(
+                              margin: EdgeInsets.all(10),
+                              color: Colors.green,
+                              height: 40,
+                              child:Container(
+
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+
+                                  children: [
+                                    Image.asset('assets/Images/Calender.png', width:20,height: 20,alignment: Alignment.center,),
+                                    from==""?Text("FROM",style: TextStyle(color: Colors.white), textAlign: TextAlign.center,):Text("$from",style: TextStyle(color: Colors.white),),
+                                  ],
+                                ),
+                              )
+                          ),
+                        ),
+
+                      ),
+
+                      Expanded(
+                        flex: 1,
+                        child: GestureDetector(
+                            onTap: ()async {
+                              var date = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(1900),
+                                  lastDate: DateTime(2100));
+                              if (date != null) {
+                                setState((){
+                                  to = DateFormat('yyyy/MM/dd',).format(date);
+
+                                });
+                                if(from!=""){
+                                  getreport = getreports();
+                                }else{
+
+                                  Fluttertoast.showToast(msg: "Please select from date",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.black,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+
+                                }
+
+                              }
+                            },
+                            child:Container(
+                                margin: EdgeInsets.all(10),
+                                color: Colors.green,
+                                height: 40,
+                                child: Center(
+                                  child:Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+
+                                    children: [
+                                      Image.asset('assets/Images/Calender.png', width:20,height: 20),
+                                      to==""?Text("TO",style: TextStyle(color: Colors.white),):Text("$to",style: TextStyle(color: Colors.white),),
+                                    ],
+                                  ),
+                                )
+                            )
+                        ),
+
+                      )
+
+                    ],
+
                   ),
-                )
-            ))
+                ),
+
+                SizedBox(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: GestureDetector(
+                          child:Container(
+                              margin: EdgeInsets.all(10),
+                              child: Center(
+                                child:Text("Total Pcs : $totalPcs"),
+                              )
+                          ),),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: GestureDetector(
+                          child:Container(
+                              margin: EdgeInsets.all(10),
+                              child: Center(
+                                child: Text("Total Ltr : ${totalLtr.toStringAsFixed(2)}"),
+                              )
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+
+                FutureBuilder<List<SalesReport>>(
+                    future: getreport,
+                    builder: (context, snapshot) {
+                      if(snapshot.hasData){
+                        return Container(
+                            height: 700,
+                            child: ListView.builder(
+                                itemCount: snapshot.data?.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: (){
+                                      getsinglereport("${salesreport[index].salesId}");
+                                    },
+                                    child: Container(
+                                        padding: EdgeInsets.all(10),
+                                        margin: EdgeInsets.all(10),
+                                        decoration:BoxDecoration(
+                                          color: Colors.grey[100],
+                                          border: Border.all(color: Colors.green,width: 1, style: BorderStyle.solid,),
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child:  Column(
+                                            children:[
+
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child:Text("${salesreport[index].retailerName}",style :TextStyle(fontSize: 18,fontWeight: FontWeight.w400)),
+                                                  ),
+
+                                                ],
+                                              ),
+
+                                              Row(
+                                                children: [
+
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Container(
+                                                      margin:EdgeInsets.only(top: 5,bottom: 5) ,
+                                                      child: Text("${salesreport[index].address}",style: TextStyle(fontSize: 16,color: Color(0xFF817373),),),
+                                                    )
+                                                  ),
+
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child:Text("${salesreport[index].date}",style: TextStyle(fontSize: 16,color: Color(0xFF817373)),),
+                                                  ),
+
+                                                ],
+                                              ),
+
+                                              Row(
+                                                children: [
+
+                                                  Expanded(
+                                                    flex:1,
+                                                    child: Text("LTR:${salesreport[index].totalQuantity}",style: TextStyle(fontSize: 16,color: Color(0xFF817373),),),),
+
+                                                  Expanded(
+                                                      flex: 1,
+                                                      child:Text("PCS: ${salesreport[index].pieces}",style: TextStyle(fontSize: 16,color: Color(0xFF817373),),)),
+
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child:Text("Boxes:${salesreport[index].boxes}",style: TextStyle(fontSize: 16,color: Color(0xFF817373),)),
+                                                  ),
+                                                ],),
+
+                                              Padding(
+                                                padding: EdgeInsets.only(left: 10,right: 10),
+                                                child:  Divider(
+                                                    thickness: 1.0,
+                                                    color:Color(0xFF817373)
+                                                ),
+                                              ),
+
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+
+                                                children: [
+
+                                                  Text("Status : ",style: TextStyle(fontSize: 16,color: Colors.black),),
+
+                                                  Text(salesreport[index].allowed?"Allowed":"Not Allowed",style: TextStyle(fontSize: 16,color: salesreport[index].allowed == "Allowed"? Colors.green: Colors.red),),
+
+                                                ],
+                                              )
+
+                                            ]
+                                        )
+                                    ),
+                                  );
+
+                                }
+                            )
+
+                        );
+                      }
+                      return Container();
+                    }),
+
+              ],
+            ),
+          ),
+        )
 
     );
-
   }
 
-  Future<List<SalesReport>> getreports(BuildContext context) async {
+  Future<List<SalesReport>> getreports() async {
 
-    ProgressHUD.of(context)?.show();
-
+    // ProgressHUD.of(context)?.show();
+    setState(() {
+      _isLoading = true;
+    });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int userid = prefs.getInt(Common.USER_ID)!;
 
@@ -337,6 +355,8 @@ class ReportsScreenState extends State<ReportsScreen>{
           totalLtr =ltr;
         });
 
+        print("printdata${salesreport.length}");
+
       }catch(e){
 
         Fluttertoast.showToast(msg: "Please contact adminn!!$e",
@@ -360,7 +380,11 @@ class ReportsScreenState extends State<ReportsScreen>{
           fontSize: 16.0);
 
     }
-    ProgressHUD.of(context)?.dismiss();
+    setState(() {
+      _isLoading = false;
+    });
+
+  //  ProgressHUD.of(context)?.dismiss();
     return salesreport;
 
   }

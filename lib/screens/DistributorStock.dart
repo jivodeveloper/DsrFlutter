@@ -29,10 +29,6 @@ class DistributorStock extends StatefulWidget{
 
 }
 
-class Selected{
-  int is_selected=0;
-}
-
 class DistributorStockState extends State<DistributorStock>{
 
   List<String> shoptype = ["Select shoptype","Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
@@ -108,7 +104,11 @@ class DistributorStockState extends State<DistributorStock>{
 
   void backbutton(DistributorProvider dropdownOptionsProvider){
     dropdownOptionsProvider.remove();
-    Navigator.of(context).pop();
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                HomeScreen(personName: "")));
   }
 
   @override
@@ -121,9 +121,9 @@ class DistributorStockState extends State<DistributorStock>{
             onPressed:() => backbutton(dropdownOptionsProvider)
         ),
         title: const Text("My Distributor Stock",
-            style: TextStyle(color:Color(0xFF063A06),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
+            style: TextStyle(color:Color(0xFF063A06),fontWeight: FontWeight.w400)
         ),
-        backgroundColor: Colors.white,
+        backgroundColor:Colors.white,
         iconTheme: const IconThemeData(color:Color(0xFF063A06)),
       ),
       body:ProgressHUD(
@@ -172,12 +172,12 @@ class DistributorStockState extends State<DistributorStock>{
                           padding:const EdgeInsets.all(7),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                              border: Border.all(color: Color(0xFFD2C7C7))
+                              border: Border.all(color: Color(0xFFE8E4E4))
                           ),
                           child: DropdownButton<String>(
                               underline:Container(),
                               value:selectedValue,
-                              hint: const Text("Select Distributor",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                              hint: const Text("Select Distributor",style: TextStyle(fontWeight: FontWeight.w400),),
                               isExpanded: true,
                               items: snapshot.data?.map((e) =>
                                   DropdownMenuItem<String>(
@@ -193,6 +193,7 @@ class DistributorStockState extends State<DistributorStock>{
                                 });
 
                                 for(int i=0;i<distnamelist.length;i++){
+
 
                                   if(distnamelist.indexOf(newVal.toString()) == i){
 
@@ -237,8 +238,8 @@ class DistributorStockState extends State<DistributorStock>{
                                                 hintText:'Boxes'
                                              ),
                                             onChanged: (value) {
-
-                                              dropdownOptionsProvider.setSelectedItemValue(index, int.parse(value),int.parse(itemidlist[index]));
+                                              print("value$value");
+                                              dropdownOptionsProvider.setSelectedItemValue(index, value,itemidlist[index]);
 
                                             },
                                           ),
@@ -470,14 +471,13 @@ class DistributorStockState extends State<DistributorStock>{
         }
 
       }
+
     }else{
 
       itemid.add(int.parse(itemidlist[index]));
       boxes.add(value);
 
     }
-
-    print("does not exist ${itemidlist[index]} $value");
 
     // itemid.insert(index,int.parse(itemidlist[index]));
     // boxes.insert(index,value);
@@ -496,16 +496,17 @@ class DistributorStockState extends State<DistributorStock>{
 
   }
 
-  Future<void> submitdiststock(List<int> itemidlist,List<int> boxesidlist,BuildContext context) async {
+  Future<void> submitdiststock(List<String> itemidlist,List<String> boxesidlist,BuildContext context) async {
 
     final progress  = ProgressHUD.of(context);
     progress?.show();
 
     List<Distributoritem> items = [];
-
+    print("${itemidlist.length}");
     for(int i=0;i<itemidlist.length;i++){
 
-      items.add(Distributoritem(itemidlist[i],boxesidlist[i]));
+      print("data${itemidlist[i]} ${boxesidlist[i]}");
+      items.add(Distributoritem(itemidlist[i].toString(),boxesidlist[i].toString()));
 
     }
 
@@ -556,6 +557,7 @@ class DistributorStockState extends State<DistributorStock>{
           HomeScreen(personName: "")));
 
     }else{
+
       Fluttertoast.showToast(msg: "Not Saved",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
@@ -563,8 +565,11 @@ class DistributorStockState extends State<DistributorStock>{
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
+
     }
+
     progress?.dismiss();
+
   }
 
   void submit() async{

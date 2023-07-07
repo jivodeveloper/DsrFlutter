@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/Common.dart';
 import 'SearchScreen.dart';
 
-
 class ShopsDist extends StatefulWidget{
 
   @override
@@ -91,7 +90,7 @@ class ShopsDistState extends State<ShopsDist> with TickerProviderStateMixin {
 
               ],
             ),
-              title: Text('$beatname BEAT', style: TextStyle(color:  Color(0xFF095909),fontFamily: 'OpenSans',fontWeight: FontWeight.w300)),
+              title: Text('$beatname BEAT', style: TextStyle(color:  Color(0xFF095909),fontWeight: FontWeight.w400)),
            ),
             body: TabBarView(
             children: [

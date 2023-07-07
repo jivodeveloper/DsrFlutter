@@ -4,44 +4,68 @@ class DropdownProvider extends ChangeNotifier{
 
   List<String> selectedcategory= [];
   List<String> selecteditem= [];
+  List<int> selecteditemid= [];
+  List<int> selecteditemorder= [];
+  List<int> selecteditemstock= [];
 
-  List<String> skulist = [] ;
+  List<String> selectedschemecategory= [];
+  List<int> selectedschemeitemid= [];
+  List<String> selectedschemename= [];
+  List<int> selectedschemeitemorder= [];
+  List<String> skulist = [];
 
+  /*add category*/
   void addDropdownOptions(int index,String option){
     selectedcategory[index]=option;
-    // selecteditem[index]=option;
     notifyListeners();
   }
 
-  void additemdropdown(int index,String option){
-    print('printing HS new 3 $index $option');
-    selecteditem[index]=option;
+  /*add item*/
+  void additemdropdown(int index,int id,String item){
+    selecteditemid.insert(index,id);
+    selecteditem.insert(index,item);
     notifyListeners();
   }
 
+  /*add scheme category*/
+  void addDropdownschemecategory(int index,String option){
+    selectedschemecategory[index]=option;
+    notifyListeners();
+  }
 
+  /*scheme item*/
+  void additemschemedropdown(int index,int option,String name,int order){
+    selectedschemeitemid.insert(index,option);
+    selectedschemename.insert(index,name);
+    notifyListeners();
+  }
+
+  /*add boxes*/
+  void additemboxes(int index,int boxes){
+    selecteditemorder.insert(index,boxes);
+    notifyListeners();
+  }
+
+  /*add stock*/
+  void additemstock(int index,int boxes){
+    selecteditemstock.insert(index,boxes);
+    notifyListeners();
+  }
+
+  /*add scheme boxes*/
+  void addschitemboxes(int index,int boxes){
+    selectedschemeitemorder.insert(index,boxes);
+    notifyListeners();
+  }
+
+  /*clear all list*/
   void remove(){
     selectedcategory.clear();
     selecteditem.clear();
+    selecteditemorder.clear();
+    selecteditemstock.clear();
     notifyListeners();
   }
 
-  void removeDropdownOptions(int index){
-    selectedcategory.removeAt(index);
-    selecteditem.removeAt(index);
-    notifyListeners();
-  }
-
-// void setSelectedValue(int index,String value){
-//   selectedValues.insert(index, value);
-//   print("valueofcategory${selectedValues.length}");
-//   // notifyListeners();
-// }
-//
-// void setSelectedItemValue(int index,String value){
-//   selecteditem.insert(index, value);
-//   print("valueofcategory${selectedValues.length}");
-//   // notifyListeners();
-// }
 
 }

@@ -11,7 +11,11 @@ import 'package:http/http.dart' as http;
 import '../config/Common.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
+import '../models/Shops.dart';
 import '../util/Helper.dart';
+import 'package:permission_handler/permission_handler.dart' as Permission;
+
+import 'SalesScreen.dart';
 
 class NewRetailer extends StatefulWidget{
 
@@ -24,12 +28,13 @@ class NewRetailer extends StatefulWidget{
 
 class NewRetailerState extends State<NewRetailer>{
 
-  final formGlobalKey = GlobalKey < FormState > ();
-  List<String> shoptype = ["Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
-  List<String> category = ["A","B","C","D"];
-  List<String> group = ["GT","MT"];
-  List<String> statelist = [],stateid = [],zonelist = [],arealist = [];
-  List<int> zoneidlist = [],areaidlist = [];
+  final formGlobalKey = GlobalKey<FormState>();
+
+  List<String> statelist = [],stateidlist = [],zonelist = [],arealist = [],
+      group = ["GT","MT"],category = ["A","B","C","D"], beatname = [],
+      shoptype = ["Grocery","Bakery","Chemist","General Store","Modern Store","Rural","Distributor"];
+
+  List<int> zoneidlist = [], areaidlist = [], beatIdlist = [];
 
   TextEditingController name = TextEditingController();
   TextEditingController address = TextEditingController();
@@ -37,25 +42,28 @@ class NewRetailerState extends State<NewRetailer>{
   TextEditingController owner = TextEditingController();
   TextEditingController mobile = TextEditingController();
 
-  String? statetypedown,zonetypedown,areatypedown ,categorydropdownValue,groupdropdown,
-      shoptypedown,
-      dropdownvalue,formatter,cdate;
+  int? beatid,stateid,zoneid,areaid;
+  String? statetypedown,zonetypedown,areatypedown,
+      categorydropdownValue,groupdropdown,shoptypedown,
+      dropdownvalue,formatter,cdate,beatdropdown;
 
-  late Future<List> futurestate;
-  late Future<List> futurezone;
+  late Future<List> futurestate,futurezone,futurebeat;
   List distIdlist = [];
   XFile? cameraFile;
   var status;
   LocationData? _currentPosition;
-
   List<StateByPerson> statedata = [];
+  List<Shops> shopdata = [];
+
   @override
   void initState() {
     super.initState();
+
     futurestate = loadstate();
     cdate = getcurrentdatewithtime();
-    //checkPermissionStatus();
     fetchLocation();
+    futurebeat = getbeat();
+
   }
 
   @override
@@ -77,11 +85,6 @@ class NewRetailerState extends State<NewRetailer>{
                 height: 100,
                 margin: EdgeInsets.all(10),
                 padding:EdgeInsets.all(7),
-                // decoration: BoxDecoration(
-                //     shape: BoxShape.circle,
-                //     borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                //     border: Border.all(color: Color(0xFFD2C7C7))
-                // ),
                 child:GestureDetector(
                   onTap: (){
                     selectFromCamera();
@@ -203,7 +206,8 @@ class NewRetailerState extends State<NewRetailer>{
                               color: Color(0xFF063A06),),
                             hintText:'Name'
                         ),
-                      ),),
+                      ),
+                    ),
 
                     Padding(
                       padding: EdgeInsets.all(10),
@@ -219,7 +223,8 @@ class NewRetailerState extends State<NewRetailer>{
                               color: Color(0xFF063A06),),
                             hintText:'Address'
                         ),
-                      ),),
+                      ),
+                    ),
 
                     Padding(
                       padding: EdgeInsets.all(10),
@@ -265,41 +270,92 @@ class NewRetailerState extends State<NewRetailer>{
                       ),
                     ),
 
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: TextFormField(
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(10),
-                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,10}$')),
-              ],
-              controller: mobile,
-              keyboardType: TextInputType.phone,
-              validator: (mobile) {
-                if (mobile!.isEmpty) {
-                  return 'Please enter a mobile number';
-                } else if (mobile.length < 10) {
-                  return 'Mobile number must be 10 digits';
-                }
-                return null;
-              },
-              decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.mobile_screen_share,
-                  color: Color(0xFF063A06),
+                    Padding(
+                       padding: EdgeInsets.all(10),
+                       child: TextFormField(
+                       inputFormatters: [
+                          LengthLimitingTextInputFormatter(10),
+                          FilteringTextInputFormatter.allow(RegExp(r'^\d{0,10}$')),
+                       ],
+                        controller: mobile,
+                        keyboardType: TextInputType.phone,
+                        validator: (mobile) {
+                          if (mobile!.isEmpty) {
+                            return 'Please enter a mobile number';
+                          } else if (mobile.length < 10) {
+                            return 'Mobile number must be 10 digits';
+                          }
+                          return null;
+                     },
+                       decoration: InputDecoration(
+                         prefixIcon: Icon(
+                           Icons.mobile_screen_share,
+                           color: Color(0xFF063A06),
+                         ),
+                         hintText: 'Mobile',
+                       ),
+                       onChanged: (value) {
+                         if (value.length > 0) {
+                           // Perform any additional logic here
+                         }
+                       },
+                      ),
+                    ),
+
+                 ],
                 ),
-                hintText: 'Mobile',
               ),
-              onChanged: (value) {
-                if (value.length > 0) {
-                  // Perform any additional logic here
-                }
-              },
-            ),
-          ),
 
+              FutureBuilder<List>(
+                  future:futurebeat,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
 
-          ],
-                ),
+                      return Container(
+                        width:double.infinity,
+                        height: 50,
+                        margin: const EdgeInsets.all(10),
+                        padding:const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            border: Border.all(color: Color(0xFFD2C7C7))
+                        ),
+                        child:DropdownButton(
+                          isExpanded: true,
+                          value: beatdropdown,
+                          hint: const Text("Select Beat",style: TextStyle(fontFamily: 'OpenSans',fontWeight: FontWeight.w100),),
+                          elevation: 16,
+                          style: const TextStyle(color: Color(0xFF063A06)),
+                          underline: Container(),
+                          onChanged: (value) {
+
+                            for(int i=0;i<beatname.length;i++){
+                              if(beatname.indexOf(value.toString()) == i){
+                                beatid = beatIdlist[i];
+                              }
+                            }
+                            setState(() {
+                              beatdropdown = value.toString();
+                            });
+
+                          },
+                          items:snapshot.data?.map((e) =>
+                              DropdownMenuItem<String>(
+                                value: e,
+                                child: Text(e.toString()),
+                              )
+                          ).toList(),
+
+                        ),
+                      );
+
+                    }else if(snapshot.hasError){
+                      return Container();
+                    }
+
+                    return const CircularProgressIndicator();
+                  }
+
               ),
 
               FutureBuilder<List>(
@@ -324,9 +380,11 @@ class NewRetailerState extends State<NewRetailer>{
                           style: const TextStyle(color: Color(0xFF063A06)),
                           underline: Container(),
                           onChanged: (value) {
+
                             setState(() {
                               statetypedown = value.toString();
                             });
+
                           },
                           items:snapshot.data?.map((e) =>
                               DropdownMenuItem<String>(
@@ -369,6 +427,12 @@ class NewRetailerState extends State<NewRetailer>{
                           underline: Container(),
                           onChanged:(newVal) {
 
+                            for(int i=0;i<zonelist.length;i++){
+                              if(zonelist.indexOf(newVal.toString()) == i){
+                                zoneid = zoneidlist[i];
+                              }
+                            }
+
                             setState(() {
                               zonetypedown = newVal.toString();
                             });
@@ -408,9 +472,17 @@ class NewRetailerState extends State<NewRetailer>{
                   style: const TextStyle(color: Color(0xFF063A06)),
                   underline: Container(),
                   onChanged:(newVal) {
+
+                    for(int i=0;i<arealist.length;i++){
+                      if(arealist.indexOf(newVal.toString()) == i){
+                        areaid = areaidlist[i];
+                      }
+                    }
+
                     setState(() {
                       areatypedown = newVal.toString();
                     });
+
                   },
                   items: arealist.map((value) {
                     return DropdownMenuItem<String>(
@@ -494,7 +566,8 @@ class NewRetailerState extends State<NewRetailer>{
 
   selectFromCamera() async {
 
-    if(status== PermissionStatus.denied){
+    var status = await Permission.Permission.camera.status;
+    if(status == Permission.PermissionStatus.denied){
 
       Fluttertoast.showToast(msg: "Please allow camera permission!",
           toastLength: Toast.LENGTH_SHORT,
@@ -605,17 +678,15 @@ class NewRetailerState extends State<NewRetailer>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(Common.IP_URL+'GetStateZoneAreaByPerson?personId=$userid'), headers: headers);
-
-    var seen = Set<String?>();
+    var response = await http.get(Uri.parse('${Common.IP_URL}GetStateZoneAreaByPerson?personId=$userid'), headers: headers);
 
     final list = jsonDecode(response.body);
-    List<String> arr=[];
+
     statelist.clear();
-    stateid.clear();
+    stateidlist.clear();
+
     zonelist.clear();
     zoneidlist.clear();
-
 
     try{
 
@@ -624,7 +695,7 @@ class NewRetailerState extends State<NewRetailer>{
       for(int i=0;i<statedata.length;i++){
 
         statelist.add(statedata[i].state.toString());
-        stateid.add(statedata[i].stateId.toString());
+        stateidlist.add(statedata[i].stateId.toString());
 
         zonelist.add(statedata[i].zone.toString());
         zoneidlist.add(statedata[i].zoneId!.toInt());
@@ -632,7 +703,8 @@ class NewRetailerState extends State<NewRetailer>{
       }
 
       statelist = LinkedHashSet<String>.from(statelist).toList();
-      stateid = LinkedHashSet<String>.from(stateid).toList();
+      stateidlist = LinkedHashSet<String>.from(stateidlist).toList();
+
       zonelist = LinkedHashSet<String>.from(zonelist).toList();
       zoneidlist = LinkedHashSet<int>.from(zoneidlist).toList();
       // arealist = LinkedHashSet<String>.from(arealist).toList();
@@ -667,28 +739,70 @@ class NewRetailerState extends State<NewRetailer>{
     return statelist;
   }
 
+  Future<List<String>> getbeat() async {
+
+    int userid=0;
+
+    SharedPreferences prefs= await SharedPreferences.getInstance();
+    userid = prefs.getInt(Common.USER_ID)!;
+
+    Map<String,String> headers={
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.get(Uri.parse('${Common.IP_URL}GetBeatsByPerson?id=$userid'), headers: headers);
+
+    final list = jsonDecode(response.body);
+
+    beatIdlist.clear();
+    beatname.clear();
+
+    try{
+
+      shopdata = list.map<Shops>((m) => Shops.fromJson(Map<String, dynamic>.from(m))).toList();
+
+      for(int i=0;i<shopdata.length;i++){
+
+        beatname.add(shopdata[i].beatName.toString());
+        beatIdlist.add(shopdata[i].beatId!.toInt());
+
+      }
+
+      beatname = LinkedHashSet<String>.from(beatname).toList();
+      beatIdlist = LinkedHashSet<int>.from(beatIdlist).toList();
+
+    }catch(e){
+
+      Fluttertoast.showToast(msg: "$e",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }
+
+    return beatname;
+  }
+
   // void checkPermissionStatus() async{
-  //   status = await Permission.camera.status;
   //
-  //   // if (status != PermissionStatus.granted) {
-  //   //
-  //   //   Fluttertoast.showToast(msg: "Successfully login ",
-  //   //       toastLength: Toast.LENGTH_SHORT,
-  //   //       gravity: ToastGravity.BOTTOM,
-  //   //       timeInSecForIosWeb: 1,
-  //   //       backgroundColor: Colors.black,
-  //   //       textColor: Colors.white,
-  //   //       fontSize: 16.0);
-  //   //
-  //   // }else{
-  //   //   Fluttertoast.showToast(msg: "Successfully login2",
-  //   //       toastLength: Toast.LENGTH_SHORT,
-  //   //       gravity: ToastGravity.BOTTOM,
-  //   //       timeInSecForIosWeb: 1,
-  //   //       backgroundColor: Colors.black,
-  //   //       textColor: Colors.white,
-  //   //       fontSize: 16.0);
-  //   // }
+  //   var status = await Permission.Permission.camera.status;
+  //
+  //   if (status.isGranted == true) {
+  //
+  //     Fluttertoast.showToast(msg: "Permission not granted",
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.BOTTOM,
+  //         timeInSecForIosWeb: 1,
+  //         backgroundColor: Colors.black,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0);
+  //
+  //   }else{
+  //
+  //   }
   // }
 
   void checkvalidation(){
@@ -759,26 +873,32 @@ class NewRetailerState extends State<NewRetailer>{
           AlertDialog(
             content: const Text('Add sales?'),
             actions: <TextButton>[
+
               TextButton(
                 onPressed: () {
+
                   Navigator.pop(context);
                   savenewretailer();
+
                 },
                 child: const Text('No'),
               ),
               TextButton(
                 onPressed: () async {
+
                   SharedPreferences preferences = await SharedPreferences.getInstance();
                   await preferences.clear();
 
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (contextt) =>
-                  //             SalesScreen(retailerName: retailerName, retailerId: retailerId, address: address, mobile: mobile, latitude: latitude, longitude: longitude)));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (contextt) =>
+                              SalesScreen(retailerName: name.text, retailerId: "", address: address.text, mobile: mobile.text, latitude: _currentPosition?.latitude, longitude: _currentPosition?.longitude)));
+
                 },
                 child: const Text('Yes'),
               )
+
             ],
           ),
     );
@@ -793,9 +913,9 @@ class NewRetailerState extends State<NewRetailer>{
       "personId":"$userid",
       "shopName":name.text,
       "address":address.text,
-      "state":"$statetypedown",
-      "zone":"$zonetypedown",
-      "area":"$areatypedown",
+      "state":stateidlist[0],
+      "zone":"$zoneid",
+      "area":"$areaid",
       "pincode":pincode.text,
       "contactPerson":owner.text,
       "contactNo":"",
@@ -810,43 +930,42 @@ class NewRetailerState extends State<NewRetailer>{
 
     var body = json.encode(salesentry);
 
-    print("${body.toString()}");
+    print("savenewretailer ${body.toString()}");
 
-    //
-    // Map<String,String> headers={
-    //   'Content-Type': 'application/json',
-    // };
-    //
-    //
-    // var request = await http.MultipartRequest('POST', Uri.parse('${Common.IP_URL}SaveNewRetailer'));
-    // request.fields['newRetailer']= body.toString();
-    // request.files.add(await http.MultipartFile.fromPath('image', cameraFile!.path));
-    //
-    // var response = await request.send();
-    // var responsed = await http.Response.fromStream(response);
-    // final responsedData = json.decode(responsed.body);
-    //
-    // if(responsedData.contains("DONE")){
-    //
-    //   Fluttertoast.showToast(msg: "Sales Saved",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       timeInSecForIosWeb: 1,
-    //       backgroundColor: Colors.black,
-    //       textColor: Colors.white,
-    //       fontSize: 16.0);
-    //
-    // }else{
-    //
-    //   Fluttertoast.showToast(msg: "Something went wrong!Please try again!",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       timeInSecForIosWeb: 1,
-    //       backgroundColor: Colors.black,
-    //       textColor: Colors.white,
-    //       fontSize: 16.0);
-    //
-    // }
+    Map<String,String> headers={
+
+      'Content-Type': 'application/json',
+    };
+
+    var request = await http.MultipartRequest('POST', Uri.parse('${Common.IP_URL}SaveNewRetailer'));
+    request.fields['newRetailer']= body.toString();
+    request.files.add(await http.MultipartFile.fromPath('image', cameraFile!.path));
+
+    var response = await request.send();
+    var responsed = await http.Response.fromStream(response);
+    final responsedData = json.decode(responsed.body);
+
+    if(responsedData.contains("DONE")){
+
+      Fluttertoast.showToast(msg: "Sales Saved",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }else{
+
+      Fluttertoast.showToast(msg: "Something went wrong!Please try again!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }
 
 
   }

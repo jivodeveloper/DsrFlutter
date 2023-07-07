@@ -34,7 +34,6 @@ class HomeScreenState extends State<HomeScreen>{
   @override
   void initState() {
     super.initState();
-    gettodaybeat();
   }
 
   @override
@@ -246,37 +245,6 @@ class HomeScreenState extends State<HomeScreen>{
             ],
           ),
     );
-  }
-
-  Future<void> gettodaybeat() async {
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    userid = prefs.getInt(Common.USER_ID)!;
-
-    TodayBeat details;
-    int beatid =0;
-
-    Map<String, String> headers = {
-      'Content-Type': 'application/json',
-    };
-
-    var response = await http.post(Uri.parse('${Common.IP_URL}checkTodayBeat?personId=$userid'), headers: headers);
-
-    if(response.body.isNotEmpty){
-
-      try{
-
-        details = TodayBeat.fromJson(json.decode(response.body));
-        beatid =  details.beatId == 0 ?-1:details.beatId;
-        prefs.setInt(Common.BEAT_ID,beatid);
-        prefs.setString(Common.BEAT_NAME,details.beatName);
-
-      }catch(e){
-
-      }
-
-    }
-
   }
 
 }

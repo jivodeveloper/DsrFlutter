@@ -6,7 +6,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import '../config/Common.dart';
 import 'dart:convert';
-import 'SalesScreen.dart';
 
 class AllShops extends StatefulWidget{
 
@@ -33,6 +32,7 @@ class AllShopsState extends State<AllShops>{
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
+          color: Color(0xFFE8E4E4),
           child:_isLoading?Center(
               child:CircularProgressIndicator()
           ):FutureBuilder<List<Shops>>(future: furturedist,
@@ -76,8 +76,8 @@ class AllShopsState extends State<AllShops>{
                                       padding: const EdgeInsets.all(12.0),
                                       margin:const EdgeInsets.all(5),
                                       decoration:BoxDecoration(
-                                        color: Colors.grey[300],
-                                        border: Border.all(color: Colors.green,width: 2, style: BorderStyle.solid,),
+                                        color: Colors.grey[100],
+                                        border: Border.all(color: Colors.green,width: 1, style: BorderStyle.solid,),
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                       width: double.infinity,
@@ -112,7 +112,7 @@ class AllShopsState extends State<AllShops>{
                                               Padding(
                                                 padding: EdgeInsets.only(top: 5),
                                                 child: Align(
-                                                  child: Image.asset('assets/Images/store.png',width: 30,),
+                                                  child: Image.asset('assets/Images/store.png',width: 25,),
                                                   alignment: Alignment.centerLeft,
                                                 ),
                                               ),
@@ -120,7 +120,7 @@ class AllShopsState extends State<AllShops>{
                                               Padding(
                                                 padding: EdgeInsets.only(top: 5),
                                                 child: Align(
-                                                  child: Text(' ${snapshot.data![index].retailerID}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                                  child: Text(' ${snapshot.data![index].retailerID}',style :TextStyle(fontWeight: FontWeight.w300,fontSize: 16,color: Color(0xFF817373))),
                                                   alignment: Alignment.centerLeft,
                                                 ),
                                               ),
@@ -130,17 +130,17 @@ class AllShopsState extends State<AllShops>{
                                           ),
 
                                           Align(
-                                            child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18)),
+                                            child: Text('${snapshot.data![index].retailerName}',style :TextStyle(fontSize: 18,fontWeight: FontWeight.w400)),
                                             alignment: Alignment.centerLeft,
                                           ),
 
                                           Align(
-                                            child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                            child: Text('${snapshot.data![index].address}',style :TextStyle(fontSize: 15,color: Color(0xFF817373),fontWeight: FontWeight.w300,)),
                                             alignment: Alignment.centerLeft,
                                           ),
 
                                           Align(
-                                            child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373))),
+                                            child: Text('${snapshot.data![index].mobileNo}',style :TextStyle(fontSize: 15,color: Color(0xFF817373),fontWeight: FontWeight.w300)),
                                             alignment: Alignment.centerLeft,
                                           ),
                                         ],

@@ -40,6 +40,7 @@ class SalesScreen extends StatefulWidget{
 }
 
 class SalesScreenState extends State<SalesScreen>{
+
   Stopwatch _stopwatch = Stopwatch();
   late Timer _timer;
   String _elapsedTime = "00:00";
@@ -55,19 +56,19 @@ class SalesScreenState extends State<SalesScreen>{
     "ALREADY STOCKED",
     "NOT INTERESTED",
     "TELEPHONIC"
-  ];
+  ], distnamelist = [],distIdlist = [];
 
   LocationData? _currentPosition;
-
-  List<String> distnamelist = [],distIdlist = [];
   File? cameraFile,shelffile1,shelffile2,shelffile3,shelffile4,f;
-  String? statusdropdown ,distributordropdown,distid,isdistanceallowed, persontype , cdate;
+  String? statusdropdown ,distributordropdown,distid,isdistanceallowed,persontype,cdate;
   late Future<List> furturedist;
+
   TextEditingController dateController = TextEditingController();
   TextEditingController shelf1Controller = TextEditingController();
   TextEditingController shelf2Controller = TextEditingController();
   TextEditingController shelf3Controller = TextEditingController();
   TextEditingController shelf4Controller = TextEditingController();
+
   String formatter = "";
   final GlobalKey globalKey = new GlobalKey();
   bool quantity_layout = false,isturnedon = false;
@@ -78,6 +79,7 @@ class SalesScreenState extends State<SalesScreen>{
   @override
   void initState() {
     super.initState();
+
     if(widget.retailerId==""){
       type="newShop";
     }else{
@@ -97,12 +99,15 @@ class SalesScreenState extends State<SalesScreen>{
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final nextFifteenDays = List<DateTime>.generate(15, (index) {
+      return now.add(Duration(days: index + 1));
+    });
     return Scaffold(
         backgroundColor: const Color(0xFFFAFAFA),
         appBar: AppBar(
           title: const Text("Sales Screen",
-              style: TextStyle(color:Color(0xFF063A06),
-                  fontFamily: 'OpenSans',fontWeight: FontWeight.w300)
+              style: TextStyle(color:Color(0xFF063A06),fontWeight: FontWeight.w400)
           ),
           actions: [
             Center(
@@ -160,9 +165,16 @@ class SalesScreenState extends State<SalesScreen>{
 
                                 Flexible(
                                     flex: 1,
-                                    child: Align(
-                                      alignment:Alignment.center,
-                                      child: Icon(Icons.location_pin,size: 36,color: Colors.red,),
+                                    child:GestureDetector(
+                                      onTap: (){
+
+                                      },
+                                      child: Container(
+                                        child: Align(
+                                          alignment:Alignment.center,
+                                          child: Icon(Icons.location_pin,size: 36,color: Colors.red,),
+                                        ),
+                                      ),
                                     )
                                 )
 
@@ -268,8 +280,8 @@ class SalesScreenState extends State<SalesScreen>{
                           var date = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
-                              firstDate: DateTime(1900),
-                              lastDate: DateTime(2100));
+                              firstDate: DateTime.now().subtract(const Duration(days: 7)),
+                              lastDate: DateTime.now());
                           if (date != null) {
 
                             dateController.text = DateFormat('MM/dd/yyyy').format(date);
@@ -425,7 +437,9 @@ class SalesScreenState extends State<SalesScreen>{
                   ],
                 ),
               ),
-            )));
+          )
+        )
+     );
   }
 
   fetchLocation() async {
@@ -474,7 +488,9 @@ class SalesScreenState extends State<SalesScreen>{
   }
 
   void _startStopwatch() {
+
     _stopwatch.start();
+
     _timer = Timer.periodic(Duration(milliseconds: 1), (timer) {
       setState(() {
         _elapsedTime = _stopwatch.elapsed.toString().substring(0, 8);
@@ -628,11 +644,12 @@ class SalesScreenState extends State<SalesScreen>{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     persontype = prefs.getString(Common.PERSON_TYPE);
-    cdate   = getcurrentdatewithtime();
+    cdate = getcurrentdatewithtime();
     distance = checkdistancecondition(widget.latitude,widget.longitude);
-    distanceallowed = prefs.getInt(Common.DISTANCE_ALLOWED)!;
+    distanceallowed = 500;
+   // print("distanceallowed${prefs.getInt(Common.DISTANCE_ALLOWED)}");
 
-    if(distributordropdown==null){
+    if(distributordropdown==null && type=="old"){
 
       Fluttertoast.showToast(msg: "Please select distributor",
           toastLength: Toast.LENGTH_SHORT,
@@ -676,7 +693,7 @@ class SalesScreenState extends State<SalesScreen>{
         Navigator.push(
             context, PageTransition(
             type: PageTransitionType.bottomToTop,
-            child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude,distance:distance,isdistanceallowed:isdistanceallowed,deliveryDate: dateController.text, elapsedTime: _elapsedTime,cameraFile:cameraFile!.path),
+            child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude,distance:distance,isdistanceallowed:isdistanceallowed,deliveryDate: dateController.text, elapsedTime: _elapsedTime,cameraFile:f),
             inheritTheme: true,
             ctx: context));
 
@@ -718,19 +735,22 @@ class SalesScreenState extends State<SalesScreen>{
 
     for(int i=0;i<distnamelist.length;i++){
 
-      if(distnamelist.indexOf(dist)==distIdlist[i]){
+      if(distnamelist.indexOf(dist)==i){
 
         setState(() {
           distid = distIdlist[i];
         });
+
       }
+
     }
+
   }
 
   Future<void> submitsales(context) async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    userid = prefs.getInt(Common.USER_ID)!;
+    userid = 768;
 
     if(distance > distanceallowed){
 
@@ -799,22 +819,22 @@ class SalesScreenState extends State<SalesScreen>{
                   Navigator.push(
                       context, PageTransition(
                       type: PageTransitionType.bottomToTop,
-                      child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude,distance:distance,isdistanceallowed:isdistanceallowed,deliveryDate: dateController.text, elapsedTime: _elapsedTime,cameraFile:cameraFile!.path),
+                      child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude,distance:distance,isdistanceallowed:isdistanceallowed,deliveryDate: dateController.text, elapsedTime: _elapsedTime,cameraFile:f),
                       inheritTheme: true,
                       ctx: context))
+
                 },
                 child: const Text('Ok'),
               ),
 
             ],
+
           );
         }
     );
   }
 
   Future<void> saveSales(context) async {
-
-    // ProgressHUD.of(context)?.show();
 
     var salesentry=[{},{
       "personId":"$userid",
@@ -909,7 +929,7 @@ class SalesScreenState extends State<SalesScreen>{
     ProgressHUD.of(context)?.show();
 
     SharedPreferences prefs= await SharedPreferences.getInstance();
-    int userid = prefs.getInt(Common.USER_ID)!;
+    int userid = 768;
 
     var salesentry=[{},{
       "personId":"$userid",

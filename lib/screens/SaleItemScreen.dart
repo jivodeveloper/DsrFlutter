@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:promoterapp/models/SalesItem.dart';
-import 'package:promoterapp/screens/Dashboard.dart';
+import 'package:promoterapp/models/SchemeItem.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/Common.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -26,15 +27,13 @@ class SalesItemScreen extends StatefulWidget{
   String? dist,distId,isdistanceallowed,deliveryDate;
   int userid=0,idx=0;
   String? elapsedTime;
-  String? cameraFile;
+  File? cameraFile;
 
   SalesItemScreen({required this.retailerName,required this.retailerId, required this.dist,required this.distId, required this.address,required this.date, required this.status,required this.retlat,required this.retlon, required this.distance, required this.isdistanceallowed, required this.deliveryDate,required this.elapsedTime, required this.cameraFile});
 
   @override
   State<StatefulWidget> createState() {
-
     return SalesItemState();
-
   }
 
 }
@@ -45,11 +44,11 @@ class SalesItemState extends State<SalesItemScreen>{
   TextEditingController stock = new TextEditingController();
   late Timer _timer;
   String? cdate;
-  Future<List>? furturecategoryitem,furturecategory ;
+  Future<List>? furturecategoryitem,furturecategory;
   String? dropdowncategory,dropdownitem,shoptype="old",isdistanceallowed;
   List<String>? selectedvalues,selectedvaluesitem,schemevalueitem,schemevalue=[],dropdownOptions= [];
   List<num>? quantity =[];
-  List catenamlist = [], cateidlist = [],itemlist= [], itemid = [],
+  List catenamlist = [], cateidlist = [],itemlist= [], itemidlist = [],
       categorylistscheme=[],categoryidscheme = [],itemlistscheme=[],itemidscheme = [];
   int numElements = 1,userid=0;
   List<Object> itemobjectlist = [];
@@ -65,7 +64,6 @@ class SalesItemState extends State<SalesItemScreen>{
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
   Stopwatch _stopwatch = Stopwatch();
 
-
   @override
   void initState() {
     super.initState();
@@ -78,16 +76,26 @@ class SalesItemState extends State<SalesItemScreen>{
 
   void dispose() async {
     super.dispose();
-    await _stopWatchTimer.dispose();  // Need to call dispose function.
+  //  await _stopWatchTimer.dispose();  // Need to call dispose function.
   }
 
   void _startStopwatch() {
+
     _stopwatch.start();
-    _timer = Timer.periodic(Duration(milliseconds: 1), (timer) {
+    // _timer = Timer.periodic(Duration(milliseconds: 1), (timer) {
+    //   setState(() {
+    //     widget.elapsedTime = _stopwatch.elapsed.toString().substring(0, 8);
+    //   });
+    // });
+
+    _timer = Timer.periodic(Duration(hours: 01, minutes: 23, seconds: 31), (timer) {
+
       setState(() {
         widget.elapsedTime = _stopwatch.elapsed.toString().substring(0, 8);
       });
+
     });
+
   }
 
   fetchLocation() async {
@@ -161,7 +169,7 @@ class SalesItemState extends State<SalesItemScreen>{
           actions: [
 
             Center(
-              child: Text("${widget.elapsedTime}",style: TextStyle(color:Color(0xFF063A06),fontSize: 19)),
+              child: Text("${widget.elapsedTime}",style: TextStyle(color:Colors.white,fontSize: 19)),
             ),
 
             IconButton(
@@ -190,119 +198,120 @@ class SalesItemState extends State<SalesItemScreen>{
           ),
           iconTheme: const IconThemeData(color:Colors.white),
         ),
-        body: SizedBox(
-          height: double.infinity,
-          child:  Column(
-              children: [
+        body: SingleChildScrollView(
+          child: SizedBox(
+            width: double.infinity,
+            child:  Column(
+                children: [
 
-                Container(
+                  Container(
+                      height: 90,
+                      margin: EdgeInsets.all(10),
+                      padding: EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                          color: Color(0xFF063A06),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0))
+                      ),
+                      child:Column(
+                        children: [
 
-                    margin: EdgeInsets.all(10),
-                    padding: EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                        color: Color(0xFF063A06),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0))
-                    ),
-                    child:Column(
-                      children: [
+                          Row(
+                            children: [
 
-                        Row(
-                          children: [
+                              Expanded(
+                                  flex: 1,
+                                  child: Text("${widget.retailerName}",style: TextStyle(color: Colors.white))
+                              ),
 
-                            Expanded(
-                                flex: 1,
-                                child: Text("${widget.retailerName}",style: TextStyle(color: Colors.white))
+                              Expanded(
+                                  flex: 1,
+                                  child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text("Id : ${widget.retailerId}",style: TextStyle(color: Colors.white),)
+                                  )
+                              )
+
+                            ],
+                          ),
+
+                          Padding(
+                            padding: EdgeInsets.only(left: 5,right: 5),
+                            child:  Divider(
+                                thickness: 1.0,
+                                color: Colors.yellow
                             ),
+                          ),
 
-                            Expanded(
-                                flex: 1,
-                                child: Align(
+                          Row(
+                            children: [
+
+                              Expanded(
+                                  flex: 1,
+                                  child: Text("${widget.dist}",style: TextStyle(color: Colors.white))),
+
+                              Expanded(
+                                  flex: 1,
+                                  child: Align(
                                     alignment: Alignment.centerRight,
-                                    child: Text("Id : ${widget.retailerId}",style: TextStyle(color: Colors.white),)
-                                )
-                            )
+                                    child: Text("Date : ${widget.date}",style: TextStyle(color: Colors.white)),
+                                  )
+                              )
 
-                          ],
+                            ],
+                          ),
+
+                        ],
+                      )
+                  ),
+
+                  SizedBox(
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: dynamicList.length,
+                        itemBuilder: (_, index) =>
+                        dynamicList[index]
+                    ),
+                  ),
+
+                  Align(
+                    alignment: FractionalOffset.bottomCenter,
+                    child: GestureDetector(
+
+                      onTap: (){
+                        submitsales(dropdownOptionsProvider);
+                      },
+
+                      child: Container(
+                        margin: const EdgeInsets.all(10),
+                        width: double.infinity,
+                        height: 55,
+                        decoration: BoxDecoration(
+                            color: Color(0xFF063A06),
+                            borderRadius: BorderRadius.all(Radius.circular(15.0))
                         ),
 
-                        Padding(
-                          padding: EdgeInsets.only(left: 5,right: 5),
-                          child:  Divider(
-                              thickness: 1.0,
-                              color: Colors.yellow
+                        child: Center(
+                          child: Text(
+                            "SUBMIT",
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
-
-                        Row(
-                          children: [
-
-                            Expanded(
-                                flex: 1,
-                                child: Text("${widget.dist}",style: TextStyle(color: Colors.white))),
-
-                            Expanded(
-                                flex: 1,
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text("Date : ${widget.date}",style: TextStyle(color: Colors.white)),
-                                )
-                            )
-
-                          ],
-                        ),
-
-                      ],
-                    )
-                ),
-
-                SizedBox(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: dynamicList.length,
-                    itemBuilder: (_, index) =>
-                        dynamicList[index]
-                  ),
-                ),
-
-                Align(
-                  alignment: FractionalOffset.bottomCenter,
-                  child: GestureDetector(
-
-                    onTap: (){
-                      submitsales();
-                    },
-
-                    child: Container(
-                      margin: const EdgeInsets.all(10),
-                      width: double.infinity,
-                      height: 55,
-                      decoration: BoxDecoration(
-                          color: Color(0xFF063A06),
-                          borderRadius: BorderRadius.all(Radius.circular(15.0))
                       ),
 
-                      child: Center(
-                        child: Text(
-                          "SUBMIT",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
                     ),
-
                   ),
-                ),
 
-              ]
+                ]
+            ),
           ),
         )
     );
-
   }
 
   void addwidget(){
 
     setState(() {
-      dynamicList.add(MyWidget(catenamlist,cateidlist,idx,itemlist,itemid,boxes,stock));
+      dynamicList.add(MyWidget(catenamlist,cateidlist,idx,itemlist,itemidlist));
     });
     idx++;
 
@@ -321,10 +330,10 @@ class SalesItemState extends State<SalesItemScreen>{
     int id=0;
 
     for(int i=0;i<catenamlist.length;i++){
+
       if(index==i){
         id = cateidlist[i];
       }
-      print("id$id}");
 
     }
 
@@ -468,17 +477,23 @@ class SalesItemState extends State<SalesItemScreen>{
     return catenamlist;
   }
 
-  Future<List> submitsales() async {
-
+  Future<List> submitsales(DropdownProvider dropdownOptionsProvider) async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
     cdate = getcurrentdatewithtime();
 
     List<SalesItem> items = [];
+    List<SchemeItem> schemeitem = [];
 
-    for(int i=0;i<itemid.length;i++){
-      items.add(SalesItem(int.parse(itemid[i].toString()),20,10,10));
+    for(int i=0;i<dynamicList.length;i++){
+
+     items.add(SalesItem(int.parse(dropdownOptionsProvider.selecteditem[i].toString()),int.parse(dropdownOptionsProvider.selecteditemorder[i].toString()),int.parse(dropdownOptionsProvider.selecteditemstock[i].toString()),0));
+
+    }
+
+    for(int i=0;i<dynamicList.length;i++){
+      schemeitem.add(SchemeItem(int.parse(dropdownOptionsProvider.selectedschemeitemid[i].toString()),dropdownOptionsProvider.selectedschemename[i].toString(),dropdownOptionsProvider.selectedschemeitemorder[i]));
     }
 
     var salesentry=[{
@@ -499,15 +514,16 @@ class SalesItemState extends State<SalesItemScreen>{
       "timeDuration":"0.0",
       "startLatitude":widget.retlat,
       "startLongitude":widget.retlon,
-      "distId":"16879",
+      "distId":widget.distId,
       "distance":widget.distance,
       "deliveryDate":widget.deliveryDate,
       "allowed":widget.isdistanceallowed,
-      "items":items
+      "items":items,
+      "schemes":schemeitem
     }];
 
     var body = json.encode(salesentry);
-    print("item value $salesentry");
+    print("body${body.toString()}");
 
     Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -515,7 +531,7 @@ class SalesItemState extends State<SalesItemScreen>{
 
     var request = await http.MultipartRequest('POST', Uri.parse('${Common.IP_URL}SaveSalesWithImgAndGetId2'));
     request.fields['salesEntry']= body.toString();
-    request.files.add(await http.MultipartFile.fromPath('image', widget.cameraFile.toString()));
+    request.files.add(await http.MultipartFile.fromPath('image', widget.cameraFile!.path));
 
     var response = await request.send();
     var responsed = await http.Response.fromStream(response);
@@ -531,12 +547,7 @@ class SalesItemState extends State<SalesItemScreen>{
           textColor: Colors.white,
           fontSize: 16.0);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Dashboard(),
-        ),
-      );
+   //   Navigator.of(context).pop();
 
     }else{
 
@@ -550,32 +561,38 @@ class SalesItemState extends State<SalesItemScreen>{
 
     }
 
+
     return catenamlist;
+
   }
 
 }
 
 class MyWidget extends StatelessWidget {
 
-  List catenamlist = [], cateidlist = [],itemid = [], itemlist=[];
+  List catenamlist = [], cateidlist = [],itemidlist = [], itemlist=[],schemeitemidlist = [], schemeitemlist=[];
   int idx=0;
-  Future<List>? furturecategoryitem;
-  TextEditingController boxes = new TextEditingController();
+  Future<List>? furturecategoryitem,furtureschemeitem;
+  TextEditingController order = new TextEditingController();
   TextEditingController stock = new TextEditingController();
+  TextEditingController schemorder = new TextEditingController();
+  TextEditingController textdata = new TextEditingController();
 
-  MyWidget(this.catenamlist, this.cateidlist,this.idx,this.itemlist,this.itemid,this.boxes,this.stock);
+  MyWidget(this.catenamlist, this.cateidlist,this.idx,this.itemlist,this.itemidlist);
 
   @override
   Widget build(BuildContext context) {
 
     final dropdownOptionsProvider = Provider.of<DropdownProvider>(context);
     dropdownOptionsProvider.selectedcategory.add("CANOLA");
+    dropdownOptionsProvider.selectedschemecategory.add("CANOLA");
+ // dropdownOptionsProvider.selecteditem.add(itemlist[0]);
 
     return Container(
-        height: 200,
+
         width: double.infinity,
-        margin: EdgeInsets.only(right: 5),
-        padding: EdgeInsets.only(left: 5, right: 5),
+        margin: const EdgeInsets.only(right: 5),
+        padding: const EdgeInsets.only(left: 5, right: 5),
         decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(
                 Radius.circular(10.0)
@@ -607,8 +624,9 @@ class MyWidget extends StatelessWidget {
                     }
 
                   }
+
                   dropdownOptionsProvider.addDropdownOptions(idx,newValue.toString());
-                  furturecategoryitem = loadcategoryitem(cateid,itemlist,itemid);
+                  furturecategoryitem = loadcategoryitem(cateid,itemlist,itemidlist,dropdownOptionsProvider,idx);
 
                 },
                 items: catenamlist.map((e) =>
@@ -622,16 +640,155 @@ class MyWidget extends StatelessWidget {
               FutureBuilder(
                 future: furturecategoryitem,
                 builder: (context,snapshot){
+
                   if(snapshot.hasData){
-                   // dropdownOptionsProvider.selecteditem.add(itemlist[0]);
-                    return  DropdownButton<String>(
+                    print("$idx ${dropdownOptionsProvider.selecteditem[idx].toString()}") ;
+                    return DropdownButton<String>(
                       isExpanded: true,
-                    //value: dropdownOptionsProvider.selecteditem[idx],
+
+                      value: dropdownOptionsProvider.selecteditem[idx].toString(),
                       hint: const Text("Select Item",style: TextStyle(fontWeight: FontWeight.w300)),
                       onChanged: (String? newValue) {
-                        dropdownOptionsProvider.additemdropdown(idx, newValue.toString());
+
+                        int itemid=0;
+                        for(int i=0;i<itemlist.length;i++){
+                          if(itemlist.indexOf(newValue) == i){
+                            itemid = itemidlist[i];
+                          }
+                        }
+
+                        dropdownOptionsProvider.additemdropdown(idx, itemid,newValue.toString());
                       },
                       items: itemlist.map((e) =>
+                          DropdownMenuItem<String>(
+                            value: e,
+                            child: Text(e),
+                          )
+                      ).toList(),
+                    );
+                  }
+                  return Container();
+                },
+              ),
+
+              Container(
+                  margin: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+
+                      Expanded(
+                          flex: 1,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 5),
+                                height: 40,
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        width: 1.0,
+                                        color: Colors.grey
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(2.0))
+                                ),
+                                child: TextFormField(
+                                  onChanged: (value) {
+
+                                    dropdownOptionsProvider.additemboxes(idx,int.parse(value));
+
+                                  },
+                                  controller: order,
+                                  decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
+                                ),
+                              ),
+                            ),
+                          )
+                      ),
+
+                      Expanded(
+                        flex: 1,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Container(
+                            margin: const EdgeInsets.only(left: 5),
+                            height: 40,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    width: 1.0,
+                                    color: Colors.grey
+                                ),
+                                borderRadius: const BorderRadius.all(Radius.circular(2.0))
+                            ),
+                            child: TextFormField(
+                              onChanged: (value) {
+                                dropdownOptionsProvider.additemstock(idx,int.parse(value));
+                              },
+                              controller: textdata,
+                              decoration: const InputDecoration(hintText: 'pieces',border: InputBorder.none),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    ],
+                  )
+              ),
+
+              Container(
+                padding: EdgeInsets.only(left:5,top: 10,bottom: 5),
+                child:Align(
+                  alignment: Alignment.centerLeft,
+                  child:Text("Schemes",style: TextStyle(fontSize: 16,color: Colors.green)),
+                ),
+              ),
+
+              DropdownButton<String>(
+                isExpanded: true,
+                value:dropdownOptionsProvider.selectedschemecategory.first,
+                // hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
+                onChanged: (String? newValue) {
+                  int cateid=0;
+
+                  for(int i=0;i<catenamlist.length;i++){
+
+                    if(catenamlist.indexOf(newValue)==i){
+                      cateid = cateidlist[i];
+                    }
+
+                  }
+                  dropdownOptionsProvider.addDropdownschemecategory(idx,newValue.toString());
+                  furtureschemeitem = loadcategoryschemeitem(cateid,schemeitemlist,schemeitemidlist);
+
+                },
+                items: catenamlist.map((e) =>
+                    DropdownMenuItem<String>(
+                      value: e,
+                      child: Text(e),
+                    )
+                ).toList(),
+              ),
+
+              FutureBuilder(
+                future: furtureschemeitem,
+                builder: (context,snapshot){
+                  if(snapshot.hasData){
+                    // dropdownOptionsProvider.selecteditem.add(itemlist[0]);
+                    return  DropdownButton<String>(
+                      isExpanded: true,
+                      //value: dropdownOptionsProvider.selecteditem[idx],
+                      hint: const Text("Select Item",style: TextStyle(fontWeight: FontWeight.w300)),
+                      onChanged: (String? newValue) {
+                        int itemid=0;
+                        for(int i=0;i<schemeitemlist.length;i++){
+                          if(schemeitemlist.indexOf(newValue) == i){
+                            itemid = schemeitemidlist[i];
+                          }
+                        }
+
+                        dropdownOptionsProvider.additemschemedropdown(idx, itemid,newValue.toString(),0);
+                      },
+                      items: schemeitemlist.map((e) =>
                           DropdownMenuItem<String>(
                             value: e,
                             child: Text(e),
@@ -665,38 +822,19 @@ class MyWidget extends StatelessWidget {
                                     borderRadius: BorderRadius.all(Radius.circular(2.0))
                                 ),
                                 child: TextFormField(
-                                  controller: boxes,
+                                  onChanged: (value){
+                                    dropdownOptionsProvider.addschitemboxes(idx,int.parse(value));
+                                  },
+                                  controller: schemorder,
                                   decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
                                 ),
-                              ),
-                            ),
-                          )
-                      ),
-
-                      Expanded(
-                          flex: 1,
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                              margin: EdgeInsets.only(left: 5),
-                              height: 40,
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      width: 1.0,
-                                      color: Colors.grey
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(2.0))
-                              ),
-                              child: TextFormField(
-                                controller: stock,
-                                decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
-                              ),
-                            ),
-                          ),
+                             ),
+                           ),
+                        )
                       ),
 
                     ],
-                 )
+                  )
               ),
 
             ]
@@ -705,64 +843,72 @@ class MyWidget extends StatelessWidget {
 
   }
 
-  //
-  // Future<List> loadcategory() async {
-  //
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   userid = prefs.getInt(Common.USER_ID)!;
-  //
-  //   Map<String, String> headers = {
-  //     'Content-Type': 'application/json',
-  //   };
-  //
-  //   var response = await http.get(Uri.parse('${Common.IP_URL}GetCatgories?userid=768'), headers: headers);
-  //
-  //   if(response.statusCode == 200){
-  //
-  //     try{
-  //
-  //       final list = jsonDecode(response.body);
-  //
-  //       List<Categorylist> categorydata = [];
-  //       categorydata = list.map<Categorylist>((m) => Categorylist.fromJson(Map<String, dynamic>.from(m))).toList();
-  //
-  //       for(int i=0 ;i<categorydata.length;i++){
-  //         catenamlist.add(categorydata[i].typeName.toString());
-  //         cateidlist.add(categorydata[i].id);
-  //       }
-  //
-  //
-  //     }catch(e){
-  //
-  //       Fluttertoast.showToast(msg: "Please contact admin!!",
-  //           toastLength: Toast.LENGTH_SHORT,
-  //           gravity: ToastGravity.BOTTOM,
-  //           timeInSecForIosWeb: 1,
-  //           backgroundColor: Colors.black,
-  //           textColor: Colors.white,
-  //           fontSize: 16.0);
-  //
-  //     }
-  //
-  //   }else{
-  //
-  //     Fluttertoast.showToast(msg: "Something went wrong!",
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.BOTTOM,
-  //         timeInSecForIosWeb: 1,
-  //         backgroundColor: Colors.black,
-  //         textColor: Colors.white,
-  //         fontSize: 16.0);
-  //
-  //   }
-  //
-  //   return catenamlist;
-  // }
-  //
+//
+// Future<List> loadcategory() async {
+//
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
+//   userid = prefs.getInt(Common.USER_ID)!;
+//
+//   Map<String, String> headers = {
+//     'Content-Type': 'application/json',
+//   };
+//
+//   var response = await http.get(Uri.parse('${Common.IP_URL}GetCatgories?userid=768'), headers: headers);
+//
+//   if(response.statusCode == 200){
+//
+//     try{
+//
+//       final list = jsonDecode(response.body);
+//
+//       List<Categorylist> categorydata = [];
+//       categorydata = list.map<Categorylist>((m) => Categorylist.fromJson(Map<String, dynamic>.from(m))).toList();
+//
+//       for(int i=0 ;i<categorydata.length;i++){
+//         catenamlist.add(categorydata[i].typeName.toString());
+//         cateidlist.add(categorydata[i].id);
+//       }
+//
+//
+//     }catch(e){
+//
+//       Fluttertoast.showToast(msg: "Please contact admin!!",
+//           toastLength: Toast.LENGTH_SHORT,
+//           gravity: ToastGravity.BOTTOM,
+//           timeInSecForIosWeb: 1,
+//           backgroundColor: Colors.black,
+//           textColor: Colors.white,
+//           fontSize: 16.0);
+//
+//     }
+//
+//   }else{
+//
+//     Fluttertoast.showToast(msg: "Something went wrong!",
+//         toastLength: Toast.LENGTH_SHORT,
+//         gravity: ToastGravity.BOTTOM,
+//         timeInSecForIosWeb: 1,
+//         backgroundColor: Colors.black,
+//         textColor: Colors.white,
+//         fontSize: 16.0);
+//
+//   }
+//
+//   return catenamlist;
+// }
+//
 
 }
 
-Future<List> loadcategoryitem(int cid, List itemlistt,List itemid) async {
+Future<List> loadcategoryitem(int cid, List itemlistt,List itemid, DropdownProvider dropdownOptionsProvider,int idx) async {
+
+  Fluttertoast.showToast(msg: "index value $idx",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
+      fontSize: 16.0);
 
   Map<String, String> headers = {
     'Content-Type': 'application/json',
@@ -779,10 +925,15 @@ Future<List> loadcategoryitem(int cid, List itemlistt,List itemid) async {
       List<Item> categryitem = [];
       categryitem = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
       itemlistt.clear();
+      itemid.clear();
+
       for(int i=0 ;i<categryitem.length;i++) {
 
         itemlistt.add(categryitem[i].itemName);
         itemid.add(categryitem[i].itemID);
+
+        dropdownOptionsProvider.additemdropdown(idx,categryitem[idx].itemID!.toInt(),categryitem[idx].itemName.toString());
+
       }
 
     }catch(e){
@@ -812,6 +963,56 @@ Future<List> loadcategoryitem(int cid, List itemlistt,List itemid) async {
   return itemlistt;
 }
 
+Future<List> loadcategoryschemeitem(int cid, List schemeitemlist,List schemeitemid) async {
 
+  Map<String, String> headers = {
+    'Content-Type': 'application/json',
+  };
+
+  var response = await http.get(Uri.parse('${Common.IP_URL}Getitem?itemType=$cid'), headers: headers);
+
+  if(response.statusCode == 200){
+
+    try{
+
+      final list = jsonDecode(response.body);
+
+      List<Item> categryitem = [];
+      categryitem = list.map<Item>((m) => Item.fromJson(Map<String, dynamic>.from(m))).toList();
+      schemeitemlist.clear();
+      schemeitemid.clear();
+
+      for(int i=0 ;i<categryitem.length;i++) {
+
+        schemeitemlist.add(categryitem[i].itemName);
+        schemeitemid.add(categryitem[i].itemID);
+      }
+
+    }catch(e){
+
+      Fluttertoast.showToast(msg: "Please contact adminn!!$e",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+    }
+
+  }else{
+
+    Fluttertoast.showToast(msg: "Something went wrong!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
+
+  }
+
+  return schemeitemlist;
+}
 
 

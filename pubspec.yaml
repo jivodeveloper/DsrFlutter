@@ -73,6 +73,8 @@ dev_dependencies:
   path: ^1.8.3
   flutter_progress_hud: ^2.0.2
   stop_watch_timer: ^2.0.0
+  workmanager: ^0.5.1
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

@@ -1,6 +1,6 @@
 class Distributoritem {
-  int itemid=0;
-  int boxes=0;
+  String? itemid;
+  String? boxes;
 
   Distributoritem(this.itemid, this.boxes);
 
