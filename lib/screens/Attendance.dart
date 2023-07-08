@@ -104,9 +104,9 @@ class AttendanceState extends State<Attendance>{
                           style: TextStyle(color:Colors.white
                           ),
                         )
-                    ),
-                  ),
-                ),
+                     ),
+                   ),
+                 ),
 
                  GestureDetector(
                   onTap: (){
@@ -123,21 +123,21 @@ class AttendanceState extends State<Attendance>{
                     child: const Center(
                         child:Text("END OF DAY",style: TextStyle(
                             color: Colors.white
-                        ),
+                         ),
                         )
+                      ),
                     ),
                   ),
+
+                 ],
                 ),
 
-               ],
-             ),
-
                 Row(
-                 mainAxisAlignment: MainAxisAlignment.center,
-                 crossAxisAlignment: CrossAxisAlignment.center,
-                 children:[
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children:[
 
-                 GestureDetector(
+                   GestureDetector(
                   onTap: (){
                     showdilaog("HD");
                   },
@@ -158,7 +158,7 @@ class AttendanceState extends State<Attendance>{
                   ),
                  ),
 
-                 GestureDetector(
+                   GestureDetector(
                   onTap: (){
                     showdilaog("WO");
                   },
@@ -173,15 +173,15 @@ class AttendanceState extends State<Attendance>{
                     child: const Center(
                         child: Text("WEEK OFF",style: TextStyle(
                             color: Colors.white
-                        ),
+                         ),
                         )
+                      ),
                     ),
-                  ),
-                )
+                  )
 
-                ],
+                 ],
 
-               ),
+                ),
 
                ]
               ),
@@ -317,7 +317,7 @@ class AttendanceState extends State<Attendance>{
       'Content-Type': 'application/json',
     };
 
-    var response = await http.post(Uri.parse('${Common.IP_URL}syncAllData?id=$userid'), headers: headers);
+    var response = await http.post(Uri.parse('${Common.IP_URL}syncAllData2?id=$userid'), headers: headers);
 
     if(response.statusCode == 200){
       try{

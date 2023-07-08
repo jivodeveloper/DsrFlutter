@@ -22,6 +22,8 @@ import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 
+import 'HomeScreen.dart';
+
 class SalesScreen extends StatefulWidget{
 
   String retailerName="",retailerId="",address="",mobile="";
@@ -705,6 +707,7 @@ class SalesScreenState extends State<SalesScreen>{
         // }
 
       }
+
       //
       // Navigator.push(
       //     context, PageTransition(
@@ -716,6 +719,7 @@ class SalesScreenState extends State<SalesScreen>{
     }else if(statusdropdown!=null && statusdropdown!="DONE"){
       submitsales(context);
     }
+
 
     // else if(shelf4Controller.text=="" || shelf1Controller.text=="" ||  shelf2Controller.text=="" ||  shelf3Controller.text=="" && persontype=="MT"){
     //
@@ -781,7 +785,7 @@ class SalesScreenState extends State<SalesScreen>{
     return distanceInMeters;
   }
 
-  Future<void> showdistanceallowedmessage(context){
+  Future<void> showdistanceallowedmessage(contextt){
     return showDialog(
         context: context,
         builder:(BuildContext context) {
@@ -809,6 +813,7 @@ class SalesScreenState extends State<SalesScreen>{
                 onPressed: () =>{
 
                   Navigator.pop(context, 'Ok'),
+
                   // if(type=="old"){
                   //  saveSales(context),
                   // }else{
@@ -816,12 +821,19 @@ class SalesScreenState extends State<SalesScreen>{
                   // }
                   //
 
-                  Navigator.push(
-                      context, PageTransition(
-                      type: PageTransitionType.bottomToTop,
-                      child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude,distance:distance,isdistanceallowed:isdistanceallowed,deliveryDate: dateController.text, elapsedTime: _elapsedTime,cameraFile:f),
-                      inheritTheme: true,
-                      ctx: context))
+                  if(statusdropdown == "DONE"){
+                    Navigator.push(
+                        context, PageTransition(
+                        type: PageTransitionType.bottomToTop,
+                        child: SalesItemScreen(retailerName : widget.retailerName,retailerId:widget.retailerId,dist:distributordropdown,distId:distid,address:widget.address,date:dateController.text,status:statusdropdown.toString(),retlat:widget.latitude,retlon:widget.longitude,distance:distance,isdistanceallowed:isdistanceallowed,deliveryDate: dateController.text, elapsedTime: _elapsedTime,cameraFile:f),
+                        inheritTheme: true,
+                        ctx: context))
+                  }else{
+
+                    saveSales(contextt)
+
+                  }
+
 
                 },
                 child: const Text('Ok'),
@@ -835,6 +847,8 @@ class SalesScreenState extends State<SalesScreen>{
   }
 
   Future<void> saveSales(context) async {
+
+    ProgressHUD.of(context)?.show();
 
     var salesentry=[{},{
       "personId":"$userid",
@@ -862,6 +876,7 @@ class SalesScreenState extends State<SalesScreen>{
 
     var body = json.encode(salesentry);
 
+    print("body $body");
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -903,7 +918,7 @@ class SalesScreenState extends State<SalesScreen>{
 
   setcurrenttime(){
 
-    final now = new DateTime.now();
+    final now = DateTime.now();
     formatter = DateFormat('yMd').format(now);// 28/03/2020
 
     if(formatter!=""){
@@ -928,8 +943,9 @@ class SalesScreenState extends State<SalesScreen>{
 
     ProgressHUD.of(context)?.show();
 
-    SharedPreferences prefs= await SharedPreferences.getInstance();
-    int userid = 768;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // userid = prefs.getInt(Common.USER_ID)!;
+    userid = 768;
 
     var salesentry=[{},{
       "personId":"$userid",
@@ -984,7 +1000,7 @@ class SalesScreenState extends State<SalesScreen>{
 
       ProgressHUD.of(context)?.dismiss();
 
-      Fluttertoast.showToast(msg: "Sales Saved",
+      Fluttertoast.showToast(msg: "Saved",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
@@ -992,7 +1008,11 @@ class SalesScreenState extends State<SalesScreen>{
           textColor: Colors.white,
           fontSize: 16.0);
 
-      Navigator.of(context).pop();
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  HomeScreen(personName:"")));
 
     }else{
 

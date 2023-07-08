@@ -190,121 +190,121 @@ class SalesItemState extends State<SalesItemScreen>{
           backgroundColor: Color(0xFF063A06),
           leading: GestureDetector(
             onTap:(){
-              dropdownOptionsProvider.remove();
-              Navigator.of(context).pop();
 
+              Navigator.of(context).pop();
+              dropdownOptionsProvider.remove();
             },
             child:Icon(Icons.cancel),
           ),
           iconTheme: const IconThemeData(color:Colors.white),
         ),
-        body: SingleChildScrollView(
-          child: SizedBox(
-            width: double.infinity,
-            child:  Column(
-                children: [
+        body:SizedBox(
+          width: double.infinity,
+          child:  Column(
+              children: [
 
-                  Container(
-                      height: 90,
-                      margin: EdgeInsets.all(10),
-                      padding: EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                          color: Color(0xFF063A06),
-                          borderRadius: BorderRadius.all(Radius.circular(10.0))
-                      ),
-                      child:Column(
-                        children: [
+                Container(
+                    height: 90,
+                    margin: EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                        color: Color(0xFF063A06),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))
+                    ),
+                    child:Column(
+                      children: [
 
-                          Row(
-                            children: [
+                        Row(
+                          children: [
 
-                              Expanded(
-                                  flex: 1,
-                                  child: Text("${widget.retailerName}",style: TextStyle(color: Colors.white))
-                              ),
-
-                              Expanded(
-                                  flex: 1,
-                                  child: Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Text("Id : ${widget.retailerId}",style: TextStyle(color: Colors.white),)
-                                  )
-                              )
-
-                            ],
-                          ),
-
-                          Padding(
-                            padding: EdgeInsets.only(left: 5,right: 5),
-                            child:  Divider(
-                                thickness: 1.0,
-                                color: Colors.yellow
+                            Expanded(
+                                flex: 1,
+                                child: Text("${widget.retailerName}",style: TextStyle(color: Colors.white))
                             ),
-                          ),
 
-                          Row(
-                            children: [
-
-                              Expanded(
-                                  flex: 1,
-                                  child: Text("${widget.dist}",style: TextStyle(color: Colors.white))),
-
-                              Expanded(
-                                  flex: 1,
-                                  child: Align(
+                            Expanded(
+                                flex: 1,
+                                child: Align(
                                     alignment: Alignment.centerRight,
-                                    child: Text("Date : ${widget.date}",style: TextStyle(color: Colors.white)),
-                                  )
-                              )
+                                    child: Text("Id : ${widget.retailerId}",style: TextStyle(color: Colors.white),)
+                                )
+                            )
 
-                            ],
-                          ),
-
-                        ],
-                      )
-                  ),
-
-                  SizedBox(
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: dynamicList.length,
-                        itemBuilder: (_, index) =>
-                        dynamicList[index]
-                    ),
-                  ),
-
-                  Align(
-                    alignment: FractionalOffset.bottomCenter,
-                    child: GestureDetector(
-
-                      onTap: (){
-                        submitsales(dropdownOptionsProvider);
-                      },
-
-                      child: Container(
-                        margin: const EdgeInsets.all(10),
-                        width: double.infinity,
-                        height: 55,
-                        decoration: BoxDecoration(
-                            color: Color(0xFF063A06),
-                            borderRadius: BorderRadius.all(Radius.circular(15.0))
+                          ],
                         ),
 
-                        child: Center(
-                          child: Text(
-                            "SUBMIT",
-                            style: TextStyle(color: Colors.white),
+                        Padding(
+                          padding: EdgeInsets.only(left: 5,right: 5),
+                          child:  Divider(
+                              thickness: 1.0,
+                              color: Colors.yellow
                           ),
                         ),
+
+                        Row(
+                          children: [
+
+                            Expanded(
+                                flex: 1,
+                                child: Text("${widget.dist}",style: TextStyle(color: Colors.white))),
+
+                            Expanded(
+                                flex: 1,
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text("Date : ${widget.date}",style: TextStyle(color: Colors.white)),
+                                )
+                            )
+
+                          ],
+                        ),
+
+                      ],
+                    )
+                ),
+
+                Expanded(
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: dynamicList.length,
+                      itemBuilder: (_, index) =>
+                      dynamicList[index]
+                  ),
+                ),
+
+                Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: GestureDetector(
+
+                    onTap: (){
+
+                      submitsales(dropdownOptionsProvider);
+
+                    },
+
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      width: double.infinity,
+                      height: 55,
+                      decoration: BoxDecoration(
+                          color: Color(0xFF063A06),
+                          borderRadius: BorderRadius.all(Radius.circular(15.0))
                       ),
 
+                      child: Center(
+                        child: Text(
+                          "SUBMIT",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                     ),
-                  ),
 
-                ]
-            ),
+                  ),
+                ),
+
+              ]
           ),
-        )
+        ),
     );
   }
 
@@ -479,6 +479,7 @@ class SalesItemState extends State<SalesItemScreen>{
 
   Future<List> submitsales(DropdownProvider dropdownOptionsProvider) async {
 
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getInt(Common.USER_ID)!;
     cdate = getcurrentdatewithtime();
@@ -488,12 +489,14 @@ class SalesItemState extends State<SalesItemScreen>{
 
     for(int i=0;i<dynamicList.length;i++){
 
-     items.add(SalesItem(int.parse(dropdownOptionsProvider.selecteditem[i].toString()),int.parse(dropdownOptionsProvider.selecteditemorder[i].toString()),int.parse(dropdownOptionsProvider.selecteditemstock[i].toString()),0));
+     items.add(SalesItem(int.parse(dropdownOptionsProvider.selecteditemid[i].toString()),int.parse(dropdownOptionsProvider.selecteditemorder[i].toString()),int.parse(dropdownOptionsProvider.selecteditemstock[i].toString()),0));
 
     }
 
     for(int i=0;i<dynamicList.length;i++){
+
       schemeitem.add(SchemeItem(int.parse(dropdownOptionsProvider.selectedschemeitemid[i].toString()),dropdownOptionsProvider.selectedschemename[i].toString(),dropdownOptionsProvider.selectedschemeitemorder[i]));
+
     }
 
     var salesentry=[{
@@ -523,7 +526,6 @@ class SalesItemState extends State<SalesItemScreen>{
     }];
 
     var body = json.encode(salesentry);
-    print("body${body.toString()}");
 
     Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -547,7 +549,7 @@ class SalesItemState extends State<SalesItemScreen>{
           textColor: Colors.white,
           fontSize: 16.0);
 
-   //   Navigator.of(context).pop();
+    //Navigator.of(context).pop();
 
     }else{
 
@@ -560,7 +562,6 @@ class SalesItemState extends State<SalesItemScreen>{
           fontSize: 16.0);
 
     }
-
 
     return catenamlist;
 
@@ -577,19 +578,28 @@ class MyWidget extends StatelessWidget {
   TextEditingController stock = new TextEditingController();
   TextEditingController schemorder = new TextEditingController();
   TextEditingController textdata = new TextEditingController();
-
+  String? group;
   MyWidget(this.catenamlist, this.cateidlist,this.idx,this.itemlist,this.itemidlist);
+
+  Future<void> getgroup() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    group = prefs.getInt(Common.GROUP) as String?;
+
+  }
 
   @override
   Widget build(BuildContext context) {
 
     final dropdownOptionsProvider = Provider.of<DropdownProvider>(context);
+
     dropdownOptionsProvider.selectedcategory.add("CANOLA");
     dropdownOptionsProvider.selectedschemecategory.add("CANOLA");
- // dropdownOptionsProvider.selecteditem.add(itemlist[0]);
+    // dropdownOptionsProvider.selecteditem.add("Select item");
+    // dropdownOptionsProvider.selectedschemename.add("Select item");
+    // dropdownOptionsProvider.selecteditem.add(itemlist[0]);
 
     return Container(
-
         width: double.infinity,
         margin: const EdgeInsets.only(right: 5),
         padding: const EdgeInsets.only(left: 5, right: 5),
@@ -645,8 +655,7 @@ class MyWidget extends StatelessWidget {
                     print("$idx ${dropdownOptionsProvider.selecteditem[idx].toString()}") ;
                     return DropdownButton<String>(
                       isExpanded: true,
-
-                      value: dropdownOptionsProvider.selecteditem[idx].toString(),
+                  //    value: dropdownOptionsProvider.selecteditem[idx].toString(),
                       hint: const Text("Select Item",style: TextStyle(fontWeight: FontWeight.w300)),
                       onChanged: (String? newValue) {
 
@@ -667,6 +676,7 @@ class MyWidget extends StatelessWidget {
                       ).toList(),
                     );
                   }
+
                   return Container();
                 },
               ),
@@ -699,7 +709,7 @@ class MyWidget extends StatelessWidget {
 
                                   },
                                   controller: order,
-                                  decoration: InputDecoration(hintText: 'boxes',border: InputBorder.none),
+                                  decoration: InputDecoration(hintText: 'pieces',border: InputBorder.none),
                                 ),
                               ),
                             ),
@@ -725,7 +735,7 @@ class MyWidget extends StatelessWidget {
                                 dropdownOptionsProvider.additemstock(idx,int.parse(value));
                               },
                               controller: textdata,
-                              decoration: const InputDecoration(hintText: 'pieces',border: InputBorder.none),
+                              decoration: const InputDecoration(hintText: 'Stock',border: InputBorder.none),
                             ),
                           ),
                         ),
@@ -745,7 +755,7 @@ class MyWidget extends StatelessWidget {
 
               DropdownButton<String>(
                 isExpanded: true,
-                value:dropdownOptionsProvider.selectedschemecategory.first,
+                value:dropdownOptionsProvider.selectedschemecategory[idx],
                 // hint: const Text("Select Category",style: TextStyle(fontWeight: FontWeight.w300)),
                 onChanged: (String? newValue) {
                   int cateid=0;
@@ -776,7 +786,7 @@ class MyWidget extends StatelessWidget {
                     // dropdownOptionsProvider.selecteditem.add(itemlist[0]);
                     return  DropdownButton<String>(
                       isExpanded: true,
-                      //value: dropdownOptionsProvider.selecteditem[idx],
+                   //   value: dropdownOptionsProvider.selectedschemename[idx],
                       hint: const Text("Select Item",style: TextStyle(fontWeight: FontWeight.w300)),
                       onChanged: (String? newValue) {
                         int itemid=0;

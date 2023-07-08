@@ -11,6 +11,12 @@ import '../config/Common.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../location_service/logic/location_controller/location_controller_cubit.dart';
+import '../notification/notification.dart';
+import '../util/background_service.dart';
+import '../util/shared_preference.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LoginScreen extends StatefulWidget{
 
@@ -26,12 +32,49 @@ class LoginScreenState extends State<LoginScreen>{
   TextEditingController usercontroller = new TextEditingController();
   TextEditingController passcontroller = new TextEditingController();
   bool _obscureText = true;
+  late BackgroundService backgroundService;
 
   @override
   void initState() {
     super.initState();
+    // backgroundService = BackgroundService();
     askpermission();
   }
+
+  //
+  // @pragma('vm:entry-point')
+  // @override
+  // Future<void> didChangeDependencies() async {
+  //   await context.read<NotificationService>().initialize(context);
+  //
+  //   //Start the service automatically if it was activated before closing the application
+  //   if (await backgroundService.instance.isRunning()) {
+  //     await backgroundService.initializeService();
+  //   }
+  //   backgroundService.instance.on('on_location_changed').listen((event) async {
+  //     if (event != null) {
+  //       final position = Position(
+  //         longitude: double.tryParse(event['longitude'].toString()) ?? 0.0,
+  //         latitude: double.tryParse(event['latitude'].toString()) ?? 0.0,
+  //         timestamp: DateTime.fromMillisecondsSinceEpoch(
+  //             event['timestamp'].toInt(),
+  //             isUtc: true),
+  //         accuracy: double.tryParse(event['accuracy'].toString()) ?? 0.0,
+  //         altitude: double.tryParse(event['altitude'].toString()) ?? 0.0,
+  //         heading: double.tryParse(event['heading'].toString()) ?? 0.0,
+  //         speed: double.tryParse(event['speed'].toString()) ?? 0.0,
+  //         speedAccuracy:
+  //         double.tryParse(event['speed_accuracy'].toString()) ?? 0.0,
+  //       );
+  //
+  //       await context
+  //           .read<LocationControllerCubit>()
+  //           .onLocationChanged(location: position);
+  //     }
+  //   });
+  //
+  //   super.didChangeDependencies();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -148,40 +191,92 @@ class LoginScreenState extends State<LoginScreen>{
                               )
                           ),
 
+                          // BlocBuilder<LocationControllerCubit, LocationControllerState>(
+                          //   builder: (context, state) {
+                          //
+                          //       return GestureDetector(
+                          //
+                          //         onTap: () async {
+                          //           // Workmanager().registerPeriodicTask('uniqueName', 'taskName',
+                          //           //     frequency: Duration(seconds: 10));
+                          //
+                          //           // Timer timer;
+                          //           // const duration = Duration(seconds: 10);
+                          //           // timer = Timer.periodic(duration, (Timer t) {
+                          //           //   fetchLocation();
+                          //           // });
+                          //
+                          //
+                          //           FocusScope.of(context).unfocus();
+                          //           await Fluttertoast.showToast(
+                          //             msg: "Wait for a while, Initializing the service...",
+                          //           );
+                          //           final permission = await context.read<LocationControllerCubit>()
+                          //               .enableGPSWithPermission();
+                          //
+                          //           if (permission) {
+                          //             await CustomSharedPreference().storeData(
+                          //               key: SharedPreferenceKeys.userName,
+                          //               data: usercontroller.text.trim(),
+                          //             );
+                          //
+                          //             await context.read<LocationControllerCubit>()
+                          //                 .locationFetchByDeviceGPS();
+                          //             //Configure the service notification channel and start the service
+                          //             await backgroundService.initializeService();
+                          //             //Set service as foreground.(Notification will available till the service end)
+                          //             backgroundService.setServiceAsForeGround();
+                          //
+                          //           }
+                          //           login(ctx);
+                          //           //
+                          //           // progress?.dismiss();
+                          //
+                          //         },
+                          //         child: Container(
+                          //           margin: EdgeInsets.only(left:10,top:40,right:10,bottom: 10),
+                          //           width: double.infinity,
+                          //           height: 55,
+                          //           decoration: BoxDecoration(
+                          //               color: Color(0xFF063A06),
+                          //               borderRadius: BorderRadius.all(Radius.circular(10.0))
+                          //           ),
+                          //
+                          //           child: Center(
+                          //             child: Text(
+                          //               "LOGIN",
+                          //               style: TextStyle(color: Colors.white),
+                          //             ),
+                          //           ),
+                          //         ),
+                          //
+                          //       );
+                          //     }
+                          //
+                          // ),
+
                           GestureDetector(
+                          onTap: () async {
 
-                            onTap: (){
+                            login(ctx);
 
-                              // Workmanager().registerPeriodicTask('uniqueName', 'taskName',
-                              //     frequency: Duration(seconds: 10));
+                          },
+                          child: Container(
+                          margin: EdgeInsets.only(left:10,top:40,right:10,bottom: 10),
+                          width: double.infinity,
+                          height: 55,
+                          decoration: BoxDecoration(
+                            color: Color(0xFF063A06),
+                            borderRadius: BorderRadius.all(Radius.circular(10.0))
+                          ),
 
-                              // Timer timer;
-                              // const duration = Duration(seconds: 10);
-                              // timer = Timer.periodic(duration, (Timer t) {
-                              //   fetchLocation();
-                              // });
-
-                              login(ctx);
-                              //
-                              // progress?.dismiss();
-                            },
-
-                            child: Container(
-                              margin: EdgeInsets.only(left:10,top:40,right:10,bottom: 10),
-                              width: double.infinity,
-                              height: 55,
-                              decoration: BoxDecoration(
-                                  color: Color(0xFF063A06),
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0))
-                              ),
-
-                              child: Center(
-                                child: Text(
-                                  "LOGIN",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
+                          child: Center(
+                            child: Text(
+                            "LOGIN",
+                             style: TextStyle(color: Colors.white),
+                             ),
                             ),
+                           ),
 
                           )
 
@@ -191,8 +286,8 @@ class LoginScreenState extends State<LoginScreen>{
                     )
                 ),
               )
-          ),
-        ),
+           ),
+         ),
         onWillPop: () async{
           return false;
         }
@@ -223,6 +318,7 @@ class LoginScreenState extends State<LoginScreen>{
                       MaterialPageRoute(
                           builder: (context) =>
                               LoginScreen()));
+
                 },
                 child: const Text('Yes'),
               ),
@@ -234,6 +330,7 @@ class LoginScreenState extends State<LoginScreen>{
   }
 
   Future<logindetails> login(context) async {
+
     final progress  = ProgressHUD.of(context);
     progress?.show();
 
@@ -324,14 +421,14 @@ class LoginScreenState extends State<LoginScreen>{
     var camerastatus = await Permission.camera.status;
     var locationstatus = await Permission.camera.status;
     if(camerastatus.isGranted == true && locationstatus.isGranted ==true){
-
-      Fluttertoast.showToast(msg: "1",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      //
+      // Fluttertoast.showToast(msg: "1",
+      //     toastLength: Toast.LENGTH_SHORT,
+      //     gravity: ToastGravity.BOTTOM,
+      //     timeInSecForIosWeb: 1,
+      //     backgroundColor: Colors.black,
+      //     textColor: Colors.white,
+      //     fontSize: 16.0);
 
     }else if(camerastatus.isGranted == false && locationstatus.isGranted ==false){
 
@@ -359,7 +456,6 @@ class LoginScreenState extends State<LoginScreen>{
         openAppSettings();
 
       }else{
-
 
       }
 
